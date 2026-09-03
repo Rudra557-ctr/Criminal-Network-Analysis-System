@@ -1,0 +1,538 @@
+{
+  "nodes": [
+    {
+      "id": "A1",
+      "name": "Anwar Sheikh",
+      "role": "Kingpin",
+      "cell": "A"
+    },
+    {
+      "id": "A2",
+      "name": "Suresh Rane",
+      "role": "Lieutenant",
+      "cell": "A"
+    },
+    {
+      "id": "A3",
+      "name": "Farhan Qureshi",
+      "role": "Lieutenant",
+      "cell": "A"
+    },
+    {
+      "id": "A4",
+      "name": "Vikas Chauhan",
+      "role": "Lieutenant",
+      "cell": "A"
+    },
+    {
+      "id": "A5",
+      "name": "Ganesh Pawar",
+      "role": "Associate",
+      "cell": "A"
+    },
+    {
+      "id": "A6",
+      "name": "Iqbal Khan",
+      "role": "Associate",
+      "cell": "A"
+    },
+    {
+      "id": "A13",
+      "name": "Karan Mehra",
+      "role": "Associate",
+      "cell": "A"
+    },
+    {
+      "id": "A7",
+      "name": "Ramesh Yadav",
+      "role": "Associate",
+      "cell": "A"
+    },
+    {
+      "id": "A8",
+      "name": "Sanjay More",
+      "role": "Associate",
+      "cell": "A"
+    },
+    {
+      "id": "A9",
+      "name": "Tariq Ansari",
+      "role": "Associate",
+      "cell": "A"
+    },
+    {
+      "id": "A10",
+      "name": "Faisal Shah",
+      "role": "Associate",
+      "cell": "A"
+    },
+    {
+      "id": "A11",
+      "name": "Meena Joshi",
+      "role": "Accountant",
+      "cell": "A"
+    },
+    {
+      "id": "A12",
+      "name": "Rohit Bhatt",
+      "role": "Safehouse keeper",
+      "cell": "A"
+    },
+    {
+      "id": "B1",
+      "name": "Rajan Naik",
+      "role": "Kingpin",
+      "cell": "B"
+    },
+    {
+      "id": "B2",
+      "name": "Salim Pathan",
+      "role": "Lieutenant",
+      "cell": "B"
+    },
+    {
+      "id": "B3",
+      "name": "Vinod Chavan",
+      "role": "Lieutenant",
+      "cell": "B"
+    },
+    {
+      "id": "B4",
+      "name": "Nitin Kamble",
+      "role": "Lieutenant",
+      "cell": "B"
+    },
+    {
+      "id": "B5",
+      "name": "Ashok Gaikwad",
+      "role": "Courier",
+      "cell": "B"
+    },
+    {
+      "id": "B6",
+      "name": "Imran Baig",
+      "role": "Courier",
+      "cell": "B"
+    },
+    {
+      "id": "B13",
+      "name": "Sameer Jadhav",
+      "role": "Courier",
+      "cell": "B"
+    },
+    {
+      "id": "B7",
+      "name": "Deepak Sawant",
+      "role": "Courier",
+      "cell": "B"
+    },
+    {
+      "id": "B8",
+      "name": "Waseem Ali",
+      "role": "Courier",
+      "cell": "B"
+    },
+    {
+      "id": "B9",
+      "name": "Rafiq Shaikh",
+      "role": "Courier",
+      "cell": "B"
+    },
+    {
+      "id": "B10",
+      "name": "Ganesh Pandit",
+      "role": "Courier",
+      "cell": "B"
+    },
+    {
+      "id": "B11",
+      "name": "Kavita Desai",
+      "role": "Financier",
+      "cell": "B"
+    },
+    {
+      "id": "B12",
+      "name": "Mohsin Qureshi",
+      "role": "Cache keeper",
+      "cell": "B"
+    },
+    {
+      "id": "C1",
+      "name": "Prakash Shetty",
+      "role": "Kingpin",
+      "cell": "C"
+    },
+    {
+      "id": "C2",
+      "name": "Nasir Malik",
+      "role": "Lieutenant",
+      "cell": "C"
+    },
+    {
+      "id": "C3",
+      "name": "Ravi Kadam",
+      "role": "Lieutenant",
+      "cell": "C"
+    },
+    {
+      "id": "C4",
+      "name": "Baban Surve",
+      "role": "Lieutenant",
+      "cell": "C"
+    },
+    {
+      "id": "C5",
+      "name": "Yusuf Ali",
+      "role": "Enforcer",
+      "cell": "C"
+    },
+    {
+      "id": "C6",
+      "name": "Santosh Bhosale",
+      "role": "Enforcer",
+      "cell": "C"
+    },
+    {
+      "id": "C13",
+      "name": "Ramesh Chougule",
+      "role": "Enforcer",
+      "cell": "C"
+    },
+    {
+      "id": "C7",
+      "name": "Aslam Pathan",
+      "role": "Enforcer",
+      "cell": "C"
+    },
+    {
+      "id": "C8",
+      "name": "Mahesh Gupta",
+      "role": "Enforcer",
+      "cell": "C"
+    },
+    {
+      "id": "C9",
+      "name": "Irfan Sheikh",
+      "role": "Enforcer",
+      "cell": "C"
+    },
+    {
+      "id": "C10",
+      "name": "Vijay Salunkhe",
+      "role": "Enforcer",
+      "cell": "C"
+    },
+    {
+      "id": "C11",
+      "name": "Neha Kulkarni",
+      "role": "Accountant",
+      "cell": "C"
+    },
+    {
+      "id": "C12",
+      "name": "Sunil Pillai",
+      "role": "Collection agent",
+      "cell": "C"
+    },
+    {
+      "id": "X1",
+      "name": "Dinesh Mehta",
+      "role": "Hawala operator",
+      "cell": "Bridge"
+    },
+    {
+      "id": "X2",
+      "name": "Javed Ansari",
+      "role": "Weapons supplier",
+      "cell": "Bridge"
+    },
+    {
+      "id": "X3",
+      "name": "Arvind Kapoor",
+      "role": "Logistics broker",
+      "cell": "Bridge"
+    },
+    {
+      "id": "X4",
+      "name": "R.K. Verma",
+      "role": "Corrupt police contact",
+      "cell": "Bridge"
+    }
+  ],
+  "edges": [
+    {
+      "source": "A1",
+      "target": "A2",
+      "relation": "commands"
+    },
+    {
+      "source": "A1",
+      "target": "A3",
+      "relation": "commands"
+    },
+    {
+      "source": "A1",
+      "target": "A4",
+      "relation": "commands"
+    },
+    {
+      "source": "A2",
+      "target": "A5",
+      "relation": "commands"
+    },
+    {
+      "source": "A2",
+      "target": "A6",
+      "relation": "commands"
+    },
+    {
+      "source": "A2",
+      "target": "A13",
+      "relation": "commands"
+    },
+    {
+      "source": "A3",
+      "target": "A7",
+      "relation": "commands"
+    },
+    {
+      "source": "A3",
+      "target": "A8",
+      "relation": "commands"
+    },
+    {
+      "source": "A4",
+      "target": "A9",
+      "relation": "commands"
+    },
+    {
+      "source": "A4",
+      "target": "A10",
+      "relation": "commands"
+    },
+    {
+      "source": "A1",
+      "target": "A11",
+      "relation": "manages_finances"
+    },
+    {
+      "source": "A1",
+      "target": "A12",
+      "relation": "runs_operations"
+    },
+    {
+      "source": "B1",
+      "target": "B2",
+      "relation": "commands"
+    },
+    {
+      "source": "B1",
+      "target": "B3",
+      "relation": "commands"
+    },
+    {
+      "source": "B1",
+      "target": "B4",
+      "relation": "commands"
+    },
+    {
+      "source": "B2",
+      "target": "B5",
+      "relation": "commands"
+    },
+    {
+      "source": "B2",
+      "target": "B6",
+      "relation": "commands"
+    },
+    {
+      "source": "B2",
+      "target": "B13",
+      "relation": "commands"
+    },
+    {
+      "source": "B3",
+      "target": "B7",
+      "relation": "commands"
+    },
+    {
+      "source": "B3",
+      "target": "B8",
+      "relation": "commands"
+    },
+    {
+      "source": "B4",
+      "target": "B9",
+      "relation": "commands"
+    },
+    {
+      "source": "B4",
+      "target": "B10",
+      "relation": "commands"
+    },
+    {
+      "source": "B1",
+      "target": "B11",
+      "relation": "manages_finances"
+    },
+    {
+      "source": "B1",
+      "target": "B12",
+      "relation": "runs_operations"
+    },
+    {
+      "source": "C1",
+      "target": "C2",
+      "relation": "commands"
+    },
+    {
+      "source": "C1",
+      "target": "C3",
+      "relation": "commands"
+    },
+    {
+      "source": "C1",
+      "target": "C4",
+      "relation": "commands"
+    },
+    {
+      "source": "C2",
+      "target": "C5",
+      "relation": "commands"
+    },
+    {
+      "source": "C2",
+      "target": "C6",
+      "relation": "commands"
+    },
+    {
+      "source": "C2",
+      "target": "C13",
+      "relation": "commands"
+    },
+    {
+      "source": "C3",
+      "target": "C7",
+      "relation": "commands"
+    },
+    {
+      "source": "C3",
+      "target": "C8",
+      "relation": "commands"
+    },
+    {
+      "source": "C4",
+      "target": "C9",
+      "relation": "commands"
+    },
+    {
+      "source": "C4",
+      "target": "C10",
+      "relation": "commands"
+    },
+    {
+      "source": "C1",
+      "target": "C11",
+      "relation": "manages_finances"
+    },
+    {
+      "source": "C1",
+      "target": "C12",
+      "relation": "runs_operations"
+    },
+    {
+      "source": "X1",
+      "target": "A11",
+      "relation": "launders_for"
+    },
+    {
+      "source": "X1",
+      "target": "B11",
+      "relation": "launders_for"
+    },
+    {
+      "source": "X1",
+      "target": "C11",
+      "relation": "launders_for"
+    },
+    {
+      "source": "X2",
+      "target": "B1",
+      "relation": "supplies_weapons"
+    },
+    {
+      "source": "X2",
+      "target": "C1",
+      "relation": "supplies_weapons"
+    },
+    {
+      "source": "X3",
+      "target": "A1",
+      "relation": "provides_logistics"
+    },
+    {
+      "source": "X3",
+      "target": "B1",
+      "relation": "provides_logistics"
+    },
+    {
+      "source": "X4",
+      "target": "A2",
+      "relation": "tips_off"
+    },
+    {
+      "source": "X4",
+      "target": "B2",
+      "relation": "tips_off"
+    },
+    {
+      "source": "X4",
+      "target": "C2",
+      "relation": "tips_off"
+    }
+  ],
+  "events": [
+    {
+      "id": "EVENT_A",
+      "cell": "A",
+      "type": "drug_shipment",
+      "day": 58,
+      "core_participants": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A11",
+        "A12"
+      ]
+    },
+    {
+      "id": "EVENT_B",
+      "cell": "B",
+      "type": "arms_shipment",
+      "day": 61,
+      "core_participants": [
+        "B1",
+        "B2",
+        "B3",
+        "B4",
+        "B11",
+        "B12"
+      ]
+    },
+    {
+      "id": "EVENT_C",
+      "cell": "C",
+      "type": "extortion_collection",
+      "day": 64,
+      "core_participants": [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C11",
+        "C12"
+      ]
+    }
+  ]
+}
