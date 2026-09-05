@@ -5388,3 +5388,77 @@
 {"ts": "2026-09-05T14:06:41.027294Z", "user": "demo-operator", "query": "/bursts", "result_ids": ["A:2", "A:17", "A:21", "A:32", "A:49", "A:53", "A:56", "A:57", "A:69", "A:71", "A:82", "A:86", "B:4", "B:5", "B:12", "B:22", "B:36", "B:55", "B:56", "B:70", "B:73", "B:79", "B:88", "C:4", "C:11", "C:28", "C:40", "C:58", "C:59", "C:78"]}
 {"ts": "2026-09-05T14:06:44.852387Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["45799334", "6c3d8032", "50c39de8", "fa2af56b", "aba5e8b6"]}
 {"ts": "2026-09-05T14:06:44.878790Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["45799334", "6c3d8032", "50c39de8", "fa2af56b", "aba5e8b6"]}
+{"ts": "2026-09-05T14:26:00.312328Z", "user": "demo-operator", "query": "POST /login admin (supervisor)", "result_ids": ["admin"]}
+{"ts": "2026-09-05T14:26:00.904347Z", "user": "demo-operator", "query": "/bridges", "result_ids": ["B1", "C12", "B11", "C2", "X3", "X4"]}
+{"ts": "2026-09-05T14:26:00.910275Z", "user": "demo-operator", "query": "/bursts", "result_ids": ["A:2", "A:17", "A:21", "A:32", "A:49", "A:53", "A:56", "A:57", "A:69", "A:71", "A:82", "A:86", "B:4", "B:5", "B:12", "B:22", "B:36", "B:55", "B:56", "B:70", "B:73", "B:79", "B:88", "C:4", "C:11", "C:28", "C:40", "C:58", "C:59", "C:78"]}
+{"ts": "2026-09-05T14:26:01.168649Z", "user": "demo-operator", "query": "/ask?q=Who connects Cell A and Cell B", "result_ids": [1]}
+{"ts": "2026-09-05T14:26:01.171041Z", "user": "demo-operator", "query": "/ask?q=blabla unknown gibberish (unknown)", "result_ids": []}
+{"ts": "2026-09-05T14:26:01.173665Z", "user": "demo-operator", "query": "POST /investigations 89adb610", "result_ids": ["89adb610"]}
+{"ts": "2026-09-05T14:26:01.247667Z", "user": "demo-operator", "query": "POST /investigations/89adb610/process", "result_ids": [356]}
+{"ts": "2026-09-05T14:26:01.260575Z", "user": "demo-operator", "query": "/investigations/89adb610/whatif?remove_id=X1", "result_ids": ["X1"]}
+{"ts": "2026-09-05T14:26:01.267662Z", "user": "demo-operator", "query": "POST /investigations 90a89e6f", "result_ids": ["90a89e6f"]}
+{"ts": "2026-09-05T14:26:01.348130Z", "user": "demo-operator", "query": "POST /investigations/90a89e6f/process", "result_ids": [356]}
+{"ts": "2026-09-05T14:26:01.369697Z", "user": "demo-operator", "query": "POST /investigations d35949f7", "result_ids": ["d35949f7"]}
+{"ts": "2026-09-05T14:26:01.425099Z", "user": "demo-operator", "query": "POST /investigations/d35949f7/process", "result_ids": [356]}
+{"ts": "2026-09-05T14:26:01.427015Z", "user": "demo-operator", "query": "POST /login analyst (analyst)", "result_ids": ["analyst"]}
+{"ts": "2026-09-05T14:26:01.428970Z", "user": "demo-operator", "query": "POST /login investigator (investigator)", "result_ids": ["investigator"]}
+{"ts": "2026-09-05T14:26:01.433232Z", "user": "demo-operator", "query": "/investigations/d35949f7/whatif?remove_id=X1", "result_ids": ["X1"]}
+{"ts": "2026-09-05T14:26:01.434762Z", "user": "demo-operator", "query": "POST /login admin (supervisor)", "result_ids": ["admin"]}
+{"ts": "2026-09-05T14:26:01.435914Z", "user": "demo-operator", "query": "POST /login analyst (analyst)", "result_ids": ["analyst"]}
+{"ts": "2026-09-05T14:26:01.437968Z", "user": "demo-operator", "query": "POST /login investigator (investigator)", "result_ids": ["investigator"]}
+{"ts": "2026-09-05T14:26:01.439253Z", "user": "demo-operator", "query": "POST /login failed for 'admin'", "result_ids": []}
+{"ts": "2026-09-05T14:26:01.440376Z", "user": "demo-operator", "query": "POST /login failed for 'mallory'", "result_ids": []}
+{"ts": "2026-09-05T14:26:01.909561Z", "user": "demo-operator", "query": "POST /register judge_155b45f3 (investigator)", "result_ids": ["judge_155b45f3"]}
+{"ts": "2026-09-05T14:26:02.123863Z", "user": "demo-operator", "query": "POST /register analyst_74e7447c (analyst)", "result_ids": ["analyst_74e7447c"]}
+{"ts": "2026-09-05T14:26:02.125422Z", "user": "demo-operator", "query": "POST /register judge_66c989a4 (investigator)", "result_ids": ["judge_66c989a4"]}
+{"ts": "2026-09-05T14:26:02.130473Z", "user": "demo-operator", "query": "POST /investigations a6f210b5", "result_ids": ["a6f210b5"]}
+{"ts": "2026-09-05T14:26:02.132962Z", "user": "demo-operator", "query": "DELETE /investigations/a6f210b5 by admin", "result_ids": ["a6f210b5"]}
+{"ts": "2026-09-05T14:26:02.134601Z", "user": "demo-operator", "query": "POST /investigations 38d77497", "result_ids": ["38d77497"]}
+{"ts": "2026-09-05T14:26:02.136136Z", "user": "demo-operator", "query": "DELETE /investigations/38d77497 by analyst", "result_ids": ["38d77497"]}
+{"ts": "2026-09-05T14:26:02.140204Z", "user": "demo-operator", "query": "POST /investigations 1338adb4", "result_ids": ["1338adb4"]}
+{"ts": "2026-09-05T14:26:02.141905Z", "user": "demo-operator", "query": "DELETE /investigations/1338adb4 by admin", "result_ids": ["1338adb4"]}
+{"ts": "2026-09-05T14:26:03.074602Z", "user": "demo-operator", "query": "/leads?limit=5", "result_ids": ["B1", "C12", "B11", "A1", "C2"]}
+{"ts": "2026-09-05T14:26:03.104585Z", "user": "demo-operator", "query": "/cross-case", "result_ids": ["LOC:Lakeview Chowk", "LOC:Eastgate", "LOC:Old Market Circle", "LOC:Riverside Colony", "B1", "LOC:Industrial Estate Road", "LOC:North Bypass", "LOC:New Colony", "C1", "LOC:Dockside Ward"]}
+{"ts": "2026-09-05T14:26:03.109958Z", "user": "demo-operator", "query": "/temporal", "result_ids": ["[2, 5]", "[4, 11]", "[5, 12]", "[11, 17]", "[17, 22]", "[21, 28]", "[28, 32]", "[32, 36]", "[36, 40]", "[49, 56]", "[53, 59]", "[69, 73]", "[71, 78]", "[73, 79]", "[78, 82]", "[79, 86]", "[82, 88]"]}
+{"ts": "2026-09-05T14:26:46.040944Z", "user": "demo-operator", "query": "POST /login admin (supervisor)", "result_ids": ["admin"]}
+{"ts": "2026-09-05T14:26:46.364166Z", "user": "demo-operator", "query": "/graph?day=58", "result_ids": ["A1", "PHONE_7000000001", "ACCT_AC0009000001", "A2", "PHONE_7000000002", "ACCT_AC0009000002", "A3", "PHONE_7000000003", "ACCT_AC0009000003", "A4", "PHONE_7000000004", "ACCT_AC0009000004", "A5", "PHONE_7000000005", "ACCT_AC0009000005", "A6", "PHONE_7000000006", "ACCT_AC0009000006", "A13", "PHONE_7000000007"]}
+{"ts": "2026-09-05T14:26:46.405740Z", "user": "demo-operator", "query": "/bridges", "result_ids": ["B1", "C12", "B11", "C2", "X3", "X4"]}
+{"ts": "2026-09-05T14:26:46.411966Z", "user": "demo-operator", "query": "/bursts", "result_ids": ["A:2", "A:17", "A:21", "A:32", "A:49", "A:53", "A:56", "A:57", "A:69", "A:71", "A:82", "A:86", "B:4", "B:5", "B:12", "B:22", "B:36", "B:55", "B:56", "B:70", "B:73", "B:79", "B:88", "C:4", "C:11", "C:28", "C:40", "C:58", "C:59", "C:78"]}
+{"ts": "2026-09-05T14:26:46.702321Z", "user": "demo-operator", "query": "/why/X1", "result_ids": ["X1", "TXN00157", "people_directory", "people_directory", "CDR00351", "CDR00352", "CDR00353", "CDR00354", "CDR00355", "CDR00356", "CDR00357", "CDR00358", "CDR00535"]}
+{"ts": "2026-09-05T14:26:46.709972Z", "user": "demo-operator", "query": "/ask?q=Who connects Cell A and Cell B", "result_ids": [1]}
+{"ts": "2026-09-05T14:26:46.711523Z", "user": "demo-operator", "query": "/ask?q=blabla unknown gibberish (unknown)", "result_ids": []}
+{"ts": "2026-09-05T14:26:46.713374Z", "user": "demo-operator", "query": "POST /investigations 1fcbd283", "result_ids": ["1fcbd283"]}
+{"ts": "2026-09-05T14:26:46.763492Z", "user": "demo-operator", "query": "POST /investigations/1fcbd283/process", "result_ids": [356]}
+{"ts": "2026-09-05T14:26:46.768316Z", "user": "demo-operator", "query": "/investigations/1fcbd283/whatif?remove_id=X1", "result_ids": ["X1"]}
+{"ts": "2026-09-05T14:26:46.770382Z", "user": "demo-operator", "query": "POST /investigations 13ce419d", "result_ids": ["13ce419d"]}
+{"ts": "2026-09-05T14:26:46.825257Z", "user": "demo-operator", "query": "POST /investigations/13ce419d/process", "result_ids": [356]}
+{"ts": "2026-09-05T14:26:46.830004Z", "user": "demo-operator", "query": "POST /investigations 6f4e1729", "result_ids": ["6f4e1729"]}
+{"ts": "2026-09-05T14:26:46.879356Z", "user": "demo-operator", "query": "POST /investigations/6f4e1729/process", "result_ids": [356]}
+{"ts": "2026-09-05T14:26:46.881390Z", "user": "demo-operator", "query": "POST /login analyst (analyst)", "result_ids": ["analyst"]}
+{"ts": "2026-09-05T14:26:46.883034Z", "user": "demo-operator", "query": "POST /login investigator (investigator)", "result_ids": ["investigator"]}
+{"ts": "2026-09-05T14:26:46.887078Z", "user": "demo-operator", "query": "/investigations/6f4e1729/whatif?remove_id=X1", "result_ids": ["X1"]}
+{"ts": "2026-09-05T14:26:46.888565Z", "user": "demo-operator", "query": "POST /login admin (supervisor)", "result_ids": ["admin"]}
+{"ts": "2026-09-05T14:26:46.889334Z", "user": "demo-operator", "query": "POST /login analyst (analyst)", "result_ids": ["analyst"]}
+{"ts": "2026-09-05T14:26:46.890183Z", "user": "demo-operator", "query": "POST /login investigator (investigator)", "result_ids": ["investigator"]}
+{"ts": "2026-09-05T14:26:46.891337Z", "user": "demo-operator", "query": "POST /login failed for 'admin'", "result_ids": []}
+{"ts": "2026-09-05T14:26:46.892386Z", "user": "demo-operator", "query": "POST /login failed for 'mallory'", "result_ids": []}
+{"ts": "2026-09-05T14:26:46.951992Z", "user": "demo-operator", "query": "/graph?day=58", "result_ids": ["A1", "PHONE_7000000001", "ACCT_AC0009000001", "A2", "PHONE_7000000002", "ACCT_AC0009000002", "A3", "PHONE_7000000003", "ACCT_AC0009000003", "A4", "PHONE_7000000004", "ACCT_AC0009000004", "A5", "PHONE_7000000005", "ACCT_AC0009000005", "A6", "PHONE_7000000006", "ACCT_AC0009000006", "A13", "PHONE_7000000007"]}
+{"ts": "2026-09-05T14:26:46.956467Z", "user": "demo-operator", "query": "/ask?q=Why was X1 flagged", "result_ids": [3]}
+{"ts": "2026-09-05T14:26:46.993746Z", "user": "demo-operator", "query": "/graph?day=58", "result_ids": ["A1", "PHONE_7000000001", "ACCT_AC0009000001", "A2", "PHONE_7000000002", "ACCT_AC0009000002", "A3", "PHONE_7000000003", "ACCT_AC0009000003", "A4", "PHONE_7000000004", "ACCT_AC0009000004", "A5", "PHONE_7000000005", "ACCT_AC0009000005", "A6", "PHONE_7000000006", "ACCT_AC0009000006", "A13", "PHONE_7000000007"]}
+{"ts": "2026-09-05T14:26:47.000221Z", "user": "demo-operator", "query": "/bursts", "result_ids": ["A:2", "A:17", "A:21", "A:32", "A:49", "A:53", "A:56", "A:57", "A:69", "A:71", "A:82", "A:86", "B:4", "B:5", "B:12", "B:22", "B:36", "B:55", "B:56", "B:70", "B:73", "B:79", "B:88", "C:4", "C:11", "C:28", "C:40", "C:58", "C:59", "C:78"]}
+{"ts": "2026-09-05T14:26:47.100654Z", "user": "demo-operator", "query": "/leads?limit=20", "result_ids": ["B1", "C12", "B11", "A1", "C2", "C1", "A2", "B2", "C11", "C4"]}
+{"ts": "2026-09-05T14:26:47.105213Z", "user": "demo-operator", "query": "POST /register judge_deb0e57a (investigator)", "result_ids": ["judge_deb0e57a"]}
+{"ts": "2026-09-05T14:26:47.142077Z", "user": "demo-operator", "query": "/graph?day=58", "result_ids": ["A1", "PHONE_7000000001", "ACCT_AC0009000001", "A2", "PHONE_7000000002", "ACCT_AC0009000002", "A3", "PHONE_7000000003", "ACCT_AC0009000003", "A4", "PHONE_7000000004", "ACCT_AC0009000004", "A5", "PHONE_7000000005", "ACCT_AC0009000005", "A6", "PHONE_7000000006", "ACCT_AC0009000006", "A13", "PHONE_7000000007"]}
+{"ts": "2026-09-05T14:26:47.151829Z", "user": "demo-operator", "query": "POST /register analyst_da7188e4 (analyst)", "result_ids": ["analyst_da7188e4"]}
+{"ts": "2026-09-05T14:26:47.153137Z", "user": "demo-operator", "query": "POST /register judge_6cc3298f (investigator)", "result_ids": ["judge_6cc3298f"]}
+{"ts": "2026-09-05T14:26:47.157782Z", "user": "demo-operator", "query": "POST /investigations df1a82ad", "result_ids": ["df1a82ad"]}
+{"ts": "2026-09-05T14:26:47.160708Z", "user": "demo-operator", "query": "DELETE /investigations/df1a82ad by admin", "result_ids": ["df1a82ad"]}
+{"ts": "2026-09-05T14:26:47.162435Z", "user": "demo-operator", "query": "POST /investigations 774b8a8f", "result_ids": ["774b8a8f"]}
+{"ts": "2026-09-05T14:26:47.164950Z", "user": "demo-operator", "query": "DELETE /investigations/774b8a8f by admin", "result_ids": ["774b8a8f"]}
+{"ts": "2026-09-05T14:26:47.166192Z", "user": "demo-operator", "query": "POST /investigations 6cbf75b7", "result_ids": ["6cbf75b7"]}
+{"ts": "2026-09-05T14:26:47.168500Z", "user": "demo-operator", "query": "DELETE /investigations/6cbf75b7 by admin", "result_ids": ["6cbf75b7"]}
+{"ts": "2026-09-05T14:26:47.170036Z", "user": "demo-operator", "query": "POST /investigations 6b5219df", "result_ids": ["6b5219df"]}
+{"ts": "2026-09-05T14:26:47.171541Z", "user": "demo-operator", "query": "DELETE /investigations/6b5219df by admin", "result_ids": ["6b5219df"]}
+{"ts": "2026-09-05T14:26:48.105250Z", "user": "demo-operator", "query": "/leads?limit=5", "result_ids": ["B1", "C12", "B11", "A1", "C2"]}
+{"ts": "2026-09-05T14:26:48.135221Z", "user": "demo-operator", "query": "/cross-case", "result_ids": ["LOC:Lakeview Chowk", "LOC:Eastgate", "LOC:Old Market Circle", "B1", "LOC:Riverside Colony", "LOC:Industrial Estate Road", "LOC:North Bypass", "LOC:New Colony", "C1", "LOC:Dockside Ward"]}
+{"ts": "2026-09-05T14:26:48.140677Z", "user": "demo-operator", "query": "/temporal", "result_ids": ["[2, 5]", "[4, 11]", "[5, 12]", "[11, 17]", "[17, 22]", "[21, 28]", "[28, 32]", "[32, 36]", "[36, 40]", "[49, 56]", "[53, 59]", "[69, 73]", "[71, 78]", "[73, 79]", "[78, 82]", "[79, 86]", "[82, 88]"]}

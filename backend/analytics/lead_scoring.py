@@ -34,12 +34,12 @@ from backend.analytics.temporal import get_temporal_intelligence, temporal_for_e
 def _normalize(value, max_val):
     return min(1.0, value / max_val) if max_val else 0.0
 
-def compute_lead_scores(datasets: Dict = None) -> List[Dict]:
+def compute_lead_scores(datasets: Dict = None, graph_serial: Dict = None) -> List[Dict]:
     if datasets is None:
         datasets, _ = load_all(DATA_DIR)
-    # Precompute signals
-    bridges = {b["id"]: b for b in compute_bridges()}
-    cent = {c["id"]: c for c in compute_centrality()}
+    # Precompute signals dynamically
+    bridges = {b["id"]: b for b in compute_bridges(graph_serial=graph_serial)}
+    cent = {c["id"]: c for c in compute_centrality(graph_serial=graph_serial)}
     max_bet = max((c.get("betweenness",0) for c in cent.values()), default=1) or 1
     max_deg = max((c.get("degree",0) for c in cent.values()), default=1) or 1
 
@@ -163,13 +163,12 @@ def compute_lead_scores(datasets: Dict = None) -> List[Dict]:
     leads.sort(key=lambda x: x["lead_score"], reverse=True)
     return leads
 
-def get_leads(limit: int = 20, datasets: Dict = None) -> List[Dict]:
-    all_leads = compute_lead_scores(datasets)
-    # Optional filter: hide isolated Noise degree<2 at top? Keep but they will be low due to low signals
+def get_leads(limit: int = 20, datasets: Dict = None, graph_serial: Dict = None) -> List[Dict]:
+    all_leads = compute_lead_scores(datasets, graph_serial)
     return all_leads[:limit]
 
-def lead_for_entity(entity_id: str, datasets: Dict = None) -> Dict:
-    for l in compute_lead_scores(datasets):
+def lead_for_entity(entity_id: str, datasets: Dict = None, graph_serial: Dict = None) -> Dict:
+    for l in compute_lead_scores(datasets, graph_serial):
         if l["entity_id"] == entity_id:
             return l
     return None

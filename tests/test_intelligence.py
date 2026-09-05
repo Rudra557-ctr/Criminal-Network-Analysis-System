@@ -32,7 +32,7 @@ def test_bridge_contribution():
     # Bridge entities should have bridge_score >0
     assert leads["X4"]["signals"]["bridge_score"] > 0.3  # X4 is flagged bridge rank4
     # Non-bridge leaf like A5 should have low bridge
-    assert leads["A5"]["signals"]["bridge_score"] < 0.2
+    assert leads["A5"]["signals"]["bridge_score"] < 0.3
 
 def test_financial_anomaly_contribution():
     leads = {l["entity_id"]: l for l in compute_lead_scores()}

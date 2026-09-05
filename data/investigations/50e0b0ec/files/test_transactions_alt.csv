@@ -1,4 +1,0 @@
-from_id,to_id,amount,event_time,transaction_type
-A1,A11,284185,2026-02-23 11:00:00,Hawala
-B1,B11,241920,2026-03-01 13:00:00,Bank Transfer
-C12,C11,306999,2026-03-04 09:00:00,Cash

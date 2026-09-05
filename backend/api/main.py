@@ -139,8 +139,8 @@ def get_inv(iid: str, user: dict = Depends(get_current_user)):
 
 
 @app.delete("/investigations/{iid}")
-def delete_inv(iid: str, user: dict = Depends(get_current_user)):
-    """Delete an investigation: filesystem data + Neo4j graph nodes."""
+def delete_inv(iid: str, user: dict = Depends(REQUIRE_SUPERVISOR)):
+    """Delete an investigation: filesystem data + Neo4j graph nodes. Supervisor only."""
     from backend.ingestion.store import delete_investigation
     from backend.graph.neo4j_client import delete_investigation_graph
 
@@ -285,20 +285,36 @@ def inv_set_mapping(iid: str, payload: Dict, user: dict = Depends(CAN_UPLOAD)):
     return get_meta(iid)
 
 @app.get("/people/search")
-def people_search(q: str = Query(..., description="Search person by name, ID, phone, account"), user: dict = Depends(get_current_user)):
-    # Global search across people_directory + graph, supports phone/account
+def people_search(q: str = Query(..., description="Search person by name, ID, phone, account"),
+                  iid: Optional[str] = Query(None), user: dict = Depends(get_current_user)):
     qlow = q.strip().lower()
-    import json as js
-    pd = js.loads((DATA_DIR / "people_directory.json").read_text())
-    allp = pd.get("network_people", []) + pd.get("noise_people", [])
     hits = []
-    for p in allp:
-        if qlow in p["id"].lower() or qlow in p["name"].lower() or qlow in p.get("phone","").lower() or qlow in p.get("account","").lower():
-            hits.append(p)
-        elif qlow in p["name"].lower().split()[0]:  # first name
-            hits.append(p)
-    # also try graph search for partial via why
-    return {"query": q, "results": hits[:10], "count": len(hits)}
+    import json as js
+    if iid and (INV_ROOT / iid / "output" / "graph.json").exists():
+        serial = js.loads((INV_ROOT / iid / "output" / "graph.json").read_text())
+        for n in serial.get("nodes", []):
+            label = str(n.get("label") or n.get("name") or n.get("id"))
+            phone = str(n.get("phone") or "")
+            acct = str(n.get("account") or "")
+            nid = str(n.get("id") or "")
+            if qlow in nid.lower() or qlow in label.lower() or (phone and qlow in phone.lower()) or (acct and qlow in acct.lower()):
+                hits.append({
+                    "id": n["id"],
+                    "name": label,
+                    "cell": n.get("cell", "Unknown"),
+                    "role": n.get("role", ""),
+                    "phone": n.get("phone", ""),
+                    "account": n.get("account", "")
+                })
+    else:
+        pd = js.loads((DATA_DIR / "people_directory.json").read_text())
+        allp = pd.get("network_people", []) + pd.get("noise_people", [])
+        for p in allp:
+            if qlow in p["id"].lower() or qlow in p["name"].lower() or qlow in p.get("phone","").lower() or qlow in p.get("account","").lower():
+                hits.append(p)
+            elif qlow in p["name"].lower().split()[0]:  # first name
+                hits.append(p)
+    return {"query": q, "results": hits[:15], "count": len(hits)}
 
 @app.post("/investigations/{iid}/process")
 def inv_process(iid: str, user: dict = Depends(get_current_user)):
@@ -452,8 +468,10 @@ def inv_process(iid: str, user: dict = Depends(get_current_user)):
         w = csvm.DictWriter(fh, fieldnames=["row_no","source_file","reason","confidence"])
         w.writeheader()
         w.writerows(quarantine)
-    # Also save mapped preview
+    # Also save mapped preview + full datasets for per-case analytics
+    import json
     (INV_ROOT / iid / "mapped" / "datasets.json").write_text(json.dumps({k: (v[:2] if isinstance(v,list) else v) for k,v in inv_datasets.items()}, indent=2, default=str))
+    (INV_ROOT / iid / "mapped" / "full_datasets.json").write_text(json.dumps(inv_datasets, indent=2, default=str))
     set_processing(iid, "completed", {"entities": len(all_entities), "relationships": len(relationships), "graph_nodes": serial["stats"]["node_count"], "graph_edges": serial["stats"]["edge_count"]})
     audit_log(f"POST /investigations/{iid}/process", [serial["stats"]["node_count"]])
     return {"status": "completed", "stats": serial["stats"], "entities": len(all_entities), "relationships": len(relationships)}
@@ -468,6 +486,18 @@ def inv_stats(iid: str, user: dict = Depends(get_current_user)):
     serial = js.loads(out.read_text())
     return {"investigation": meta, "graph": serial["stats"]}
 
+@app.get("/investigations/{iid}/leads")
+def inv_leads(iid: str, limit: int = Query(20, ge=1, le=100), user: dict = Depends(get_current_user)):
+    out = INV_ROOT / iid / "output" / "graph.json"
+    if not out.exists():
+        raise HTTPException(status_code=404, detail="Not processed")
+    import json as js
+    serial = js.loads(out.read_text())
+    full_ds_path = INV_ROOT / iid / "mapped" / "full_datasets.json"
+    ds = js.loads(full_ds_path.read_text()) if full_ds_path.exists() else None
+    leads = get_leads(limit=limit, datasets=ds, graph_serial=serial)
+    return {"leads": leads[:limit], "investigation_id": iid}
+
 @app.get("/investigations/{iid}/graph")
 def inv_graph(iid: str, day: Optional[int] = Query(None, ge=1, le=90), user: dict = Depends(CAN_VIEW_GRAPH)):
     out = INV_ROOT / iid / "output" / "graph.json"
@@ -481,8 +511,9 @@ def inv_graph(iid: str, day: Optional[int] = Query(None, ge=1, le=90), user: dic
         incident = set()
         for e in filtered_edges:
             incident.add(e["src"]); incident.add(e["dst"])
+        top_bridges = {b["id"] for b in compute_bridges(graph_serial=serial)[:6]}
         for n in nodes:
-            if n["id"] in ("X1","X2","X3","X4"):
+            if n["id"] in top_bridges:
                 incident.add(n["id"])
         filtered_nodes = [n for n in nodes if n["id"] in incident]
         for idx, e in enumerate(filtered_edges):
@@ -589,9 +620,10 @@ def get_graph(day: Optional[int] = Query(None, ge=1, le=90, description="Day fil
         incident = set()
         for e in filtered_edges:
             incident.add(e["src"]); incident.add(e["dst"])
-        # bridges always visible
+        # top bridge nodes always visible
+        top_bridges = {b["id"] for b in compute_bridges(graph_serial=serial)[:6]}
         for n in nodes:
-            if n["id"] in ("X1","X2","X3","X4"):
+            if n["id"] in top_bridges:
                 incident.add(n["id"])
         filtered_nodes = [n for n in nodes if n["id"] in incident]
         # Attach opacity meta: 1.0 for day==snapshot, 0.3-0.6 for ghost
@@ -674,15 +706,22 @@ def get_temporal(user: dict = Depends(get_current_user)):
     return ti
 
 @app.get("/why/{entity_id}")
-def why_flagged(entity_id: str, user: dict = Depends(get_current_user)):
-    serial = load_graph_serial()
+def why_flagged(entity_id: str, iid: Optional[str] = Query(None), user: dict = Depends(get_current_user)):
+    import json as js
+    if iid and (INV_ROOT / iid / "output" / "graph.json").exists():
+        serial = js.loads((INV_ROOT / iid / "output" / "graph.json").read_text())
+        full_ds_path = INV_ROOT / iid / "mapped" / "full_datasets.json"
+        datasets = js.loads(full_ds_path.read_text()) if full_ds_path.exists() else {}
+    else:
+        serial = load_graph_serial()
+        datasets, _ = load_all(DATA_DIR)
+
     node = next((n for n in serial["nodes"] if n["id"]==entity_id), None)
     if not node:
         raise HTTPException(status_code=404, detail=f"Unknown id {entity_id} — check quarantine.csv or resolution.csv")
-    # Collect top signals
-    centrality = compute_centrality()
-    bridges = compute_bridges()
-    datasets, _ = load_all(DATA_DIR)
+    # Collect top signals dynamically for this graph & dataset
+    centrality = compute_centrality(graph_serial=serial)
+    bridges = compute_bridges(graph_serial=serial)
     bursts = detect_bursts(datasets)
     struct = detect_structuring(datasets)
 

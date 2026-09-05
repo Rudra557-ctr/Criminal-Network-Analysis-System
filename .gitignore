@@ -15,6 +15,9 @@ venv/
 env/
 node_modules/
 
-# Logs & Temp
+# Logs & Runtime Generated Data
 *.log
 tmp/
+audit.jsonl
+data/investigations/*
+!data/investigations/.gitkeep

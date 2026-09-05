@@ -888,7 +888,8 @@ async function openEvidenceDrawer(entityId) {
   drawer.classList.add('open');
   overlay.classList.add('open');
   try {
-    const w = await api('/why/' + encodeURIComponent(entityId));
+    const iidQuery = _currentInv ? '?iid=' + encodeURIComponent(_currentInv) : '';
+    const w = await api('/why/' + encodeURIComponent(entityId) + iidQuery);
     const lead = w.lead || {};
     const score = lead.lead_score != null ? lead.lead_score : 0;
     const prio = (lead.priority || 'LOW').toUpperCase();
@@ -1173,7 +1174,8 @@ async function doPeopleSearch() {
   if (!q) { box.innerHTML = '<p class="muted">Enter a search term.</p>'; return; }
   box.innerHTML = '<p class="muted">Searching…</p>';
   try {
-    const d = await api('/people/search?q=' + encodeURIComponent(q));
+    const iidParam = _currentInv ? '&iid=' + encodeURIComponent(_currentInv) : '';
+    const d = await api('/people/search?q=' + encodeURIComponent(q) + iidParam);
     if (!d.results.length) { box.innerHTML = '<p class="muted">No matches. Try a name, ID, phone or account.</p>'; return; }
     box.innerHTML = `<table><thead><tr><th>Person</th><th>Role</th><th>Contact</th><th></th></tr></thead><tbody>` +
       d.results.map(p => `<tr><td><b>${p.name}</b><br><span class="muted mono">${p.id} · ${p.cell}</span></td><td>${p.role || '—'}</td><td class="mono">${p.phone || ''}<br>${p.account || ''}</td><td><button class="btn" onclick="openPerson('${p.id}')">Open</button></td></tr>`).join('') +
@@ -1188,7 +1190,8 @@ async function openPerson(id) {
   document.getElementById('personSub').textContent = 'Loading live record…';
   document.getElementById('personWhy').innerHTML = '<p class="muted">Loading…</p>';
   try {
-    const w = await api('/why/' + encodeURIComponent(id));
+    const iidQuery = _currentInv ? '?iid=' + encodeURIComponent(_currentInv) : '';
+    const w = await api('/why/' + encodeURIComponent(id) + iidQuery);
     const lead = w.lead || {};
     document.getElementById('personTitle').textContent = `${w.id} — ${w.label}`;
     document.getElementById('personSub').textContent = `${w.role || ''} · Group ${w.cell || '—'} · Priority ${lead.priority || '—'} ${lead.lead_score != null ? lead.lead_score + '/100' : ''}`;
@@ -1207,7 +1210,7 @@ async function openPerson(id) {
     document.getElementById('personTimeline').innerHTML = dayList.length
       ? dayList.map(d => `<div style="padding:6px 0;border-bottom:1px solid var(--border)"><b>Day ${d}</b> <span class="muted">— ${days[d].length} record(s): ${days[d].slice(0, 3).map(s => s.source).join(', ')}</span></div>`).join('')
       : '<p class="muted">No dated activity.</p>';
-    const g = await api('/graph');
+    const g = await api(_currentInv ? `/investigations/${_currentInv}/graph` : '/graph');
     _personGraph = g;
     drawPerson();
   } catch (e) {
@@ -1287,7 +1290,8 @@ async function loadTimeline() {
   const groups = document.getElementById('tlGroups');
   const bursts = document.getElementById('tlBursts');
   try {
-    const [t, leads] = await Promise.all([api('/temporal'), api('/leads?limit=20')]);
+    const leadsUrl = _currentInv ? `/investigations/${_currentInv}/leads?limit=20` : '/leads?limit=20';
+    const [t, leads] = await Promise.all([api('/temporal'), api(leadsUrl)]);
     strip.innerHTML = t.narrative_days.map(n => {
       const b = n.actual_burst;
       return `<div style="padding:8px 0;border-bottom:1px solid var(--border)"><b>Day ${n.target_day}</b> — ` +
@@ -1369,7 +1373,8 @@ async function loadFinancial() {
   const story = document.getElementById('finStory');
   const txns = document.getElementById('finTxns');
   try {
-    const [flags, g] = await Promise.all([api('/structuring'), api('/graph')]);
+    const graphUrl = _currentInv ? `/investigations/${_currentInv}/graph` : '/graph';
+    const [flags, g] = await Promise.all([api('/structuring'), api(graphUrl)]);
     if (!flags.length) {
       story.innerHTML = '<p class="muted">No structuring pattern detected in the current data.</p>';
     } else {
@@ -1403,7 +1408,8 @@ async function loadCommunications() {
   const burstsEl = document.getElementById('commBursts');
   const pairsEl = document.getElementById('commPairs');
   try {
-    const [bursts, g] = await Promise.all([api('/bursts'), api('/graph')]);
+    const graphUrl = _currentInv ? `/investigations/${_currentInv}/graph` : '/graph';
+    const [bursts, g] = await Promise.all([api('/bursts'), api(graphUrl)]);
     const top = [...bursts].sort((a, b) => b.zscore - a.zscore).slice(0, 3);
     burstsEl.innerHTML = top.map(b =>
       `<div style="padding:8px 0;border-bottom:1px solid var(--border)"><b>Day ${b.day}, group ${b.cell}</b> — ` +
