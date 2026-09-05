@@ -421,8 +421,39 @@ details{margin-top:8px;font-size:12px;color:var(--muted)}
 </section>
 
 <section id="view-evidence" class="view">
-  <h2>Evidence</h2>
-  <div class="card"><p>Evidence provenance is recorded per relationship (source record, timestamp, supporting text, confidence). A full evidence workspace arrives in a later task.</p></div>
+  <h2>Evidence Locker & Chain of Custody</h2>
+  <p class="sub">Primary evidentiary records, telecom CDRs, financial transfers, and intelligence intercepts supporting this case.</p>
+
+  <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+    <div class="card" style="flex:1;min-width:180px;padding:12px 16px;margin:0">
+      <div class="muted" style="font-size:12px;text-transform:uppercase;letter-spacing:0.5px">Total Case Records</div>
+      <div id="evTotalCount" style="font-size:24px;font-weight:700;color:var(--text);margin-top:4px">—</div>
+    </div>
+    <div class="card" style="flex:1;min-width:180px;padding:12px 16px;margin:0">
+      <div class="muted" style="font-size:12px;text-transform:uppercase;letter-spacing:0.5px">Direct Factual Logs</div>
+      <div id="evHardCount" style="font-size:24px;font-weight:700;color:#10B981;margin-top:4px">—</div>
+    </div>
+    <div class="card" style="flex:1;min-width:180px;padding:12px 16px;margin:0">
+      <div class="muted" style="font-size:12px;text-transform:uppercase;letter-spacing:0.5px">Inferred / NLP Mentions</div>
+      <div id="evInferCount" style="font-size:24px;font-weight:700;color:#3B82F6;margin-top:4px">—</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
+      <div style="flex:1;min-width:260px">
+        <input type="text" id="evSearchInput" placeholder="Search by suspect, record ID, or text snippet…" oninput="filterEvidenceTable()" style="margin-bottom:0">
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap" id="evFilterButtons">
+        <button class="btn btn-primary" onclick="setEvidenceTypeFilter('ALL', this)">All</button>
+        <button class="btn" onclick="setEvidenceTypeFilter('CALLED', this)">📱 Telecom CDRs</button>
+        <button class="btn" onclick="setEvidenceTypeFilter('TRANSACTED', this)">💳 Financial Wires</button>
+        <button class="btn" onclick="setEvidenceTypeFilter('MENTIONED_IN', this)">📄 FIRs & Text</button>
+        <button class="btn" onclick="setEvidenceTypeFilter('OTHER', this)">👁️ Surveillance & Intel</button>
+      </div>
+    </div>
+    <div id="evidenceTableBox"><p class="muted">Loading case evidence…</p></div>
+  </div>
 </section>
 
 <section id="view-reports" class="view">
@@ -599,6 +630,7 @@ function navigate(view) {
   if (view === 'intelligence') loadTimeline();
   if (view === 'financial') loadFinancial();
   if (view === 'communications') loadCommunications();
+  if (view === 'evidence') loadEvidenceWorkspace();
   if (view === 'reports') loadReportPreview();
 }
 function showError(boxId, msg) {
@@ -1601,6 +1633,127 @@ function showTowerDetail(towerId) {
   document.getElementById('towerDetail').innerHTML =
     `<b class="mono">${t.tower_id}</b> ${t.label} — ${t.call_count} calls ` +
     `(${Object.entries(t.cells).map(([c, n]) => `group ${c}: ${n}`).join(', ')})`;
+}
+
+let _allEvidenceList = [];
+let _currentEvType = 'ALL';
+
+async function loadEvidenceWorkspace() {
+  const box = document.getElementById('evidenceTableBox');
+  if (!box) return;
+  box.innerHTML = '<p class="muted">Loading case evidence records…</p>';
+  try {
+    const graphUrl = _currentInv ? `/investigations/${_currentInv}/graph` : '/graph';
+    const leadsUrl = _currentInv ? `/investigations/${_currentInv}/leads?limit=100` : '/leads?limit=100';
+    const [g, leads] = await Promise.all([api(graphUrl), api(leadsUrl)]);
+
+    // Build ID -> Name mapping
+    const nameMap = {};
+    (g.nodes || []).forEach(n => {
+      if (n.label && n.label !== n.id) nameMap[n.id] = n.label;
+      else if (n.name && n.name !== n.id) nameMap[n.id] = n.name;
+    });
+    (leads.leads || []).forEach(l => {
+      if (l.label && l.label !== l.entity_id) nameMap[l.entity_id] = l.label;
+    });
+
+    // Gather and format all unique edges / evidence
+    const seen = new Set();
+    const items = [];
+    (g.edges || []).forEach(e => {
+      const key = `${e.source || ''}_${e.src}_${e.dst}_${e.kind}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        const srcName = nameMap[e.src] ? `${nameMap[e.src]} (${e.src})` : e.src;
+        const dstName = nameMap[e.dst] ? `${nameMap[e.dst]} (${e.dst})` : e.dst;
+        items.push({
+          source: e.source || '—',
+          source_type: e.source_type || e.kind,
+          kind: e.kind,
+          src: e.src,
+          srcName: srcName,
+          dst: e.dst,
+          dstName: dstName,
+          day: e.day,
+          confidence: e.confidence != null ? e.confidence : 1.0,
+          supporting_text: e.supporting_text || (e.meta && e.meta.amount ? `₹${Number(e.meta.amount).toLocaleString('en-IN')} transfer` : (e.meta && e.meta.duration_sec ? `Call duration: ${e.meta.duration_sec}s` : '—')),
+          extractor: e.extractor || 'canonical',
+          evidence_hash: e.evidence_hash || ''
+        });
+      }
+    });
+
+    _allEvidenceList = items;
+
+    // Update summary counts
+    if (document.getElementById('evTotalCount')) document.getElementById('evTotalCount').textContent = items.length;
+    if (document.getElementById('evHardCount')) document.getElementById('evHardCount').textContent = items.filter(x => (x.confidence >= 0.95)).length;
+    if (document.getElementById('evInferCount')) document.getElementById('evInferCount').textContent = items.filter(x => (x.confidence < 0.95)).length;
+
+    renderEvidenceTable();
+  } catch (e) {
+    box.innerHTML = `<div class="error">Could not load evidence records: ${e.message}</div>`;
+  }
+}
+
+function setEvidenceTypeFilter(type, btn) {
+  _currentEvType = type;
+  document.querySelectorAll('#evFilterButtons button').forEach(b => b.className = 'btn');
+  if (btn) btn.className = 'btn btn-primary';
+  renderEvidenceTable();
+}
+
+function filterEvidenceTable() {
+  renderEvidenceTable();
+}
+
+function renderEvidenceTable() {
+  const box = document.getElementById('evidenceTableBox');
+  if (!box) return;
+  const q = (document.getElementById('evSearchInput')?.value || '').toLowerCase().trim();
+
+  let list = _allEvidenceList;
+  if (_currentEvType !== 'ALL') {
+    if (_currentEvType === 'CALLED') list = list.filter(x => x.kind === 'CALLED' || x.kind === 'CALLS');
+    else if (_currentEvType === 'TRANSACTED') list = list.filter(x => x.kind === 'TRANSACTED');
+    else if (_currentEvType === 'MENTIONED_IN') list = list.filter(x => x.kind === 'MENTIONED_IN' || x.source_type === 'fir');
+    else if (_currentEvType === 'OTHER') list = list.filter(x => !['CALLED', 'CALLS', 'TRANSACTED', 'MENTIONED_IN'].includes(x.kind));
+  }
+
+  if (q) {
+    list = list.filter(x => 
+      (x.source || '').toLowerCase().includes(q) ||
+      (x.srcName || '').toLowerCase().includes(q) ||
+      (x.dstName || '').toLowerCase().includes(q) ||
+      (x.supporting_text || '').toLowerCase().includes(q) ||
+      (x.kind || '').toLowerCase().includes(q)
+    );
+  }
+
+  if (!list.length) {
+    box.innerHTML = '<p class="muted" style="padding:16px 0">No matching evidence records found in this case.</p>';
+    return;
+  }
+
+  box.innerHTML = `<table><thead><tr><th>Record ID</th><th>Type</th><th>Involved Parties</th><th>Evidence Details</th><th>Timeline</th><th>Reliability</th><th>Action</th></tr></thead><tbody>` +
+    list.slice(0, 60).map(x => `
+      <tr>
+        <td class="mono"><b>${x.source}</b></td>
+        <td><span class="chip">${x.kind}</span></td>
+        <td>
+          <button class="btn" style="font-size:12px;padding:2px 6px" onclick="openPerson('${x.src}')">👤 ${x.srcName}</button>
+          <span class="muted" style="font-size:11px">➔</span>
+          <button class="btn" style="font-size:12px;padding:2px 6px" onclick="openPerson('${x.dst}')">👤 ${x.dstName}</button>
+        </td>
+        <td style="font-size:13px;max-width:280px">
+          ${(x.supporting_text || '—').slice(0, 140)}
+        </td>
+        <td>${x.day != null ? 'Day ' + x.day : '—'}</td>
+        <td><span class="chip" style="background:rgba(255,255,255,0.06);font-size:11px">${formatConfidence(x.confidence)}</span></td>
+        <td><button class="btn" style="font-size:12px;padding:3px 8px" onclick="openPerson('${x.src}')">View Lead</button></td>
+      </tr>
+    `).join('') + `</tbody></table>` +
+    (list.length > 60 ? `<div class="muted" style="margin-top:10px;font-size:12px">Showing top 60 of ${list.length} evidence items. Use search box above to filter.</div>` : '');
 }
 
 let _reportData = null;
