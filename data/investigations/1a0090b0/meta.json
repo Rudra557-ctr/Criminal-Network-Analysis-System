@@ -1,0 +1,38 @@
+{
+  "id": "1a0090b0",
+  "name": "Demo Alt",
+  "description": "caller receiver test",
+  "created": "2026-09-04T14:54:40.628722Z",
+  "status": "files_uploaded",
+  "files": [
+    {
+      "original": "demo_alt.csv",
+      "stored": "1a0090b0/files/demo_alt.csv",
+      "format": "csv",
+      "detected_type": "cdrs",
+      "type_confidence": 0.375,
+      "columns": [
+        "caller",
+        "receiver",
+        "timestamp",
+        "duration"
+      ],
+      "sample_rows": [
+        {
+          "caller": "A1",
+          "receiver": "A2",
+          "timestamp": "2026-02-15 15:00:00",
+          "duration": "100"
+        },
+        {
+          "caller": "X1",
+          "receiver": "A11",
+          "timestamp": "2026-03-02 10:00:00",
+          "duration": "80"
+        }
+      ]
+    }
+  ],
+  "mapping": {},
+  "processing": {}
+}

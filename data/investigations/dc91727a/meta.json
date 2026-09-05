@@ -1,0 +1,38 @@
+{
+  "id": "dc91727a",
+  "name": "Alt Final",
+  "description": "test",
+  "created": "2026-09-04T16:18:23.910684Z",
+  "status": "files_uploaded",
+  "files": [
+    {
+      "original": "demo_alt_final.csv",
+      "stored": "dc91727a/files/demo_alt_final.csv",
+      "format": "csv",
+      "detected_type": "cdrs",
+      "type_confidence": 0.375,
+      "columns": [
+        "caller",
+        "receiver",
+        "timestamp",
+        "duration"
+      ],
+      "sample_rows": [
+        {
+          "caller": "7000000001",
+          "receiver": "7000000002",
+          "timestamp": "2026-02-15 15:00:00",
+          "duration": "100"
+        },
+        {
+          "caller": "7000000040",
+          "receiver": "7000000012",
+          "timestamp": "2026-03-02 10:00:00",
+          "duration": "80"
+        }
+      ]
+    }
+  ],
+  "mapping": {},
+  "processing": {}
+}

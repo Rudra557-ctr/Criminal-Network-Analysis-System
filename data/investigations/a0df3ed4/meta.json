@@ -1,0 +1,65 @@
+{
+  "id": "a0df3ed4",
+  "name": "Test Alt Schema",
+  "description": "source_phone test",
+  "created": "2026-09-04T14:50:05.506406Z",
+  "status": "processing",
+  "files": [
+    {
+      "original": "test_alt.csv",
+      "stored": "a0df3ed4/files/test_alt.csv",
+      "format": "csv",
+      "detected_type": "cdrs",
+      "type_confidence": 0.375,
+      "columns": [
+        "source_phone",
+        "destination_phone",
+        "event_time",
+        "call_duration",
+        "source_id",
+        "destination_id"
+      ],
+      "sample_rows": [
+        {
+          "source_phone": "7000000001",
+          "destination_phone": "7000000002",
+          "event_time": "2026-02-15 15:30:00",
+          "call_duration": "120",
+          "source_id": "A1",
+          "destination_id": "A2"
+        },
+        {
+          "source_phone": "7000000040",
+          "destination_phone": "7000000012",
+          "event_time": "2026-03-02 10:00:00",
+          "call_duration": "90",
+          "source_id": "X1",
+          "destination_id": "A11"
+        }
+      ]
+    }
+  ],
+  "mapping": {
+    "test_alt.csv": {
+      "mapping": {
+        "call_id": null,
+        "caller_id": "source_id",
+        "caller_name": null,
+        "caller_phone": "source_phone",
+        "callee_id": "destination_id",
+        "callee_name": "destination_phone",
+        "callee_phone": "destination_phone",
+        "timestamp": "event_time",
+        "day": null,
+        "call_type": null,
+        "duration_sec": "call_duration",
+        "cell_tower_location": null
+      },
+      "validated": true,
+      "missing": []
+    }
+  },
+  "processing": {
+    "step": "normalization"
+  }
+}

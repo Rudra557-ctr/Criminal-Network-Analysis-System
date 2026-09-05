@@ -1,0 +1,3 @@
+row_no,source_file,reason,confidence
+0,social_posts.csv,Missing mapped field post_text,0.0
+0,surveillance_reports.csv,Missing mapped field activity_notes,0.0

@@ -1,0 +1,59 @@
+{
+  "id": "145e1dab",
+  "name": "ZIP test",
+  "description": "",
+  "created": "2026-09-05T11:13:36.934862Z",
+  "status": "files_uploaded",
+  "files": [
+    {
+      "original": "money.csv",
+      "stored": "145e1dab/files/money.csv",
+      "format": "csv",
+      "detected_type": "transactions",
+      "type_confidence": 0.343,
+      "columns": [
+        "from_acct",
+        "to_acct",
+        "amount",
+        "event_time"
+      ],
+      "sample_rows": [
+        {
+          "from_acct": "AC0009000001",
+          "to_acct": "AC0009000002",
+          "amount": "5000",
+          "event_time": "2026-02-15 12:00:00"
+        }
+      ]
+    },
+    {
+      "original": "calls_renamed.csv",
+      "stored": "145e1dab/files/calls_renamed.csv",
+      "format": "csv",
+      "detected_type": "cdrs",
+      "type_confidence": 0.375,
+      "columns": [
+        "source_phone",
+        "destination_phone",
+        "event_time",
+        "call_duration"
+      ],
+      "sample_rows": [
+        {
+          "source_phone": "7000000001",
+          "destination_phone": "7000000002",
+          "event_time": "2026-02-15 12:00:00",
+          "call_duration": "120"
+        },
+        {
+          "source_phone": "7000000003",
+          "destination_phone": "7000000004",
+          "event_time": "2026-02-16 13:00:00",
+          "call_duration": "60"
+        }
+      ]
+    }
+  ],
+  "mapping": {},
+  "processing": {}
+}

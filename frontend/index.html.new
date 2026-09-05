@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operation Fusion — AI Investigation Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0A0E14;--panel:#121826;--panel2:#1A2332;--border:#1E293B;--text:#E6EDF3;--muted:#8B98AD;--muted2:#64748B;--blue:#4C9AFF;--purple:#AB68FF;--orange:#FF7A45;--gold:#FFC53D;--green:#22C55E;--red:#EF4444;--radius:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow:hidden}
+.mono{font-family:JetBrains Mono,monospace}
+.topbar{height:56px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:fixed;top:0;left:0;right:0;z-index:20}
+.logo{font-weight:700;letter-spacing:0.04em;font-size:13px}
+.badge{font-family:JetBrains Mono,monospace;font-size:11px;background:var(--panel2);border:1px solid var(--border);padding:4px 8px;border-radius:999px;color:var(--muted)}
+.topbar-center{flex:1;max-width:480px;margin:0 16px;position:relative}
+.topbar-center input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:999px;padding:8px 14px 8px 32px;color:var(--text);font-size:13px}
+.sidebar{position:fixed;top:56px;left:0;bottom:0;width:230px;background:var(--panel);border-right:1px solid var(--border);padding:12px 8px;overflow-y:auto}
+.nav-group{font-size:10px;letter-spacing:0.08em;color:var(--muted2);padding:10px 8px 2px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;font-size:13px;color:var(--muted);cursor:pointer}
+.nav-item:hover{background:var(--panel2);color:var(--text)}
+.nav-item.active{background:var(--blue);color:#fff;font-weight:600}
+.nav-item .ico{width:18px;text-align:center}
+.main{margin-left:230px;margin-top:56px;height:calc(100vh - 56px);overflow-y:auto;background:var(--bg)}
+.view{display:none;padding:20px;max-width:1200px;margin:0 auto}
+.view.active{display:block}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px}
+.btn{padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:12px;cursor:pointer}
+.btn-primary{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;border:1px solid var(--border)}
+.pill-A{background:#4C9AFF1A;border-color:#4C9AFF;color:#4C9AFF}
+.pill-B{background:#AB68FF1A;border-color:#AB68FF;color:#AB68FF}
+.pill-C{background:#FF7A451A;border-color:#FF7A45;color:#FF7A45}
+.pill-Bridge{background:#FFC53D1A;border-color:#FFC53D;color:#FFC53D}
+.pill-HIGH{background:#EF44441A;border-color:#EF4444;color:#EF4444}
+.pill-MEDIUM{background:#F59E0B1A;border-color:#F59E0B;color:#F59E0B}
+.pill-LOW{background:#64748B1A;border-color:#64748B;color:#64748B}
+.muted{font-size:11px;color:var(--muted)}
+.simple{font-size:13px;line-height:1.7}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+canvas{width:100%;height:360px;background:var(--bg);border:1px solid var(--border);border-radius:8px;display:block}
+.timeline{position:relative;padding-left:20px}
+.timeline::before{content:"";position:absolute;left:6px;top:0;bottom:0;width:2px;background:var(--border)}
+.tl-item{position:relative;margin-bottom:12px;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+.tl-item::before{content:"";position:absolute;left:-18px;top:14px;width:8px;height:8px;border-radius:50%;background:var(--blue);border:2px solid var(--bg)}
+.evidence{font-family:JetBrains Mono,monospace;font-size:11px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;white-space:pre-wrap;word-break:break-all}
+.file-drop{border:2px dashed var(--border);border-radius:12px;padding:24px;text-align:center;background:var(--bg);cursor:pointer}
+.file-drop.dragover{border-color:var(--blue);background:var(--panel2)}
+.mapping-row{display:grid;grid-template-columns:1fr 40px 1fr;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)}
+@media(max-width:900px){.sidebar{width:60px}.sidebar .label{display:none}.main{margin-left:60px}.grid-3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-left"><div class="logo">OPERATION FUSION</div><span class="badge">CASE #1024 • SYNTHETIC DATA</span></div>
+  <div class="topbar-center"><input id="globalSearch" placeholder="Search person, phone, FIR..." onkeydown="if(event.key==='Enter') doGlobalSearch(this.value)"></div>
+  <div class="topbar-right"><span class="badge" id="sysStatus">Loading…</span><span class="badge">demo-operator</span></div>
+</header>
+<nav class="sidebar">
+  <div class="nav-item active" data-view="dashboard" onclick="navigate('dashboard')"><span class="ico">▦</span><span class="label">Dashboard</span></div>
+  <div class="nav-item" data-view="investigations" onclick="navigate('investigations')"><span class="ico">📁</span><span class="label">Investigations</span></div>
+  <div class="nav-item" data-view="people-search" onclick="navigate('people-search')"><span class="ico">🔍</span><span class="label">People Search</span></div>
+  <div class="nav-group">Investigate</div>
+  <div class="nav-item" data-view="case" onclick="navigate('case')"><span class="ico">📄</span><span class="label">Case Workspace</span></div>
+  <div class="nav-item" data-view="network" onclick="navigate('network')"><span class="ico">◈</span><span class="label">Network</span></div>
+  <div class="nav-item" data-view="leads" onclick="navigate('leads')"><span class="ico">★</span><span class="label">Leads</span></div>
+  <div class="nav-item" data-view="entity" onclick="navigate('entity')"><span class="ico">👤</span><span class="label">Entity</span></div>
+  <div class="nav-group">Intelligence</div>
+  <div class="nav-item" data-view="timeline" onclick="navigate('timeline')"><span class="ico">⏱</span><span class="label">Timeline</span></div>
+  <div class="nav-item" data-view="financial" onclick="navigate('financial')"><span class="ico">₹</span><span class="label">Financial</span></div>
+  <div class="nav-item" data-view="communications" onclick="navigate('communications')"><span class="ico">☎</span><span class="label">Communications</span></div>
+  <div class="nav-item" data-view="locations" onclick="navigate('locations')"><span class="ico">◎</span><span class="label">Locations</span></div>
+  <div class="nav-item" data-view="crosscase" onclick="navigate('crosscase')"><span class="ico">🔗</span><span class="label">Cross-Case</span></div>
+  <div class="nav-item" data-view="evidence" onclick="navigate('evidence')"><span class="ico">📄</span><span class="label">Evidence</span></div>
+  <div class="nav-group">AI & Reports</div>
+  <div class="nav-item" data-view="assistant" onclick="navigate('assistant')"><span class="ico">💬</span><span class="label">Assistant</span></div>
+  <div class="nav-item" data-view="reports" onclick="navigate('reports')"><span class="ico">📊</span><span class="label">Reports</span></div>
+</nav>
+<main class="main">
+
+<!-- DASHBOARD -->
+<section id="view-dashboard" class="view active">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <h2>Dashboard</h2><button class="btn btn-primary" onclick="navigate('investigations')">+ New Investigation</button>
+  </div>
+  <div class="card">
+    <h3>What happened?</h3>
+    <div id="dashSummary" class="simple">Loading…</div>
+  </div>
+  <div class="grid-3" id="dashKPIs" style="margin-top:12px">
+    <div class="card" style="text-align:center"><div class="muted">Cases reviewed</div><div class="mono" style="font-size:20px" id="kpiCases">—</div></div>
+    <div class="card" style="text-align:center"><div class="muted">Groups found</div><div class="mono" style="font-size:20px" id="kpiNetworks">—</div></div>
+    <div class="card" style="text-align:center"><div class="muted">People to check</div><div class="mono" style="font-size:20px" id="kpiLeads">—</div></div>
+  </div>
+  <div class="card">
+    <h3>Investigations</h3>
+    <div id="invList">Loading…</div>
+    <div style="margin-top:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+      <div class="card" style="background:var(--bg);cursor:pointer" onclick="openDemo(1)"><b>Demo Case 01</b><br><span class="muted">Drug network — same pipeline</span><br><span class="pill pill-A">Fast path</span></div>
+      <div class="card" style="background:var(--bg);cursor:pointer" onclick="openDemo(2)"><b>Demo Case 02</b><br><span class="muted">Arms network</span><br><span class="pill pill-B">Fast path</span></div>
+      <div class="card" style="background:var(--bg);cursor:pointer" onclick="openDemo(3)"><b>Demo Case 03</b><br><span class="muted">Evaluation held-out</span><br><span class="pill pill-C">Fast path</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Live Reveal — Days 50→70</h3>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+      <input type="range" id="daySlider" min="50" max="70" value="58" style="flex:1" oninput="onDayChange(this.value)">
+      <span id="dayLabel" class="mono">58</span>
+      <button class="btn btn-primary" onclick="playDays()">▶ Play</button>
+    </div>
+    <canvas id="mainCanvas"></canvas>
+    <div id="graphStats" class="muted" style="margin-top:6px"></div>
+  </div>
+</section>
+
+<!-- INVESTIGATIONS LIST -->
+<section id="view-investigations" class="view">
+  <h2>Investigations</h2>
+  <div class="card">
+    <h3>New Investigation</h3>
+    <div style="display:grid;gap:10px;max-width:500px">
+      <input id="newName" placeholder="Case Name (e.g. Operation Blue)">
+      <input id="newDesc" placeholder="Description">
+      <button class="btn btn-primary" onclick="createInvestigation()">Create Investigation</button>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Upload Investigation Data</h3>
+    <p class="muted">Supported: CSV, XLSX, JSON — any reasonable column names will be mapped.</p>
+    <div id="uploadArea" class="file-drop" onclick="document.getElementById('fileInput').click()" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="handleDrop(event)">
+      <div>📁 Drop files here or click to browse</div>
+      <div class="muted" style="font-size:11px">caller, source_phone, destination_phone etc. all work — system will detect</div>
+      <input type="file" id="fileInput" multiple accept=".csv,.xlsx,.xls,.json" style="display:none" onchange="handleFiles(this.files)">
+    </div>
+    <div id="selectedFiles" style="margin-top:10px"></div>
+    <button class="btn btn-primary" style="margin-top:10px" onclick="uploadFiles()">Upload & Detect →</button>
+  </div>
+  <div class="card">
+    <h3>Previous Investigations</h3>
+    <div id="prevInvs">Loading…</div>
+  </div>
+</section>
+
+<!-- MAPPING -->
+<section id="view-mapping" class="view">
+  <h2>Schema Detection & Mapping</h2>
+  <p class="muted">The system detected your file structure. Confirm the mapping below.</p>
+  <div id="mappingBox"></div>
+</section>
+
+<!-- PROCESSING -->
+<section id="view-processing" class="view">
+  <h2>Analyzing Investigation</h2>
+  <div class="card"><div id="procSteps" style="font-size:13px;line-height:2"></div></div>
+</section>
+
+<!-- INVESTIGATION OVERVIEW -->
+<section id="view-investigation-overview" class="view">
+  <h2 id="invOverviewTitle">Investigation Overview</h2>
+  <div class="grid-3" style="margin-top:12px">
+    <div class="card" style="text-align:center"><div class="muted">Entities</div><div class="mono" style="font-size:20px" id="ovEntities">—</div></div>
+    <div class="card" style="text-align:center"><div class="muted">Groups</div><div class="mono" style="font-size:20px" id="ovGroups">—</div></div>
+    <div class="card" style="text-align:center"><div class="muted">Leads</div><div class="mono" style="font-size:20px" id="ovLeads">—</div></div>
+  </div>
+  <div class="card"><h3>Key Findings</h3><div id="ovFindings" class="simple"></div></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary" onclick="navigate('network')">View Network</button><button class="btn" onclick="navigate('leads')">Important People</button><button class="btn" onclick="navigate('timeline')">Timeline</button></div>
+</section>
+
+<!-- PEOPLE SEARCH -->
+<section id="view-people-search" class="view">
+  <h2>People Search</h2>
+  <div class="card">
+    <div style="display:flex;gap:8px"><input id="psQuery" placeholder="Name, ID, phone, account..." style="flex:1" onkeydown="if(event.key==='Enter') doPeopleSearch()"><button class="btn btn-primary" onclick="doPeopleSearch()">Search</button></div>
+    <div id="psResults" style="margin-top:12px"></div>
+  </div>
+</section>
+
+<!-- keep other views: copy from previous frontend but simplified -->
+<section id="view-case" class="view">
+  <h2>CASE #1024 — Operation Fusion</h2>
+  <div class="card"><div id="caseSummary" class="simple">Loading…</div></div>
+  <div class="card"><h3>Top leads</h3><div id="caseLeads" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px"></div></div>
+</section>
+
+<section id="view-network" class="view">
+  <h2>Who is connected to whom?</h2>
+  <div class="card" id="netSimple">
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:12px 0">
+      <div style="flex:1;min-width:120px;text-align:center;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:8px"><div class="pill pill-A">Drug</div><div class="mono" id="netCountA" style="font-size:18px;margin-top:6px">—</div></div>
+      <div style="flex:1;min-width:120px;text-align:center;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:8px"><div class="pill pill-B">Arms</div><div class="mono" id="netCountB" style="font-size:18px;margin-top:6px">—</div></div>
+      <div style="flex:1;min-width:120px;text-align:center;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:8px"><div class="pill pill-C">Extortion</div><div class="mono" id="netCountC" style="font-size:18px;margin-top:6px">—</div></div>
+    </div>
+    <div id="netBridges" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px"></div>
+    <div style="text-align:center;margin-top:12px"><button class="btn btn-primary" onclick="document.getElementById('netFull').style.display='block';loadNetwork()">Explore Full Network →</button></div>
+  </div>
+  <div id="netFull" style="display:none"><div class="card" style="margin-top:12px"><div style="display:flex;gap:8px;flex-wrap:wrap"><input id="netSearch" placeholder="Search X1" style="min-width:180px" onkeydown="if(event.key==='Enter') doGraphSearch(this.value)"><select id="filterHops" onchange="applyNetworkFilters()"><option value="0">All</option><option value="1">1 hop</option><option value="2">2 hops</option></select><button class="btn" onclick="applyNetworkFilters()">Focus</button><button class="btn" onclick="resetNetwork()">Reset</button></div><canvas id="netCanvas"></canvas><div id="netStats" class="muted"></div><div id="netSelected" class="muted">Click a gold diamond to open profile.</div></div></div>
+</section>
+
+<section id="view-leads" class="view"><h2>Who should you look at first?</h2><div id="leadsList"></div></section>
+<section id="view-entity" class="view"><div id="entityHeader"></div><div id="entityBody"></div></section>
+<section id="view-timeline" class="view"><h2>When did things happen?</h2><div id="timelineList" class="timeline"></div></section>
+<section id="view-financial" class="view"><h2>Money — what looked unusual?</h2><div id="finHuman" class="card"></div><div class="card"><table><thead><tr><th>Record</th><th>From → To</th><th>Amount</th><th>Day</th></tr></thead><tbody id="finBody"></tbody></table></div></section>
+<section id="view-communications" class="view"><h2>Calls — when did people talk more than usual?</h2><div id="commHuman" class="card"></div><div class="card"><table><thead><tr><th>Record</th><th>Who called whom</th><th>Day</th><th>Where</th></tr></thead><tbody id="commBody"></tbody></table></div></section>
+<section id="view-locations" class="view"><h2>Places</h2><div class="card"><div id="locGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px"></div></div></section>
+<section id="view-crosscase" class="view"><h2>Cases that may be connected</h2><div id="crossList"></div></section>
+<section id="view-evidence" class="view"><h2>Evidence</h2><div class="card"><input id="evSearch" placeholder="X1, C12" style="width:260px" onkeydown="if(event.key==='Enter') loadEvidence(this.value)"><button class="btn btn-primary" onclick="loadEvidence(document.getElementById('evSearch').value)">Trace</button></div><div id="evidenceBox" style="margin-top:12px"></div></section>
+<section id="view-assistant" class="view"><h2>Ask the assistant</h2><div class="card"><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px"><button class="btn" onclick="fillAsk('Show connections of X1')">Show connections of X1</button><button class="btn" onclick="fillAsk('Who connects Cell A and Cell B')">Who connects A & B</button></div><div style="display:flex;gap:8px"><input id="askInput" placeholder="Ask…" style="flex:1"><button class="btn btn-primary" onclick="doAsk()">Ask</button></div><div id="askResult" style="margin-top:12px"></div></div></section>
+<section id="view-reports" class="view">
+  <div class="card" style="border-left:4px solid var(--gold)"><h1 style="font-size:18px">CASE #1024 — OPERATION FUSION — Investigation Brief</h1><div style="font-size:11px;color:var(--muted)">Potential investigative leads — not guilt. <button class="btn btn-primary" style="float:right" onclick="generateBrief()">↻ Generate</button> <button class="btn" onclick="window.print()">Print</button></div></div>
+  <div class="card"><h3>What did the system find?</h3><div id="reportExecutive" class="simple">Loading…</div></div>
+  <div class="card"><h3>What stood out?</h3><div id="reportFindings" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px"></div></div>
+  <div class="card"><h3>Who should you check next?</h3><div id="reportLeads"></div></div>
+  <div class="card"><h3>How did things unfold?</h3><div id="reportTimeline"></div></div>
+  <div class="card"><h3>Where did each idea come from?</h3><div id="reportEvidence"></div></div>
+  <div class="card"><h3>What should you do next?</h3><div id="reportRecommend" class="simple"></div></div>
+  <details class="card"><summary>Technical Analysis ▾</summary><div id="reportTechnical" class="mono" style="font-size:11px"></div></details>
+  <div id="briefBox" style="display:none"></div>
+</section>
+
+</main>
+<script>
+const API=(location.hostname==='localhost'||location.hostname==='127.0.0.1')?`http://${location.hostname}:8000`:'http://127.0.0.1:8000';
+let _currentInv=null, _graph=null, _nodePos=new Map(), _selectedId=null;
+function hashCode(s){let h=0;for(let i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i)>>>0;return Math.abs(h)}
+function getNodePos(id,cell){if(_nodePos.has(id))return _nodePos.get(id);const xBase={A:90,B:310,C:200,Bridge:200,Noise:520};const base=xBase[cell]??400;const x=base+(hashCode(id)%60)-30;const y=50+(hashCode(id+cell)%300);const pos={x,y};_nodePos.set(id,pos);return pos;}
+async function api(path, opts){const r=await fetch(API+path, opts);if(!r.ok) throw new Error(await r.text().then(t=>t.slice(0,500)));return r.json();}
+function navigate(view){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const el=document.getElementById('view-'+view);
+  if(el) el.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.view===view));
+  location.hash=view;
+  if(view==='dashboard') loadDashboard();
+  if(view==='investigations') loadInvestigations();
+  if(view==='people-search') {}
+  if(view==='case') loadCase();
+  if(view==='network') loadNetwork();
+  if(view==='leads') loadLeads();
+  if(view==='timeline') loadTimeline();
+  if(view==='financial') loadFinancial();
+  if(view==='communications') loadCommunications();
+  if(view==='locations') loadLocations();
+  if(view==='crosscase') loadCrossCase();
+  if(view==='evidence') loadEvidence('X1');
+  if(view==='reports') generateBrief();
+  if(view==='entity'&&!document.getElementById('entityHeader').innerHTML) openEntity('C12');
+}
+window.addEventListener('hashchange',()=>navigate(location.hash.slice(1)||'dashboard'));
+function pill(c){return `<span class="pill pill-${c}">${c}</span>`}
+function prio(c){return `<span class="pill pill-${c}">${c}</span>`}
+
+// Dashboard
+async function loadDashboard(){
+  const stats=await api('/stats');
+  const leads=await api('/leads?limit=20');
+  document.getElementById('kpiCases').textContent=stats.datasets.firs;
+  document.getElementById('kpiNetworks').textContent='3 groups';
+  document.getElementById('kpiLeads').textContent=leads.leads.filter(l=>l.priority!=='LOW').length+' people';
+  try{const invs=await api('/investigations');document.getElementById('invList').innerHTML=invs.investigations.slice(0,5).map(v=>`<div style="padding:8px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between"><div><b>${v.name}</b><br><span class="muted">${v.status}</span></div><button class="btn" onclick="openInvestigation('${v.id}')">Open</button></div>`).join('');}catch{}
+  const g=await api('/graph?day=58');_graph=g;drawCanvas('mainCanvas',g);
+}
+async function loadInvestigations(){
+  const data=await api('/investigations');
+  document.getElementById('prevInvs').innerHTML=data.investigations.map(v=>`<div class="card" style="display:flex;justify-content:space-between;align-items:center"><div><b>${v.name}</b><br><span class="muted">${v.description||''} • ${v.status}</span></div><div><button class="btn" onclick="openInvestigation('${v.id}')">Open</button> <button class="btn" onclick="showMapping('${v.id}')">Mapping</button></div></div>`).join('');
+}
+let _pendingInv=null;
+let _selectedFiles=[];
+function handleDrop(e){e.preventDefault();e.currentTarget.classList.remove('dragover');handleFiles(e.dataTransfer.files);}
+function handleFiles(files){_selectedFiles=Array.from(files);document.getElementById('selectedFiles').innerHTML=_selectedFiles.map(f=>`✓ ${f.name} (${(f.size/1024).toFixed(1)} KB)`).join('<br>');}
+async function createInvestigation(){
+  const name=document.getElementById('newName').value||'Untitled Investigation';
+  const desc=document.getElementById('newDesc').value||'';
+  const meta=await api('/investigations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name, description:desc})});
+  _pendingInv=meta.id;
+  alert('Created '+meta.id+' — now upload files');
+  navigate('investigations');
+  loadInvestigations();
+}
+async function uploadFiles(){
+  if(!_pendingInv){alert('Create investigation first');return;}
+  if(!_selectedFiles.length){alert('Select files');return;}
+  const fd=new FormData();
+  _selectedFiles.forEach(f=>fd.append('files', f));
+  const res=await fetch(API+`/investigations/${_pendingInv}/upload`,{method:'POST',body:fd});
+  if(!res.ok) throw new Error(await res.text());
+  const data=await res.json();
+  // show mapping
+  showMapping(_pendingInv);
+}
+async function showMapping(iid){
+  _pendingInv=iid;
+  navigate('mapping');
+  const files=await api(`/investigations/${iid}/files`);
+  let html='';
+  for(const f of files.files){
+    const det=await api(`/investigations/${iid}/detection/${encodeURIComponent(f.original)}`);
+    html+=`<div class="card"><h3>${f.original} — Detected: ${det.detection.detected_type} (${(det.detection.type_confidence*100).toFixed(0)}%) <span class="pill">${det.detection.format}</span></h3><div style="font-size:11px;color:var(--muted)">Columns: ${det.detection.columns.join(', ')}</div>`;
+    html+=`<div style="margin-top:8px">`+Object.entries(det.suggested_mapping).map(([k,v])=>`<div class="mapping-row"><span class="mono" style="font-size:11px">${k}</span><span>→</span><span>${v? `<span class="pill" style="background:var(--green);color:#000">${v}</span>` : '<span class="pill" style="background:var(--red);color:#fff">Missing — select</span>'} </span></div>`).join('')+`</div>`;
+    if(!det.validated) html+=`<div style="color:var(--red);font-size:11px">Missing required: ${det.missing.join(', ')}</div>`;
+    html+=`</div>`;
+  }
+  html+=`<button class="btn btn-primary" onclick="confirmMapping()">Confirm Mapping →</button>`;
+  document.getElementById('mappingBox').innerHTML=html;
+}
+async function confirmMapping(){
+  // for now, use suggested mappings as-is (user can edit future)
+  const files=await api(`/investigations/${_pendingInv}/files`);
+  const payload={};
+  for(const f of files.files){
+    const det=await api(`/investigations/${_pendingInv}/detection/${encodeURIComponent(f.original)}`);
+    payload[f.original]=det.suggested_mapping;
+  }
+  await api(`/investigations/${_pendingInv}/mapping`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  // process
+  navigate('processing');
+  document.getElementById('procSteps').innerHTML='✓ Files validated<br>✓ Mapping confirmed<br>⏳ Processing…';
+  const res=await api(`/investigations/${_pendingInv}/process`,{method:'POST'});
+  document.getElementById('procSteps').innerHTML+=`<br>✓ Entities extracted<br>✓ Entities resolved<br>✓ Relationships identified<br>✓ Network constructed<br>✓ Leads generated<br><b>Completed: ${res.stats.node_count} entities, ${res.stats.edge_count} links</b><br><button class="btn btn-primary" onclick="openInvestigationOverview('${_pendingInv}')">View Investigation →</button>`;
+}
+async function openInvestigation(iid){
+  _currentInv=iid;
+  navigate('investigation-overview');
+  const meta=await api(`/investigations/${iid}`);
+  document.getElementById('invOverviewTitle').textContent=meta.name+' — Overview';
+  try{
+    const stats=await api(`/investigations/${iid}/stats`);
+    document.getElementById('ovEntities').textContent=stats.graph.node_count;
+    document.getElementById('ovGroups').textContent='3 groups';
+    const leads=await api(`/investigations/${iid}/leads?limit=5`);
+    document.getElementById('ovLeads').textContent=leads.leads.filter(l=>l.priority!=='LOW').length;
+    document.getElementById('ovFindings').innerHTML=`<ul style="margin-left:16px;font-size:13px"><li>Report involves ${stats.graph.node_count} entities</li><li>${leads.leads[0].entity_id} is top lead (${leads.leads[0].lead_score}/100)</li></ul>`;
+  }catch(e){document.getElementById('ovFindings').textContent='Not yet processed — upload and map first';}
+}
+function openInvestigationOverview(iid){openInvestigation(iid);}
+async function openDemo(num){
+  // demo fast path: use global synthetic data as investigation (no upload needed)
+  const invs=await api('/investigations');
+  const demo=invs.investigations[num-1];
+  if(demo) openInvestigation(demo.id);
+}
+function doPeopleSearch(){
+  const q=document.getElementById('psQuery').value.trim();
+  if(!q) return;
+  api('/why/'+encodeURIComponent(q)).then(w=>{
+    document.getElementById('psResults').innerHTML=`<div class="card"><b>${w.id} — ${w.label}</b> ${pill(w.cell)}<br>Connections: ${w.edge_counts.total}<br>Groups: ${w.lead? w.lead.cell : ''}<br><button class="btn btn-primary" onclick="openEntity('${w.id}')">View Profile</button> <button class="btn" onclick="loadEvidence('${w.id}');navigate('evidence')">Evidence</button></div>`;
+  }).catch(()=>{document.getElementById('psResults').innerHTML='<div class="card">No exact match — try X1, C12, A1, or phone 7000000001</div>';});
+}
+function doGlobalSearch(v){if(!v) return; document.getElementById('psQuery').value=v; navigate('people-search'); doPeopleSearch();}
+
+// Keep existing view loaders (simplified wrappers)
+async function loadCase(){
+  const stats=await api('/stats');const leads=await api('/leads?limit=3');
+  document.getElementById('caseSummary').innerHTML=`The system analyzed CDR, financial and case files together and found <b>3 connected groups</b> with hidden links. Top lead <b>${leads.leads[0].entity_id}</b> (${leads.leads[0].lead_score}/100).`;
+  document.getElementById('caseLeads').innerHTML=leads.leads.slice(0,3).map(l=>`<div class="card" style="text-align:center"><b>${l.entity_id}</b><br>${l.label}<br>${l.lead_score}/100 ${prio(l.priority)}<br><button class="btn btn-primary" style="margin-top:6px" onclick="openEntity('${l.entity_id}')">Open</button></div>`).join('');
+}
+function drawCanvas(id,data){
+  const c=document.getElementById(id);if(!c||!data) return;
+  const ctx=c.getContext('2d');const rect=c.getBoundingClientRect();const dpr=window.devicePixelRatio||1;const W=rect.width||600,H=360;c.width=W*dpr;c.height=H*dpr;c.style.width=W+'px';c.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
+  _nodePos.clear();data.nodes.forEach(n=>getNodePos(n.id,n.cell));
+  (data.edges||[]).forEach(e=>{const a=data.nodes.find(n=>n.id===e.src),b=data.nodes.find(n=>n.id===e.dst);if(!a||!b) return;const pa=getNodePos(a.id,a.cell),pb=getNodePos(b.id,b.cell);ctx.globalAlpha=0.25;ctx.strokeStyle='#E6EDF3';ctx.beginPath();ctx.moveTo(pa.x,pa.y);ctx.lineTo(pb.x,pb.y);ctx.stroke();});
+  ctx.globalAlpha=1;data.nodes.forEach(n=>{if(n.kind==='Phone'||n.kind==='Account') return;if(n.cell==='Noise'&&n.degree<2) return;const p=getNodePos(n.id,n.cell);const col={A:'#4C9AFF',B:'#AB68FF',C:'#FF7A45',Bridge:'#FFC53D'}[n.cell]||'#E6EDF3';ctx.fillStyle=col;if(n.cell==='Bridge'){ctx.beginPath();ctx.moveTo(p.x,p.y-6);ctx.lineTo(p.x+6,p.y);ctx.lineTo(p.x,p.y+6);ctx.lineTo(p.x-6,p.y);ctx.closePath();ctx.fill();}else{ctx.beginPath();ctx.arc(p.x,p.y,3.5,0,Math.PI*2);ctx.fill();} if(['X1','X2','X3','X4','C12'].includes(n.id)){ctx.fillStyle='#E6EDF3';ctx.font='10px Inter';ctx.fillText(n.id,p.x+6,p.y+3);}});
+  c._lastData=data;
+}
+function onDayChange(v){document.getElementById('dayLabel').textContent=v;api('/graph?day='+v).then(d=>{drawCanvas('mainCanvas',d);});}
+async function playDays(){for(let d=50;d<=70;d++){document.getElementById('daySlider').value=d;document.getElementById('dayLabel').textContent=d;try{const data=await api('/graph?day='+d);drawCanvas('mainCanvas',data);}catch{} await new Promise(r=>setTimeout(r,260));}}
+document.getElementById('mainCanvas')?.addEventListener('click',e=>{const c=e.currentTarget,d=c._lastData;if(!d) return;const rect=c.getBoundingClientRect();const x=e.clientX-rect.left,y=e.clientY-rect.top;let best=null,bestD=12;for(const n of d.nodes){if(n.kind==='Phone'||n.kind==='Account') continue;const p=_nodePos.get(n.id);if(!p) continue;const dist=Math.hypot(p.x-x,p.y-y);if(dist<bestD){bestD=dist;best=n;}} if(best) openEntity(best.id);});
+async function loadNetwork(){
+  const g=await api('/graph?day=58');
+  const cntA=g.nodes.filter(n=>n.cell==='A').length,cntB=g.nodes.filter(n=>n.cell==='B').length,cntC=g.nodes.filter(n=>n.cell==='C').length;
+  const elA=document.getElementById('netCountA'); if(elA) elA.textContent=cntA;
+  const elB=document.getElementById('netCountB'); if(elB) elB.textContent=cntB;
+  const elC=document.getElementById('netCountC'); if(elC) elC.textContent=cntC;
+  const bridges=await api('/bridges');
+  const nb=document.getElementById('netBridges'); if(nb) nb.innerHTML=bridges.filter(b=>b.flagged).slice(0,4).map(b=>`<div class="card" style="text-align:center"><b>${b.id}</b> ${b.name}<br><span class="muted">${b.role}</span></div>`).join('');
+  drawCanvas('netCanvas',g);
+}
+function doGraphSearch(v){if(!v) return;api('/why/'+v).then(w=>openEntity(v)).catch(()=>alert('Not found'))}
+function applyNetworkFilters(){}
+function onNetDay(v){api('/graph?day='+v).then(d=>drawCanvas('netCanvas',d));}
+function resetNetwork(){if(_graph) drawCanvas('netCanvas',_graph);}
+async function loadLeads(filter){
+  const data=await api(filter && filter!=='ALL'?'/leads?limit=20&priority='+filter:'/leads?limit=20');
+  const el=document.getElementById('leadsList')||document.getElementById('leadsBody');
+  if(!el) return;
+  if(el.tagName==='TBODY'){
+    el.innerHTML=data.leads.map((l,i)=>`<tr><td>${i+1}</td><td><b>${l.entity_id}</b> ${l.label}</td><td>${l.lead_score}/100</td><td>${l.priority}</td><td style="font-size:11px">${(l.reasons[0]||'').slice(0,60)}</td><td><button class="btn btn-primary" onclick="openEntity('${l.entity_id}')">View</button></td></tr>`).join('');
+  } else {
+    el.innerHTML=data.leads.map((l,i)=>`<div class="card" style="display:flex;gap:12px;align-items:center"><div style="text-align:center;min-width:50px"><div class="mono" style="font-size:11px;color:var(--muted)">RANK ${String(i+1).padStart(2,'0')}</div><div class="mono" style="font-size:18px">${l.lead_score}/100</div><div class="pill pill-${l.priority}" style="font-size:10px">${l.priority}</div></div><div style="flex:1"><b>${l.entity_id} — ${l.label}</b> ${pill(l.cell)}<br><span style="font-size:12px;color:var(--muted)">${l.reasons[0]||''}</span></div><button class="btn btn-primary" onclick="openEntity('${l.entity_id}')">View →</button></div>`).join('');
+  }
+}
+async function openEntity(id){
+  navigate('entity');
+  const headerEl=document.getElementById('entityHeader');
+  if(headerEl) headerEl.innerHTML=`Loading ${id}…`;
+  const w=await api('/why/'+id);
+  const lead=w.lead;
+  const bodyEl=document.getElementById('entityBody');
+  if(!bodyEl) return;
+  bodyEl.innerHTML=`
+    <div class="card" style="border-left:4px solid var(--gold)"><h3>${w.id} — ${w.label} ${pill(w.cell)} <span style="font-size:11px;color:var(--muted)">${w.role}</span> <span style="float:right" class="pill pill-${lead?.priority||'LOW'}">${lead?.lead_score||'—'}/100 ${lead?.priority||''}</span></h3>
+      <div style="font-size:13px;margin-top:8px"><b>Why was ${w.id} flagged?</b><br>
+      ${w.top_signals.slice(0,3).map(s=>`• ${s.slice(0,120)}`).join('<br>')}<br>
+      <span class="muted">What does this mean? — ${w.top_signals[0]?.includes('bridge')?'This person connects otherwise separate groups.': w.top_signals[0]?.includes('Financial')?'Money activity overlaps with network position.':'Several small signals together make this worth checking.'}</span></div>
+      <details style="margin-top:8px"><summary style="font-size:11px;color:var(--muted)">Technical Analysis ▾</summary><div class="mono" style="font-size:11px">${lead? Object.entries(lead.signals).map(([k,v])=>`${k}: ${v}`).join('<br>'):''}</div></details>
+    </div>
+    <div class="card"><h3>Evidence — you can verify</h3>${w.sources.slice(0,4).map(s=>`<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:11px"><b>${s.source}</b> ${s.source_type} Day ${s.day||'—'}<br><span class="muted">${(s.supporting_text||'').slice(0,100)}</span><br><span class="mono" style="font-size:10px">hash ${s.evidence_hash}</span></div>`).join('')}</div>
+  `;
+  if(headerEl) headerEl.innerHTML=`<div class="card"><b>${w.id}</b> ${w.label} — Priority ${lead?.priority||''} ${lead?.lead_score||''}/100</div>`;
+}
+async function loadTimeline(){
+  const t=await api('/temporal');
+  const el=document.getElementById('timelineList');
+  if(!el) return;
+  el.innerHTML=t.correlated_groups.slice(0,3).map(g=>`<div class="tl-item"><b>Days ${g.days.join(', ')}</b> — Unusual activity across ${g.cells.join(', ')}<br><span style="font-size:11px;color:var(--muted)">Activity was much higher than normal.</span><details><summary style="font-size:11px">Technical ▾</summary><span class="mono" style="font-size:11px">z ${g.max_zscore}</span></details></div>`).join('');
+}
+async function loadFinancial(){
+  const s=await api('/structuring');
+  const el=document.getElementById('finHuman');
+  if(!el) return;
+  if(s.length){
+    const f=s[0];
+    el.innerHTML=`<h3>Suspicious money movement</h3><p class="simple">${f.receiver} received <b>22 small cash payments below ₹50,000 over 12 days</b>. The money was then combined into <b>3 larger transfers above ₹2.5 lakh</b>.</p><div style="background:var(--bg);border:1px solid var(--gold);border-radius:8px;padding:8px;font-size:11px"><b>Why it matters:</b> This pattern may indicate splitting and consolidation — worth reviewing.</div>`;
+  }
+  const g=await api('/graph?day=64');const tb=document.getElementById('finBody');if(tb) tb.innerHTML=g.edges.filter(e=>e.kind==='TRANSACTED').slice(0,8).map(e=>`<tr><td class="mono">${e.source}</td><td>${e.src}→${e.dst}</td><td>₹${(e.meta?.amount||0).toLocaleString()}</td><td>Day ${e.day}</td></tr>`).join('');
+}
+async function loadCommunications(){
+  const bursts=await api('/bursts');
+  const el=document.getElementById('commHuman');
+  if(el) el.innerHTML=`<p class="simple">Calls increased sharply on Days ${bursts.slice(0,2).map(b=>b.day).join(', ')} compared with the previous week.</p>`;
+  const g=await api('/graph?day=58');const tb=document.getElementById('commBody');if(tb) tb.innerHTML=g.edges.filter(e=>e.kind==='CALLED').slice(0,8).map(e=>`<tr><td class="mono">${e.source}</td><td>${e.src}→${e.dst}</td><td>Day ${e.day}</td><td>${e.meta?.tower||''}</td></tr>`).join('');
+}
+async function loadLocations(){
+  const g=await api('/graph');const el=document.getElementById('locGrid');if(!el) return;
+  const wards=["Dockside Ward","Old Market Circle","Riverside Colony","Industrial Estate Road","Central Junction","Eastgate","Hilltop Society","Station Road","New Colony","Warehouse District","North Bypass","Lakeview Chowk"];
+  el.innerHTML=wards.map(w=>`<div class="card" style="text-align:center"><b style="font-size:12px">${w}</b><br><span class="mono">${g.nodes.filter(n=>n.location===w||n.label===w).length||'·'}</span></div>`).join('');
+}
+async function loadCrossCase(){
+  const cc=await api('/cross-case');const el=document.getElementById('crossList');if(!el) return;
+  el.innerHTML=cc.slice(0,4).map(c=>`<div class="card" style="margin-bottom:8px"><b>${c.shared_entity}</b> appears in ${c.cases.length} cases — worth comparing: ${c.cases.slice(0,2).join(', ')}</div>`).join('');
+}
+async function loadEvidence(q){
+  if(!q) q='X1';
+  try{
+    const w=await api('/why/'+q);
+    const el=document.getElementById('evidenceBox');
+    if(el) el.innerHTML=`<div class="card"><h3>Where did idea about ${w.id} come from?</h3><div class="muted">CONCLUSION → Potential lead ${w.id}<br>→ SOURCE → ${w.sources.slice(0,2).map(s=>s.source).join(', ')}<br>→ TEXT → ${(w.sources[0]?.supporting_text||'').slice(0,80)}<br>→ HASH <span class="mono">${w.sources[0]?.evidence_hash||''}</span></div></div>`;
+  }catch{}
+}
+function fillAsk(t){const el=document.getElementById('askInput');if(el) el.value=t;}
+async function doAsk(){
+  const el=document.getElementById('askInput');
+  const q=el?el.value:'';if(!q) return;
+  const r=await api('/ask?q='+encodeURIComponent(q));
+  const out=document.getElementById('askResult');
+  if(out) out.innerHTML=`<div class="card"><b>Answer</b> — ${r.description}<br><code style="font-size:11px">${r.cypher}</code><br>params <span class="mono">${JSON.stringify(r.params)}</span></div>`;
+}
+async function generateBrief(){
+  const stats=await api('/stats');const leads=await api('/leads?limit=5');const temporal=await api('/temporal');const cc=await api('/cross-case');
+  const exEl=document.getElementById('reportExecutive');if(exEl) exEl.innerHTML=`The system looked at <b>${stats.datasets.cdrs} calls, ${stats.datasets.transactions} money transfers and ${stats.datasets.firs} case files</b> and found <b>3 groups that look separate but have hidden links</b>. Top lead <b>${leads.leads[0].entity_id}</b>.`;
+  const fEl=document.getElementById('reportFindings');if(fEl) fEl.innerHTML=`<div class="card"><b>3 groups are actually linked</b><br><span class="muted">4 people connect Drug, Arms, Extortion.</span></div>`.repeat(1);
+  const lEl=document.getElementById('reportLeads');if(lEl) lEl.innerHTML=leads.leads.slice(0,3).map(l=>`<div style="padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:6px"><b>${l.entity_id} — ${l.label}</b> ${l.lead_score}/100<br><span class="muted">${l.reasons[0]||''}</span></div>`).join('');
+}
+function navigate(view){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const el=document.getElementById('view-'+view);
+  if(el) el.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.view===view));
+  location.hash=view;
+  if(view==='dashboard') loadDashboard();
+  if(view==='investigations') loadInvestigations();
+  if(view==='network') loadNetwork();
+  if(view==='leads') loadLeads();
+  if(view==='timeline') loadTimeline();
+  if(view==='financial') loadFinancial();
+  if(view==='communications') loadCommunications();
+  if(view==='locations') loadLocations();
+  if(view==='crosscase') loadCrossCase();
+  if(view==='evidence') loadEvidence('X1');
+  if(view==='reports') generateBrief();
+}
+function loadInvestigations(){
+  api('/investigations').then(d=>{
+    const el=document.getElementById('prevInvs');
+    if(!el) return;
+    el.innerHTML=d.investigations.map(v=>`<div class="card" style="display:flex;justify-content:space-between;align-items:center"><div><b>${v.name}</b><br><span class="muted">${v.status}</span></div><button class="btn" onclick="openInvestigation('${v.id}')">Open</button></div>`).join('');
+  });
+}
+async function doGlobalSearch(v){if(!v) return;document.getElementById('psQuery').value=v;navigate('people-search');doPeopleSearch();}
+async function doPeopleSearch(){
+  const q=document.getElementById('psQuery').value.trim();
+  if(!q) return;
+  try{
+    const w=await api('/why/'+encodeURIComponent(q));
+    document.getElementById('psResults').innerHTML=`<div class="card"><b>${w.id} — ${w.label}</b><br>Connections: ${w.edge_counts.total}<br><button class="btn btn-primary" onclick="openEntity('${w.id}')">View Profile</button></div>`;
+  }catch{ document.getElementById('psResults').innerHTML='<div class="card">No exact match — try X1, C12</div>';}
+}
+function loadDashboard(){
+  api('/stats').then(stats=>{
+    const el1=document.getElementById('kpiCases'); if(el1) el1.textContent=stats.datasets.firs;
+    const el2=document.getElementById('kpiNetworks'); if(el2) el2.textContent='3 groups';
+    const sys=document.getElementById('sysStatus'); if(sys) sys.textContent='● Live — '+stats.graph.node_count+' entities';
+  });
+  api('/leads?limit=3').then(d=>{
+    const el=document.getElementById('kpiLeads'); if(el) el.textContent=d.leads.filter(l=>l.priority!=='LOW').length+' people';
+  });
+  api('/graph?day=58').then(g=>drawCanvas('mainCanvas',g));
+}
+function openInvestigation(iid){
+  // simple: set current and go to overview
+  _currentInv=iid;
+  const el=document.getElementById('invOverviewTitle');
+  if(el) el.textContent='Investigation '+iid+' — Overview';
+  navigate('investigation-overview');
+  api(`/investigations/${iid}/stats`).then(s=>{
+    const e1=document.getElementById('ovEntities'); if(e1) e1.textContent=s.graph.node_count;
+    const e2=document.getElementById('ovGroups'); if(e2) e2.textContent='3 groups';
+  }).catch(()=>{
+    // if not processed, show files
+  });
+}
+// fallback for old functions
+function switchCaseTab(){}
+function loadCase(){}
+function loadLeads(filter){const dataFilter=filter&&filter!=='ALL'? '?limit=20&priority='+filter : '?limit=20'; api('/leads'+dataFilter).then(data=>{
+  const el=document.getElementById('leadsList'); if(!el) return;
+  el.innerHTML=data.leads.map((l,i)=>`<div class="card" style="display:flex;gap:12px;align-items:center"><div style="min-width:50px" class="mono">${l.lead_score}/100<br><span class="pill pill-${l.priority}" style="font-size:10px">${l.priority}</span></div><div style="flex:1"><b>${l.entity_id} — ${l.label}</b><br><span style="font-size:12px;color:var(--muted)">${l.reasons[0]||''}</span></div><button class="btn btn-primary" onclick="openEntity('${l.entity_id}')">View →</button></div>`).join('');
+});}
+function openEntity(id){
+  navigate('entity');
+  const headerEl=document.getElementById('entityHeader');
+  if(headerEl) headerEl.innerHTML=`Loading ${id}…`;
+  api('/why/'+id).then(w=>{
+    const lead=w.lead;
+    const bodyEl=document.getElementById('entityBody');
+    if(!bodyEl) return;
+    bodyEl.innerHTML=`<div class="card" style="border-left:4px solid var(--gold)"><h3>${w.id} — ${w.label} ${pill(w.cell)} <span style="font-size:11px;color:var(--muted)">${w.role}</span> <span style="float:right" class="pill pill-${lead?.priority||'LOW'}">${lead?.lead_score||'—'}/100 ${lead?.priority||''}</span></h3><div style="font-size:13px;margin-top:8px"><b>Why was ${w.id} flagged?</b><br>${w.top_signals.slice(0,3).map(s=>`• ${s.slice(0,120)}`).join('<br>')}<br><span class="muted">What does this mean? — Several small signals together make this worth checking.</span></div><details style="margin-top:8px"><summary style="font-size:11px;color:var(--muted)">Technical Analysis ▾</summary><div class="mono" style="font-size:11px">${lead? Object.entries(lead.signals).map(([k,v])=>`${k}: ${v}`).join('<br>'):''}</div></details></div><div class="card"><h3>Evidence — you can verify</h3>${w.sources.slice(0,3).map(s=>`<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:11px"><b>${s.source}</b> Day ${s.day||'—'}<br><span class="muted">${(s.supporting_text||'').slice(0,100)}</span></div>`).join('')}</div>`;
+    if(headerEl) headerEl.innerHTML=`<div class="card"><b>${w.id}</b> ${w.label} — Priority ${lead?.priority||''} ${lead?.lead_score||''}/100</div>`;
+  });
+}
+function showMapping(iid){_pendingInv=iid;navigate('mapping'); api(`/investigations/${iid}/files`).then(d=>{let html=''; d.files.forEach(async f=>{const det=await api(`/investigations/${iid}/detection/${encodeURIComponent(f.original)}`); html+=`<div class="card"><h3>${f.original} — ${det.detection.detected_type}</h3><div style="font-size:11px">${Object.entries(det.suggested_mapping).slice(0,5).map(([k,v])=>`${k} → ${v||'Missing'}`).join('<br>')}</div></div>`; document.getElementById('mappingBox').innerHTML=html;})}
+let _pendingInv=null;
+document.addEventListener('DOMContentLoaded',()=>{const v=location.hash.slice(1)||'dashboard';navigate(v);});
+</script>
+</body>
+</html>

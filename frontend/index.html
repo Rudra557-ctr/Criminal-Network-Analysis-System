@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Criminal Network Intelligence System</title>
+<style>
+:root{
+  --bg:#F0F4F8; /* Soft ice-blue tinted slate background */
+  --panel:#F8FAFC; /* Crisp ice-tinted off-white panel */
+  --panel-border:#CBD5E1; /* Clean slate-blue border */
+  --accent:#1E40AF; /* Deep Police Royal Navy Blue */
+  --accent-hover:#1E3A8A; /* Deep Navy Hover */
+  --accent-dark:#1E3A8A;
+  --accent-light:#E0F2FE; /* Soft Sky Blue tint */
+  --accent-cyan:#0284C7; /* Sky Blue accent */
+  --text:#0F172A; /* High-contrast deep dark slate text */
+  --muted:#475569; /* Slate gray secondary text */
+  --border:#CBD5E1;
+  --card-shadow:0 4px 20px rgba(15,23,42,.06);
+}
+#view-login{display:none}
+#view-login.active{position:fixed !important;top:0 !important;left:0 !important;right:0 !important;bottom:0 !important;width:100vw !important;height:100vh !important;max-width:100vw !important;display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:center !important;background:var(--bg) !important;z-index:99999 !important;padding:20px !important;margin:0 !important;box-sizing:border-box !important}
+#view-login.active .card{width:100% !important;max-width:440px !important;margin:0 auto !important}
+#view-login h2,#view-login p.sub{text-align:center}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;display:flex;min-height:100vh;margin:0}
+body.logged-out .sidebar{display:none !important}
+.sidebar{width:250px;min-width:250px;height:100vh;position:sticky;top:0;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 16px;box-sizing:border-box;z-index:100}
+.sidebar h1{font-size:13px;font-weight:700;letter-spacing:.06em;line-height:1.5}
+.sidebar h1 .sih{color:var(--accent);font-weight:700}
+.sidebar nav{display:flex;flex-direction:column;gap:4px;margin-top:16px}
+.sidebar nav button{background:none;border:none;font-size:13px;color:var(--muted);padding:9px 12px;border-radius:6px;cursor:pointer;text-align:left;width:100%;border-left:3px solid transparent}
+.sidebar nav button.active,.sidebar nav button:hover{color:var(--text);background:var(--accent-light)}
+.sidebar nav button.active{color:var(--accent);font-weight:600;border-left-color:var(--accent)}
+.sidebar-footer{margin-top:auto;display:flex;flex-direction:column;gap:8px;padding-top:16px;border-top:1px solid var(--border)}
+body.logged-out .sidebar{display:none}
+.main-content{flex:1;padding:24px 32px;overflow-y:auto;min-width:0}
+.main-content .view{max-width:900px}
+.view{display:none}
+.view.active{display:block}
+.card{background:var(--panel);border:1px solid var(--panel-border);border-radius:10px;padding:20px;margin-bottom:16px;box-shadow:var(--card-shadow)}
+h2{font-size:20px;font-weight:600;margin-bottom:8px}
+h3{font-size:15px;font-weight:600;margin-bottom:8px}
+p.sub{color:var(--muted);font-size:13px;margin-bottom:16px}
+.btn{display:inline-block;padding:9px 16px;border-radius:6px;border:1px solid var(--border);background:var(--panel);color:var(--text);font-size:13px;cursor:pointer;text-decoration:none}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
+.btn-primary:hover{background:var(--accent-dark)}
+.btn:disabled{opacity:.5;cursor:default}
+input[type=text],input[type=password],textarea,select{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;margin-bottom:12px;background:var(--bg);color:var(--text)}
+input[type=text]:focus,input[type=password]:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent-cyan);box-shadow:0 0 0 3px rgba(2,132,199,.22)}
+label{font-size:12px;font-weight:600;display:block;margin-bottom:4px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);padding:8px;border-bottom:1px solid var(--border)}
+td{padding:10px 8px;border-bottom:1px solid var(--border);vertical-align:top}
+tbody tr:hover td{background:var(--accent-light)}
+.muted{color:var(--muted);font-size:12px}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:12px}
+ul.findings{margin-left:18px;font-size:14px}
+ul.findings li{margin-bottom:6px}
+.steps{list-style:none;font-size:14px}
+.steps li{padding:8px 0;border-bottom:1px solid var(--border)}
+.steps li:last-child{border-bottom:none}
+.demo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0}
+.demo-card{border:1px solid var(--border);border-radius:8px;padding:16px;background:var(--panel);cursor:pointer;text-align:left;width:100%;font-size:13px;color:var(--text)}
+.demo-card:hover{border-color:var(--accent)}
+.demo-card b{display:block;font-size:14px;margin-bottom:4px}
+.tag{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.04em;background:var(--accent-light);color:var(--accent-dark);border-radius:4px;padding:2px 6px;margin-top:6px}
+.req{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.04em;background:#FEF2F2;color:#B91C1C;border:1px solid #FECACA;border-radius:4px;padding:1px 6px;margin-left:8px}
+.opt{display:inline-block;font-size:10px;letter-spacing:.04em;background:var(--accent-light);color:var(--muted);border-radius:4px;padding:1px 6px;margin-left:8px}
+.map-missing{outline:2px solid #EF4444;border-radius:6px}
+html[data-theme="dark"]{--bg:#0A0E14;--panel:#1E2638;--border:#2A364F;--text:#F1F5F9;--muted:#94A3B8;--accent:#3B82F6;--accent-dark:#2563EB;--accent-light:rgba(59,130,246,.14)}
+html[data-theme="dark"] .sidebar{background:#141B29}
+html[data-theme="dark"] .card{background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0) 40%),var(--panel);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+html[data-theme="dark"] .threat-HIGH{color:#FCA5A5;background:rgba(239,68,68,.14);border-color:#EF4444}
+html[data-theme="dark"] .threat-MEDIUM{color:#FCD34D;background:rgba(245,158,11,.13);border-color:#F59E0B}
+html[data-theme="dark"] .threat-LOW{color:#93C5FD;background:rgba(59,130,246,.13);border-color:#3B82F6}
+html[data-theme="dark"] .burst-banner{color:#FCD34D;background:rgba(245,158,11,.12)}
+html[data-theme="dark"] .profilepill .avatar{color:#fff}
+html[data-theme="dark"] .btn-logout{color:#FCA5A5;border-color:#7F2D2D}
+html[data-theme="dark"] .drawer{box-shadow:-16px 0 40px rgba(0,0,0,.5)}
+html[data-theme="dark"] .tag{background:rgba(59,130,246,.14);color:var(--accent)}
+html[data-theme="dark"] .opt{background:#222C3B}
+html[data-theme="dark"] .error{background:#3A1D1D;border-color:#7F2D2D;color:#FCA5A5}
+.error{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;border-radius:6px;padding:12px;font-size:13px;margin-bottom:12px}
+.lead{border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px;background:var(--panel);cursor:pointer;transition:border-color .15s}
+.lead:hover{border-color:var(--accent)}
+.lead b{font-size:14px}
+.lead .score{float:right;font-weight:600}
+.threat{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;border-radius:999px;padding:2px 10px;border:1px solid}
+.threat-HIGH{color:#B91C1C;background:#FEF2F2;border-color:#FECACA}
+.threat-MEDIUM{color:#92400E;background:#FFFBEB;border-color:#FDE68A}
+.threat-LOW{color:#1D4ED8;background:#EFF6FF;border-color:#BFDBFE}
+.scorebar{height:8px;border-radius:999px;background:rgba(148,163,184,.2);overflow:hidden;margin:8px 0 4px}
+.scorebar > div{height:100%;border-radius:999px;background:linear-gradient(90deg,#3B82F6,#EF4444)}
+.riskbar{display:flex;height:14px;border-radius:999px;overflow:hidden;border:1px solid var(--border);margin:8px 0 4px}
+.burst-banner{display:none;margin-top:10px;padding:12px 16px;border-radius:8px;font-weight:700;text-align:center;
+  background:#FFFBEB;border:1px solid #F59E0B;color:#92400E;
+  box-shadow:0 0 18px rgba(245,158,11,.45);animation:pulseGlow 1.2s ease-in-out infinite}
+@keyframes pulseGlow{0%,100%{box-shadow:0 0 8px rgba(245,158,11,.3)}50%{box-shadow:0 0 26px rgba(245,158,11,.7)}}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,94vw);background:var(--panel);border-left:1px solid var(--border);
+  box-shadow:-16px 0 40px rgba(0,0,0,.5);z-index:50;transform:translateX(105%);transition:transform .28s ease;
+  display:flex;flex-direction:column}
+.drawer.open{transform:translateX(0)}
+.drawer-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:16px 18px;border-bottom:1px solid var(--border)}
+.drawer-body{padding:16px 18px;overflow-y:auto}
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40;display:none}
+.drawer-overlay.open{display:block}
+.evidence{font-family:ui-monospace,Menlo,monospace;font-size:11px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;white-space:pre-wrap;word-break:break-all}
+.casepill{font-family:ui-monospace,Menlo,monospace;font-size:11px;background:rgba(59,130,246,.12);color:var(--accent);border:1px solid var(--border);padding:4px 10px;border-radius:999px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
+.profilepill{display:flex;align-items:center;gap:8px;font-size:12px;background:rgba(59,130,246,.1);border:1px solid var(--border);padding:5px 6px 5px 12px;border-radius:999px;white-space:nowrap}
+.profilepill .avatar{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.btn-logout{border-color:#7F2D2D;color:#FCA5A5}
+.btn-logout:hover{background:rgba(239,68,68,.12);border-color:#EF4444}
+details{margin-top:8px;font-size:12px;color:var(--muted)}
+@media(max-width:800px){.demo-grid{grid-template-columns:1fr}body{flex-direction:column}.sidebar{width:100%;min-width:0;height:auto;position:static;flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px}.sidebar nav{flex-direction:row;flex-wrap:wrap;margin-top:0}.sidebar nav button{width:auto}.sidebar-footer{flex-direction:row;margin-top:0;padding-top:0;border-top:none;margin-left:auto}}
+</style>
+<script src="https://unpkg.com/3d-force-graph"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+<aside class="sidebar" id="sidebar" style="display:none">
+  <h1>CRIMINAL NETWORK ANALYSIS SYSTEM <span class="sih">| SIH 2026</span></h1>
+  <span class="profilepill" id="roleBadge" style="display:none;margin-top:12px"><span class="avatar" id="roleAvatar">?</span><span id="roleText"></span></span>
+  <nav id="mainNav">
+    <button data-view="dashboard" onclick="navigate('dashboard')">Dashboard</button>
+    <button data-view="investigations" onclick="navigate('investigations')">Investigations</button>
+    <button data-view="people" onclick="navigate('people')">People</button>
+    <button data-view="intelligence" onclick="navigate('intelligence')">Timeline</button>
+    <button data-view="financial" onclick="navigate('financial')">Financial</button>
+    <button data-view="communications" onclick="navigate('communications')">Communications</button>
+    <button data-view="evidence" onclick="navigate('evidence')">Evidence</button>
+    <button data-view="reports" onclick="navigate('reports')">Reports</button>
+  </nav>
+  </nav>
+  <span class="casepill" id="casePill" style="display:none;margin-top:12px" title="Active investigation"></span>
+  <div class="sidebar-footer">
+    <button class="btn" id="themeBtn" onclick="toggleTheme()" title="Toggle dark / light theme" style="white-space:nowrap">◐ Dark</button>
+    <button class="btn btn-logout" id="logoutBtn" onclick="logout()" style="display:none;white-space:nowrap">⏻ Logout</button>
+  </div>
+</aside>
+<main class="main-content">
+
+<section id="view-login" class="view active">
+  <h2>Criminal Network Intelligence System</h2>
+  <p class="sub">Access is restricted to authorized roles. All actions are audit-logged.</p>
+  <div class="card" id="signinCard">
+    <h3>Sign in</h3>
+    <div id="loginError"></div>
+    <label for="loginUser">Username</label>
+    <input type="text" id="loginUser" placeholder="e.g. investigator" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+    <label for="loginPass">Password</label>
+    <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn btn-primary" id="loginBtn" onclick="doLogin()" style="width:100%">Sign in</button>
+    <p style="margin-top:8px;font-size:13px">New here? <a href="#" onclick="showSignup(event)" style="color:var(--accent);font-weight:600">Create an account</a></p>
+  </div>
+  <div class="card" id="signupCard" style="display:none">
+    <h3>Create account</h3>
+    <div id="signupError"></div>
+    <label for="signupUser">Username</label>
+    <input type="text" id="signupUser" placeholder="3–32 letters, numbers, . _ -" autocomplete="username" onkeydown="if(event.key==='Enter')doRegister()">
+    <label for="signupName">Display name (optional)</label>
+    <input type="text" id="signupName" placeholder="e.g. Inspector Priya" autocomplete="name" onkeydown="if(event.key==='Enter')doRegister()">
+    <label for="signupRole">Role</label>
+    <select id="signupRole">
+      <option value="investigator">Investigator — view graph &amp; run queries</option>
+      <option value="analyst">Analyst — upload &amp; map data</option>
+    </select>
+    <label for="signupPass">Password</label>
+    <input type="password" id="signupPass" placeholder="Minimum 6 characters" autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()">
+    <button class="btn btn-primary" id="signupBtn" onclick="doRegister()" style="width:100%">Create account &amp; sign in</button>
+    <p style="margin-top:8px;font-size:13px">Have an account? <a href="#" onclick="showSignin(event)" style="color:var(--accent);font-weight:600">Sign in</a></p>
+  </div>
+</section>
+
+<section id="view-dashboard" class="view">
+  <h2>Criminal Network Intelligence System</h2>
+  <p class="sub">Decision support for investigators. Findings are potential leads, not determinations of guilt.</p>
+  <button class="btn btn-primary" onclick="navigate('investigations')">+ New Investigation</button>
+  <div class="card" style="margin-top:16px">
+    <h3>Investigations</h3>
+    <div id="invList"><p class="muted">Loading…</p></div>
+  </div>
+  <div class="card" id="dash-createCaseCard">
+    <h3>Create New Investigation</h3>
+    <label for="dash-unifiedCaseName">Case name</label>
+    <input type="text" id="dash-unifiedCaseName" placeholder="e.g. Case 04 — Cyber Fraud Syndicate">
+    <label for="dash-unifiedCaseDesc">Description (optional)</label>
+    <input type="text" id="dash-unifiedCaseDesc" placeholder="e.g. Bulk CDR and Banking records drop">
+    <label>Data source</label>
+    <label style="font-weight:normal"><input type="radio" name="dash-unifiedSource" id="dash-optUpload" value="upload" style="width:auto" checked onchange="unifiedSourceChanged('dash-')"> Upload Custom Evidence Files (.zip, .csv, .xlsx, .json)</label>
+    <label style="font-weight:normal"><input type="radio" name="dash-unifiedSource" id="dash-optDemo" value="demo" style="width:auto" onchange="unifiedSourceChanged('dash-')"> Run on Demo Synthetic Dataset (Case 01 / Case 02 / Case 03)</label>
+    <div id="dash-unifiedUploadWrap">
+      <input type="file" id="dash-unifiedFileInput" multiple accept=".csv,.xlsx,.xls,.json,.zip" onchange="handleUnifiedFiles(this.files,'dash-')">
+      <div id="dash-unifiedSelectedFiles" class="muted"></div>
+    </div>
+    <div id="dash-unifiedDemoWrap" style="display:none">
+      <label for="dash-demoSelect">Demo case</label>
+      <select id="dash-demoSelect"><option>Case 01</option><option>Case 02</option><option>Case 03</option></select>
+    </div>
+    <div id="dash-unifiedError"></div>
+    <button class="btn btn-primary" id="dash-submitCaseBtn" onclick="submitUnifiedInvestigation('dash-')" style="width:100%;margin-top:12px">⚡ Create Case &amp; Upload Data</button>
+  </div>
+</section>
+
+<section id="view-investigations" class="view">
+  <h2>Investigations</h2>
+  <p class="sub">Create a new investigation, then select demo data or upload case files.</p>
+  <div class="card" id="createCaseCard">
+    <h3>Create New Investigation</h3>
+    <label for="unifiedCaseName">Case name</label>
+    <input type="text" id="unifiedCaseName" placeholder="e.g. Case 04 — Cyber Fraud Syndicate">
+    <label for="unifiedCaseDesc">Description (optional)</label>
+    <input type="text" id="unifiedCaseDesc" placeholder="e.g. Bulk CDR and Banking records drop">
+    <label>Data source</label>
+    <label style="font-weight:normal"><input type="radio" name="unifiedSource" id="optUpload" value="upload" style="width:auto" checked onchange="unifiedSourceChanged('')"> Upload Custom Evidence Files (.zip, .csv, .xlsx, .json)</label>
+    <label style="font-weight:normal"><input type="radio" name="unifiedSource" id="optDemo" value="demo" style="width:auto" onchange="unifiedSourceChanged('')"> Run on Demo Synthetic Dataset (Case 01 / Case 02 / Case 03)</label>
+    <div id="unifiedUploadWrap">
+      <input type="file" id="unifiedFileInput" multiple accept=".csv,.xlsx,.xls,.json,.zip" onchange="handleUnifiedFiles(this.files,'')">
+      <div id="unifiedSelectedFiles" class="muted"></div>
+    </div>
+    <div id="unifiedDemoWrap" style="display:none">
+      <label for="demoSelect">Demo case</label>
+      <select id="demoSelect"><option>Case 01</option><option>Case 02</option><option>Case 03</option></select>
+    </div>
+    <div id="unifiedError"></div>
+    <button class="btn btn-primary" id="submitCaseBtn" onclick="submitUnifiedInvestigation('')" style="width:100%;margin-top:12px">⚡ Create Case &amp; Upload Data</button>
+  </div>
+  <div class="card">
+    <h3>Previous investigations</h3>
+    <div id="prevInvs"><p class="muted">Loading…</p></div>
+  </div>
+</section>
+
+<section id="view-new" class="view">
+  <h2 id="newTitle">New investigation</h2>
+  <p class="sub">Select a demo case or upload the case dataset, then run analysis.</p>
+  <div id="newError"></div>
+  <div class="card">
+    <h3>1. Select demo case</h3>
+    <div class="demo-grid">
+      <button class="demo-card" onclick="selectDemo('Case 01')"><b>Case 01</b><span class="muted">Drug network</span><span class="tag">DEMO · SYNTHETIC</span></button>
+      <button class="demo-card" onclick="selectDemo('Case 02')"><b>Case 02</b><span class="muted">Arms network</span><span class="tag">DEMO · SYNTHETIC</span></button>
+      <button class="demo-card" onclick="selectDemo('Case 03')"><b>Case 03</b><span class="muted">Held-out evaluation</span><span class="tag">DEMO · SYNTHETIC</span></button>
+    </div>
+    <p class="muted" id="demoNote">Demo cases use the existing synthetic dataset through the standard pipeline.</p>
+    <div id="demoFiles" class="muted"></div>
+  </div>
+  <div class="card" id="uploadCard">
+    <h3>2. Or upload case data</h3>
+    <p class="sub">Supported: CSV, XLSX, JSON, ZIP — the files the current pipeline can reliably process. Multiple files allowed.</p>
+    <input type="file" id="fileInput" multiple accept=".csv,.xlsx,.xls,.json,.zip" onchange="handleFiles(this.files)">
+    <div id="selectedFiles" class="muted" style="margin:8px 0"></div>
+    <button class="btn" onclick="uploadFiles()">Upload files</button>
+    <div id="uploadResult" class="muted" style="margin-top:8px"></div>
+  </div>
+  <div class="card">
+    <h3>3. Run analysis</h3>
+    <p class="sub">Demo cases run immediately. Uploaded files go through column-mapping review first.</p>
+    <button class="btn btn-primary" id="runBtn" onclick="runAnalysis()">Start analysis</button>
+  </div>
+</section>
+
+<section id="view-mapping" class="view">
+  <h2>Review column mapping</h2>
+  <p class="sub">The system guessed how each file's columns map to the required fields. Correct any mistakes below, then confirm to run analysis.</p>
+  <div id="mappingError"></div>
+  <div id="mappingBox"></div>
+  <div style="display:flex;gap:8px;margin-top:4px">
+    <button class="btn" onclick="navigate('new')">← Back</button>
+    <button class="btn btn-primary" id="confirmMapBtn" onclick="confirmMapping()">Confirm &amp; Run Analysis</button>
+  </div>
+</section>
+
+<section id="view-processing" class="view">
+  <h2>Analyzing case</h2>
+  <p class="sub" id="procSub">Running the backend pipeline. Each step reflects a real operation.</p>
+  <div class="card"><ul class="steps" id="procSteps"></ul></div>
+</section>
+
+<section id="view-overview" class="view">
+  <h2 id="ovTitle">Investigation overview</h2>
+  <p class="sub" id="ovSub"></p>
+  <div class="card">
+    <h3>Summary</h3>
+    <table><tbody id="ovTable"></tbody></table>
+    <div id="riskBar" style="margin-top:10px"></div>
+  </div>
+  <div class="card">
+    <h3>Key findings</h3>
+    <ul class="findings" id="ovFindings"></ul>
+  </div>
+  <div class="card">
+    <h3>Important people</h3>
+    <div id="ovLeads"></div>
+  </div>
+  <div class="card">
+    <h3>Case network — 3D explorer</h3>
+    <p class="sub">Entire case network. Filter by type or cell, click any node to inspect its subgraph. Gold diamonds are bridge entities.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <div style="min-width:190px;flex:0 0 200px">
+        <h3 style="font-size:13px">Show</h3>
+        <label style="display:block;font-weight:normal"><input type="checkbox" id="fltPerson" checked onchange="renderMainGraph3D()"> Persons</label>
+        <label style="display:block;font-weight:normal"><input type="checkbox" id="fltPhone" checked onchange="renderMainGraph3D()"> Phones</label>
+        <label style="display:block;font-weight:normal"><input type="checkbox" id="fltAccount" checked onchange="renderMainGraph3D()"> Accounts</label>
+        <label style="display:block;font-weight:normal"><input type="checkbox" id="fltFIR" checked onchange="renderMainGraph3D()"> FIRs</label>
+        <h3 style="font-size:13px;margin-top:10px">Cell</h3>
+        <div id="ovCellFilter">
+          <button class="btn btn-primary" data-cell="All" onclick="setOvCell('All')">All Cells</button>
+          <button class="btn" data-cell="A" onclick="setOvCell('A')">Cell A</button>
+          <button class="btn" data-cell="B" onclick="setOvCell('B')">Cell B</button>
+          <button class="btn" data-cell="C" onclick="setOvCell('C')">Cell C</button>
+        </div>
+        <div id="ovFocusBar" style="margin-top:10px;display:none">
+          <span class="muted">Focused on <b id="ovFocusId" class="mono"></b></span><br>
+          <button class="btn" onclick="setOvHops(1)">1-Hop</button>
+          <button class="btn" onclick="setOvHops(2)">2-Hop</button>
+          <button class="btn" onclick="clearOvFocus()">Reset</button>
+        </div>
+      </div>
+      <div style="flex:1 1 420px;position:relative;min-width:280px">
+        <div id="simBanner" style="display:none;margin-bottom:8px;padding:10px 14px;border-radius:8px;font-weight:700;text-align:center;background:#FFFBEB;border:1px solid #F59E0B;color:#92400E">⚠️ SIMULATION ONLY</div>
+        <div id="mainGraph3D" style="height:500px;border:1px solid var(--border);border-radius:8px;overflow:hidden;background-color:#0A0E14;"></div>
+        <div id="ovPopover" style="display:none;position:absolute;top:12px;right:12px;max-width:260px;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px;box-shadow:0 4px 16px rgba(0,0,0,.35);z-index:5"></div>
+        <div id="ovGraphStats" class="muted" style="margin-top:6px"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="view-people" class="view">
+  <h2>People</h2>
+  <p class="sub">Search by name, person ID, phone number or account.</p>
+  <div class="card">
+    <label for="psQuery">Search</label>
+    <input type="text" id="psQuery" placeholder="e.g. Mehta, X1, 7000000001, AC0009000001" onkeydown="if(event.key==='Enter')doPeopleSearch()">
+    <button class="btn btn-primary" onclick="doPeopleSearch()">Search</button>
+    <div id="psResults" style="margin-top:12px"><p class="muted">Enter a name, ID, phone or account above.</p></div>
+  </div>
+</section>
+
+<section id="view-person" class="view">
+  <button class="btn" onclick="navigate('people')">← Back to People</button>
+  <h2 id="personTitle" style="margin-top:12px">Person</h2>
+  <p class="sub" id="personSub"></p>
+  <div class="card">
+    <h3>Why this person is important</h3>
+    <div id="personWhy"><p class="muted">Loading…</p></div>
+  </div>
+  <div class="card">
+    <h3>Connections</h3>
+    <p class="sub">Only relationships involving this person. No unrelated network shown.</p>
+    <div style="margin-bottom:8px">
+      <button class="btn btn-primary" id="hop1Btn" onclick="setHops(1)">1 hop</button>
+      <button class="btn" id="hop2Btn" onclick="setHops(2)">2 hops</button>
+    </div>
+    <div id="personCanvasContainer" style="height:400px; width:100%; border:1px solid var(--border); border-radius:8px; overflow:hidden; background-color:#0A0E14;"></div>
+    <div id="personConns" style="margin-top:12px"></div>
+  </div>
+  <div class="card">
+    <h3>Activity over time</h3>
+    <div id="personTimeline"><p class="muted">Loading…</p></div>
+  </div>
+  <div class="card">
+    <h3>Supporting evidence</h3>
+    <div id="personEvidence"><p class="muted">Loading…</p></div>
+  </div>
+</section>
+
+<section id="view-intelligence" class="view">
+  <h2>Timeline</h2>
+  <p class="sub">When did unusual activity happen? Periods below are calculated from call records — activity far above the previous week's normal level.</p>
+  <div class="card">
+    <h3>Narrative playback</h3>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <button class="btn btn-primary" id="playBtn" onclick="togglePlay()">▶ PLAY NARRATIVE</button>
+      <button class="btn" onclick="resetPlay()">Reset</button>
+      <input type="range" id="daySlider" min="50" max="70" value="50" style="flex:1;margin-bottom:0" oninput="scrubDay(this.value)">
+      <span class="mono" id="dayReadout" style="min-width:64px;text-align:right">Day 50</span>
+    </div>
+    <div class="burst-banner" id="burstBanner">⚡ SUSPICIOUS BURST DETECTED</div>
+    <p class="muted" id="dayInfo" style="margin-top:8px">Press play to step through Days 50–70.</p>
+  </div>
+  <div class="card">
+    <h3>Key dates</h3>
+    <div id="storyStrip"><p class="muted">Loading…</p></div>
+  </div>
+  <div class="card">
+    <h3>Unusual periods (chronological)</h3>
+    <div id="tlGroups"><p class="muted">Loading…</p></div>
+  </div>
+  <div class="card">
+    <h3>All flagged days</h3>
+    <div id="tlBursts"><p class="muted">Loading…</p></div>
+  </div>
+</section>
+
+<section id="view-financial" class="view">
+  <h2>Financial</h2>
+  <p class="sub">Money movements the system flagged as unusual. Amounts and records come straight from the transaction data.</p>
+  <div class="card">
+    <h3>Suspicious money movement</h3>
+    <div id="finStory"><p class="muted">Loading…</p></div>
+  </div>
+  <div class="card">
+    <h3>Key transactions</h3>
+    <div id="finTxns"><p class="muted">Loading…</p></div>
+  </div>
+</section>
+
+<section id="view-communications" class="view">
+  <h2>Communications</h2>
+  <p class="sub">Who talks to whom, how often, and when call activity jumped far above normal. All counts come from the call records.</p>
+  <div class="card">
+    <h3>When did calls spike?</h3>
+    <div id="commBursts"><p class="muted">Loading…</p></div>
+  </div>
+  <div class="card">
+    <h3>Most frequent contacts</h3>
+    <div id="commPairs"><p class="muted">Loading…</p></div>
+  </div>
+</section>
+
+<section id="view-evidence" class="view">
+  <h2>Evidence</h2>
+  <div class="card"><p>Evidence provenance is recorded per relationship (source record, timestamp, supporting text, confidence). A full evidence workspace arrives in a later task.</p></div>
+</section>
+
+<section id="view-reports" class="view">
+  <h2>Reports</h2>
+  <p class="sub">Formal intelligence brief for the active case. Generated live from backend results — no canned text.</p>
+  <div class="card">
+    <div id="reportPreview"><p class="muted">Open a case overview first, then return here to preview its brief.</p></div>
+    <div style="margin-top:12px"><button class="btn btn-primary" id="pdfBtn" onclick="exportBriefPDF()">Export Formal Intelligence Brief (PDF)</button></div>
+    <div id="reportMsg" class="muted" style="margin-top:8px"></div>
+  </div>
+</section>
+
+</main>
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeEvidenceDrawer()"></div>
+<aside class="drawer" id="evidenceDrawer" aria-label="Evidence drawer">
+  <div class="drawer-head">
+    <div><div class="muted">EVIDENCE</div><h3 id="drawerTitle" style="margin:0">—</h3></div>
+    <button class="btn" onclick="closeEvidenceDrawer()">×</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"><p class="muted">Select a lead to inspect its evidence.</p></div>
+</aside>
+<script>
+const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? `http://${location.hostname}:8000` : 'http://127.0.0.1:8000';
+let _currentInv = null, _selectedFiles = [], _useDemo = null;
+
+function getToken() { try { return localStorage.getItem('cn_token'); } catch (e) { return null; } }
+function getSession() { try { return JSON.parse(localStorage.getItem('cn_user') || 'null'); } catch (e) { return null; } }
+async function api(path, opts) {
+  opts = opts || {};
+  opts.headers = Object.assign({}, opts.headers);
+  const token = getToken();
+  if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+  const r = await fetch(API + path, opts);
+  if (r.status === 401) { logout(true); throw new Error('Session expired — please sign in again.'); }
+  if (!r.ok) throw new Error((await r.text()).slice(0, 400));
+  return r.json();
+}
+async function doLogin() {
+  const username = document.getElementById('loginUser').value.trim();
+  const password = document.getElementById('loginPass').value;
+  const box = document.getElementById('loginError');
+  box.innerHTML = '';
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  try {
+    const r = await fetch(API + '/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
+    if (!r.ok) throw new Error(r.status === 401 ? 'Invalid username or password.' : (await r.text()).slice(0, 200));
+    const data = await r.json();
+    try {
+      localStorage.setItem('cn_token', data.access_token);
+      localStorage.setItem('cn_user', JSON.stringify({ username: data.username, role: data.role, name: data.name }));
+    } catch (e) {}
+    document.getElementById('loginPass').value = '';
+    updateNav();
+    navigate('dashboard'); // Redirect directly to the main workplace
+  } catch (e) {
+    box.innerHTML = `<div class="error">${e.message}</div>`;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Sign in';
+  }
+}
+function showSignup(e) {
+  if (e) e.preventDefault();
+  document.getElementById('signinCard').style.display = 'none';
+  document.getElementById('signupCard').style.display = '';
+  document.getElementById('signupError').innerHTML = '';
+}
+function showSignin(e) {
+  if (e) e.preventDefault();
+  document.getElementById('signupCard').style.display = 'none';
+  document.getElementById('signinCard').style.display = '';
+  document.getElementById('loginError').innerHTML = '';
+}
+async function doRegister() {
+  const username = document.getElementById('signupUser').value.trim();
+  const name = document.getElementById('signupName').value.trim();
+  const role = document.getElementById('signupRole').value;
+  const password = document.getElementById('signupPass').value;
+  const box = document.getElementById('signupError');
+  box.innerHTML = '';
+  if (!username || !password) { box.innerHTML = '<div class="error">Username and password are required.</div>'; return; }
+  const btn = document.getElementById('signupBtn');
+  btn.disabled = true; btn.textContent = 'Creating account…';
+  try {
+    const r = await fetch(API + '/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password, role, name }) });
+    if (!r.ok) throw new Error((await r.text()).slice(0, 300));
+    const data = await r.json();
+    try {
+      localStorage.setItem('cn_token', data.access_token);
+      localStorage.setItem('cn_user', JSON.stringify({ username: data.username, role: data.role, name: data.name }));
+    } catch (e) {}
+    document.getElementById('signupPass').value = '';
+    showSignin();
+    updateNav();
+    navigate('dashboard'); // Redirect directly to the main workplace
+  } catch (e) {
+    box.innerHTML = `<div class="error">${e.message}</div>`;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Create account & sign in';
+  }
+}
+function logout(silent) {
+  try { localStorage.removeItem('cn_token'); localStorage.removeItem('cn_user'); } catch (e) {}
+  document.getElementById('sidebar').style.display = 'none';
+  document.body.classList.add('logged-out');
+  document.getElementById('mainNav').style.display = 'none';
+  document.getElementById('logoutBtn').style.display = 'none';
+  document.getElementById('roleBadge').style.display = 'none';
+  document.getElementById('casePill').style.display = 'none';
+  if (!silent) location.hash = 'login';
+  navigate('login');
+}
+function updateNav() {
+  const session = getSession();
+  if (!session) { return null; }
+  document.getElementById('sidebar').style.display = '';
+  document.body.classList.remove('logged-out');
+  document.getElementById('mainNav').style.display = '';
+  document.getElementById('logoutBtn').style.display = '';
+  applyRoleUI(session.role);
+  return session;
+}
+function enterApp() {
+  const session = updateNav();
+  if (!session) { logout(true); return; }
+  const badge = document.getElementById('roleBadge');
+  badge.style.display = '';
+  const displayName = session.name || session.username;
+  const displayRole = session.role ? session.role.charAt(0).toUpperCase() + session.role.slice(1) : '';
+  document.getElementById('roleAvatar').textContent = (displayName || '?').charAt(0).toUpperCase();
+  document.getElementById('roleText').textContent = `${displayName} (${displayRole})`;
+  navigate(location.hash.slice(1) || 'dashboard');
+}
+function applyRoleUI(role) {
+  // Investigators cannot upload raw data: hide the upload step
+  const uploadCard = document.getElementById('uploadCard');
+  if (uploadCard) uploadCard.style.display = (role === 'investigator') ? 'none' : '';
+  // Analysts cannot view the final intelligence graph: hide graph-backed views
+  ['people', 'financial', 'communications'].forEach(v => {
+    const btn = document.querySelector(`#mainNav button[data-view="${v}"]`);
+    if (btn) btn.style.display = (role === 'analyst') ? 'none' : '';
+  });
+}
+function navigate(view) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const el = document.getElementById('view-' + view);
+  if (el) el.classList.add('active');
+  document.querySelectorAll('#mainNav button').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  location.hash = view;
+  if (view === 'dashboard') loadDashboard();
+  if (view === 'investigations') loadInvestigations();
+  if (view === 'intelligence') loadTimeline();
+  if (view === 'financial') loadFinancial();
+  if (view === 'communications') loadCommunications();
+  if (view === 'reports') loadReportPreview();
+}
+function showError(boxId, msg) {
+  document.getElementById(boxId).innerHTML = `<div class="error">${msg}</div>`;
+}
+
+async function loadDashboard() {
+  try {
+    const data = await api('/investigations');
+    const list = data.investigations.slice(0, 8);
+    const del = canDelete() ? (v) => ` <button class="btn btn-logout" onclick="deleteInvestigation('${v.id}','${(v.name || '').replace(/'/g, "\\'")}')">Delete</button>` : (v) => '';
+    document.getElementById('invList').innerHTML = list.length
+      ? `<table><thead><tr><th>Case</th><th>Status</th><th></th></tr></thead><tbody>` +
+        list.map(v => `<tr><td><b>${v.name}</b><br><span class="muted">${v.description || ''}</span></td><td>${v.status}</td><td><button class="btn" onclick="openOverview('${v.id}')">Open</button>${del(v)}</td></tr>`).join('') + `</tbody></table>`
+      : `<p class="muted">No investigations yet. Create one to begin.</p>`;
+  } catch (e) {
+    document.getElementById('invList').innerHTML = `<div class="error">Backend unavailable: ${e.message}. Start the API on port 8000.</div>`;
+  }
+}
+function canDelete() {
+  const s = getSession();
+  return !!s; // Allow all logged-in users to see and use the Delete button
+}
+async function deleteInvestigation(iid, name) {
+  if (!confirm(`Permanently delete investigation "${name || iid}"?\n\nThis removes its uploaded files, mapping, graph output, and Neo4j graph nodes. This cannot be undone.`)) return;
+  try {
+    const res = await api(`/investigations/${iid}`, { method: 'DELETE' });
+    alert(`Deleted "${name || iid}": files removed, ${res.neo4j_nodes_deleted} Neo4j node(s) removed.`);
+    if (_currentInv === iid) _currentInv = null;
+    loadDashboard();
+    if (document.getElementById('view-investigations').classList.contains('active')) loadInvestigations();
+  } catch (e) {
+    alert('Delete failed: ' + e.message);
+  }
+}
+async function loadInvestigations() {
+  try {
+    const data = await api('/investigations');
+    const del = canDelete() ? (id, name) => ` <button class="btn btn-logout" onclick="deleteInvestigation('${id}','${(name || '').replace(/'/g, "\\'")}')">Delete</button>` : () => '';
+    document.getElementById('prevInvs').innerHTML = data.investigations.map(v =>
+      `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)"><div><b>${v.name}</b><br><span class="muted">${v.status}</span></div><div><button class="btn" onclick="openOverview('${v.id}')">Open</button>${del(v.id, v.name)}</div></div>`
+    ).join('') || `<p class="muted">None yet.</p>`;
+  } catch (e) {
+    document.getElementById('prevInvs').innerHTML = `<div class="error">${e.message}</div>`;
+  }
+}
+async function createInvestigation() {
+  const name = document.getElementById('newName').value.trim() || 'Untitled investigation';
+  const description = document.getElementById('newDesc').value.trim();
+  try {
+    const meta = await api('/investigations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, description }) });
+    _currentInv = meta.id; _useDemo = null; _selectedFiles = [];
+    document.getElementById('newTitle').textContent = name;
+    navigate('new');
+  } catch (e) { alert('Could not create investigation: ' + e.message); }
+}
+const DEMO_FILES = ['cdrs.csv','transactions.csv','firs.csv','social_posts.csv','criminal_history.csv','intelligence_reports.csv','surveillance_reports.csv','people_directory.json'];
+function selectDemo(label) {
+  _useDemo = label;
+  document.getElementById('demoNote').innerHTML = `Selected: <b>${label}</b> (demo synthetic data). Uploaded files will be ignored for this run.`;
+  document.getElementById('demoFiles').innerHTML = `<b>${label}</b> — Dataset ready<br>Files:<br>` + DEMO_FILES.map(f => `• ${f}`).join('<br>');
+}
+async function startDemo(label) {
+  try {
+    const meta = await api('/investigations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: label + ' — ' + new Date().toLocaleString(), description: 'Demo synthetic case' }) });
+    _currentInv = meta.id; _useDemo = label;
+    document.getElementById('newTitle').textContent = meta.name;
+    runAnalysis();
+  } catch (e) { alert('Could not start demo: ' + e.message); }
+}
+function handleFiles(files) {
+  _selectedFiles = Array.from(files);
+  _useDemo = null;
+  document.getElementById('selectedFiles').innerHTML = _selectedFiles.map(f => `${f.name} (${(f.size / 1024).toFixed(1)} KB)`).join('<br>');
+  document.getElementById('demoNote').innerHTML = 'Demo cases use the existing synthetic dataset through the standard pipeline.';
+  document.getElementById('demoFiles').innerHTML = '';
+}
+function unifiedSourceChanged(prefix) {
+  prefix = prefix || '';
+  const isDemo = document.getElementById(prefix + 'optDemo').checked;
+  document.getElementById(prefix + 'unifiedUploadWrap').style.display = isDemo ? 'none' : '';
+  document.getElementById(prefix + 'unifiedDemoWrap').style.display = isDemo ? '' : 'none';
+}
+function handleUnifiedFiles(files, prefix) {
+  prefix = prefix || '';
+  _selectedFiles = Array.from(files);
+  _useDemo = null;
+  document.getElementById(prefix + 'unifiedSelectedFiles').innerHTML =
+    _selectedFiles.map(f => `${f.name} (${(f.size / 1024).toFixed(1)} KB)`).join('<br>');
+}
+async function submitUnifiedInvestigation(prefix) {
+  prefix = prefix || '';
+  const gid = (id) => document.getElementById(prefix + id);
+  const name = gid('unifiedCaseName').value.trim() || ('Case ' + new Date().toLocaleString());
+  const description = gid('unifiedCaseDesc').value.trim();
+  const isDemo = gid('optDemo').checked;
+  const btn = gid('submitCaseBtn');
+  const errBox = gid('unifiedError');
+
+  btn.disabled = true; btn.textContent = 'Creating case…';
+  try {
+    // 1. Create Investigation API
+    const meta = await api('/investigations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, description }) });
+    _currentInv = meta.id;
+
+    if (isDemo) {
+      const demoLabel = gid('demoSelect').value || 'Case 01';
+      _useDemo = demoLabel;
+      runAnalysis();
+    } else {
+      const session = getSession();
+      if (session && session.role === 'investigator') {
+        errBox.innerHTML = '<div class="error">Uploading raw data requires the Analyst or Supervisor role.</div>';
+        return;
+      }
+      if (!_selectedFiles.length) { alert('Please select at least one .zip or .csv file to upload.'); return; }
+      // 2. Upload Files directly
+      const fd = new FormData();
+      _selectedFiles.forEach(f => fd.append('files', f));
+      btn.textContent = 'Uploading files…';
+      const uploadData = await api(`/investigations/${meta.id}/upload`, { method: 'POST', body: fd });
+      _useDemo = null;
+      // 3. Move directly to Column Mapping Review
+      await openMapping(uploadData);
+    }
+  } catch(e) {
+    alert('Failed to create case: ' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = '⚡ Create Case & Upload Data';
+  }
+}
+let _pendingMaps = null; // filename -> {suggested, required, columns, detected_type}
+async function uploadFiles() {
+  const session = getSession();
+  if (session && session.role === 'investigator') { showError('newError', 'Uploading raw data requires the Analyst or Supervisor role.'); return; }
+  if (!_currentInv) { showError('newError', 'Create the investigation first (enter a case name above via Investigations page), then upload.'); navigate('investigations'); return; }
+  if (!_selectedFiles.length) { document.getElementById('uploadResult').textContent = 'Select files first.'; return; }
+  const fd = new FormData();
+  _selectedFiles.forEach(f => fd.append('files', f));
+  document.getElementById('uploadResult').textContent = 'Uploading…';
+  try {
+    const data = await api(`/investigations/${_currentInv}/upload`, { method: 'POST', body: fd });
+    _useDemo = null;
+    await openMapping(data);
+  } catch (e) { showError('newError', 'Upload failed: ' + e.message); }
+}
+async function openMapping(uploadData) {
+  // Fetch AI-suggested mappings for every uploaded file, then review before processing
+  const files = (uploadData && uploadData.uploaded ? uploadData.uploaded.map(u => u.file)
+    : (await api(`/investigations/${_currentInv}/files`)).files.map(f => f.original));
+  if (!files.length) { showError('newError', 'No files found for this investigation.'); return; }
+  navigate('mapping');
+  document.getElementById('mappingBox').innerHTML = '<p class="muted">Detecting columns…</p>';
+  document.getElementById('mappingError').innerHTML = '';
+  _pendingMaps = {};
+  try {
+    for (const fname of files) {
+      const det = await api(`/investigations/${_currentInv}/detection/${encodeURIComponent(fname)}`);
+      _pendingMaps[fname] = {
+        suggested: det.suggested_mapping || {},
+        required: det.required || [],
+        columns: det.detection.columns || [],
+        detected_type: det.detection.detected_type,
+        confidence: det.detection.type_confidence,
+      };
+    }
+    renderMapping();
+  } catch (e) { showError('mappingError', 'Detection failed: ' + e.message); }
+}
+function renderMapping() {
+  const box = document.getElementById('mappingBox');
+  box.innerHTML = Object.entries(_pendingMaps).map(([fname, m]) => {
+    const rows = Object.entries(m.suggested).map(([field, guess]) => {
+      const isReq = m.required.includes(field);
+      const opts = [`<option value="">— Not mapped —</option>`].concat(
+        m.columns.map(c => `<option value="${c}"${c === guess ? ' selected' : ''}>${c}</option>`)
+      ).join('');
+      return `<tr data-file="${fname}" data-field="${field}">
+        <td><span class="mono">${field}</span>${isReq ? '<span class="req">REQUIRED</span>' : '<span class="opt">optional</span>'}</td>
+        <td><select data-map-select style="margin-bottom:0">${opts}</select></td>
+      </tr>`;
+    }).join('');
+    return `<div class="card"><h3>${fname}</h3>
+      <p class="sub">Detected as <b>${m.detected_type}</b> (${Math.round((m.confidence || 0) * 100)}% confident).</p>
+      <table><thead><tr><th>Required Field</th><th>Detected Column in File</th></tr></thead><tbody>${rows}</tbody></table>
+    </div>`;
+  }).join('');
+}
+async function confirmMapping() {
+  const errBox = document.getElementById('mappingError');
+  errBox.innerHTML = '';
+  // Read dropdowns back into {filename: {field: column|null}}
+  const payload = {};
+  document.querySelectorAll('#mappingBox tr[data-file]').forEach(tr => {
+    const fname = tr.dataset.file, field = tr.dataset.field;
+    const val = tr.querySelector('select[data-map-select]').value || null;
+    (payload[fname] = payload[fname] || {})[field] = val;
+    tr.classList.remove('map-missing');
+  });
+  // Client-side guard: every required field must be mapped
+  const problems = [];
+  for (const [fname, m] of Object.entries(_pendingMaps)) {
+    for (const req of m.required) {
+      if (!payload[fname] || !payload[fname][req]) {
+        problems.push(`${fname}: required field “${req}” is unmapped`);
+        document.querySelectorAll(`#mappingBox tr[data-file="${CSS.escape(fname)}"][data-field="${CSS.escape(req)}"]`)
+          .forEach(tr => tr.classList.add('map-missing'));
+      }
+    }
+  }
+  if (problems.length) {
+    errBox.innerHTML = `<div class="error"><b>Cannot run analysis yet.</b><br>${problems.join('<br>')}<br>Map each required field or remove the file.</div>`;
+    return;
+  }
+  const btn = document.getElementById('confirmMapBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    await api(`/investigations/${_currentInv}/mapping`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    runAnalysis();
+  } catch (e) {
+    errBox.innerHTML = `<div class="error">Mapping rejected: ${e.message}</div>`;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Confirm & Run Analysis';
+  }
+}
+function toggleTheme() {
+  const h = document.documentElement;
+  const isBright = h.dataset.theme !== 'dark';
+  const next = isBright ? 'dark' : 'bright';
+  if (next === 'dark') h.dataset.theme = 'dark'; else h.removeAttribute('data-theme');
+  try { localStorage.setItem('cnThemeV2', next); } catch (e) {}
+  document.getElementById('themeBtn').textContent = next === 'dark' ? '☀ Light' : '◐ Dark';
+}
+try {
+  if (localStorage.getItem('cnThemeV2') === 'dark') {
+    document.documentElement.dataset.theme = 'dark';
+    document.getElementById('themeBtn').textContent = '☀ Light';
+  }
+} catch (e) {}
+
+function setStep(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = text;
+}
+async function runAnalysis() {
+  if (!_currentInv) { showError('newError', 'No investigation selected.'); return; }
+  navigate('processing');
+  const steps = document.getElementById('procSteps');
+  const mark = (label, state) => `<li>${state === 'done' ? '✓' : state === 'run' ? '…' : '○'} ${label}</li>`;
+  try {
+    steps.innerHTML = mark('Loading data', 'run');
+    const meta = await api(`/investigations/${_currentInv}`);
+    const fileCount = (meta.files || []).length;
+    steps.innerHTML = mark(_useDemo ? `Loading data (${_useDemo} demo dataset)` : `Loading data (${fileCount} file(s))`, 'done') + mark('Extracting entities', 'run');
+    const res = await api(`/investigations/${_currentInv}/process`, { method: 'POST' });
+    steps.innerHTML =
+      mark('Loading data', 'done') +
+      mark(`Extracting entities (${res.entities} entities)`, 'done') +
+      mark('Resolving entities', 'done') +
+      mark(`Building relationships (${res.relationships} relationships)`, 'done') +
+      mark(`Building network (${res.stats.node_count} entities, ${res.stats.edge_count} links)`, 'done') +
+      mark('Running intelligence analysis', 'run');
+    await api(`/investigations/${_currentInv}/leads?limit=3`);
+    steps.innerHTML += mark('Running intelligence analysis', 'done') +
+      `<li><button class="btn btn-primary" onclick="openOverview('${_currentInv}')">View Investigation</button></li>`;
+  } catch (e) {
+    const needMap = /mapping/i.test(e.message);
+    steps.innerHTML += `<li><div class="error">Analysis failed: ${e.message}</div></li>` +
+      (needMap ? `<li><button class="btn btn-primary" onclick="openMapping()">Review column mapping →</button></li>` : '');
+  }
+}
+
+function plainDescription(l) {
+  const s = l.signals || {};
+  const out = [];
+  if ((s.bridge_score || 0) >= 0.4) out.push('Cross-group connector');
+  if ((s.communication_anomaly || 0) >= 0.5) out.push('Unusual communication activity');
+  if ((s.financial_anomaly || 0) >= 0.5) out.push('Financial connection');
+  if ((s.cross_case || 0) >= 0.5) out.push('Appears across multiple evidence sources');
+  return out.length ? out.join(' · ') : 'Multiple evidence sources';
+}
+const THREAT_LABEL = { HIGH: 'High Risk', MEDIUM: 'Suspicious', LOW: 'Monitor' };
+function threatBadge(priority) {
+  const p = (priority || 'LOW').toUpperCase();
+  return `<span class="threat threat-${p}">${THREAT_LABEL[p] || p}</span>`;
+}
+async function renderRiskBar(iid) {
+  const box = document.getElementById('riskBar');
+  try {
+    const data = await api(`/investigations/${iid}/leads?limit=100`);
+    const counts = { HIGH: 0, MEDIUM: 0, LOW: 0 };
+    (data.leads || []).forEach(l => { const p = (l.priority || 'LOW').toUpperCase(); if (counts[p] == null) counts[p] = 0; counts[p]++; });
+    const total = counts.HIGH + counts.MEDIUM + counts.LOW || 1;
+    const seg = (n, cls) => n ? `<div class="${cls}" style="width:${(n / total * 100).toFixed(1)}%" title="${n}"></div>` : '';
+    box.innerHTML =
+      `<div class="riskbar">${seg(counts.HIGH, 'threat-HIGH')}${seg(counts.MEDIUM, 'threat-MEDIUM')}${seg(counts.LOW, 'threat-LOW')}</div>` +
+      `<div class="muted">${counts.HIGH} High Risk | ${counts.MEDIUM} Medium | ${counts.LOW} Low</div>`;
+  } catch (e) {
+    box.innerHTML = '';
+  }
+}
+async function openEvidenceDrawer(entityId) {
+  const drawer = document.getElementById('evidenceDrawer');
+  const overlay = document.getElementById('drawerOverlay');
+  const body = document.getElementById('drawerBody');
+  document.getElementById('drawerTitle').textContent = entityId;
+  body.innerHTML = '<p class="muted">Loading evidence…</p>';
+  drawer.classList.add('open');
+  overlay.classList.add('open');
+  try {
+    const w = await api('/why/' + encodeURIComponent(entityId));
+    const lead = w.lead || {};
+    const score = lead.lead_score != null ? lead.lead_score : 0;
+    const prio = (lead.priority || 'LOW').toUpperCase();
+    const sig = lead.signals || {};
+    const pct = Math.max(0, Math.min(100, score));
+    body.innerHTML =
+      `<div style="margin-bottom:12px"><b>${w.label || entityId}</b> <span class="muted mono">${w.id}</span><br>` +
+      `<span class="muted">${w.role || ''}${w.cell ? ' · Group ' + w.cell : ''}</span> ${threatBadge(prio)}</div>` +
+      `<div class="muted">Lead Score</div>` +
+      `<div class="scorebar"><div style="width:${pct}%"></div></div>` +
+      `<div class="mono" style="margin-bottom:12px">${score}/100</div>` +
+      `<h3>Why flagged</h3>` +
+      `<div style="font-size:13px;margin-bottom:6px">Bridge position: <b>${sig.bridge_score != null ? sig.bridge_score : '—'}</b></div>` +
+      `<div style="font-size:13px;margin-bottom:6px">Communication signals: <b>${sig.communication_anomaly != null ? sig.communication_anomaly : '—'}</b></div>` +
+      `<div style="font-size:13px;margin-bottom:12px">Financial signals: <b>${sig.financial_anomaly != null ? sig.financial_anomaly : '—'}</b></div>` +
+      `<button class="btn" style="margin-bottom:12px" onclick="closeEvidenceDrawer();runWhatIf('${w.id}')">⚡ Simulate Removal (WHAT-IF)</button>` +
+      `<h3>Supporting evidence</h3>` +
+      ((w.sources || []).length
+        ? w.sources.slice(0, 6).map(s =>
+          `<div style="padding:8px 0;border-bottom:1px solid var(--border)"><b class="mono">${s.source}</b> ` +
+          `<span class="muted">${s.source_type || ''}${s.day != null ? ' · Day ' + s.day : ''}</span><br>` +
+          `<span style="font-size:12px">${(s.supporting_text || '').slice(0, 160)}</span><br>` +
+          `<span class="mono muted">hash: ${(s.evidence_hash || '—').slice(0, 12)} · confidence ${s.confidence}</span></div>`
+        ).join('')
+        : '<p class="muted">No source records found.</p>');
+  } catch (e) {
+    body.innerHTML = `<div class="error">Could not load evidence: ${e.message}</div>`;
+  }
+}
+function closeEvidenceDrawer() {
+  document.getElementById('evidenceDrawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('open');
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeEvidenceDrawer(); stopPlay(); }
+});
+async function openOverview(iid) {
+  _currentInv = iid;
+  navigate('overview');
+  document.getElementById('ovTitle').textContent = 'Investigation overview';
+  document.getElementById('ovSub').textContent = 'Loading live results…';
+  try {
+    const meta = await api(`/investigations/${iid}`);
+    const stats = await api(`/investigations/${iid}/stats`);
+    const leads = await api(`/investigations/${iid}/leads?limit=5`);
+    document.getElementById('ovTitle').textContent = meta.name + ' — Investigation overview';
+    document.getElementById('ovSub').textContent = meta.description || '';
+    const casePill = document.getElementById('casePill');
+    casePill.style.display = '';
+    casePill.textContent = '◉ ' + meta.name;
+    const g = stats.graph;
+    document.getElementById('ovTable').innerHTML =
+      `<tr><th>Entities identified</th><td>${g.node_count}</td></tr>` +
+      `<tr><th>Relationships</th><td>${g.edge_count}</td></tr>` +
+      `<tr><th>Important leads</th><td>${leads.leads.filter(l => l.priority !== 'LOW').length} of ${leads.leads.length} shown</td></tr>` +
+      `<tr><th>Evidence sources</th><td>${(meta.files || []).length} file(s)</td></tr>`;
+    const cells = [...new Set(leads.leads.map(l => l.cell).filter(Boolean))];
+    const findings = [];
+    if (cells.length >= 2) findings.push('Multiple groups show interconnected activity.');
+    if (leads.leads.some(l => (l.signals || {}).bridge_score >= 0.4)) findings.push('Potential cross-group connections were identified.');
+    if (leads.leads.some(l => (l.signals || {}).communication_anomaly >= 0.5)) findings.push('Unusual communication activity was detected.');
+    if (leads.leads.some(l => (l.signals || {}).financial_anomaly >= 0.5)) findings.push('Suspicious financial activity was identified.');
+    if (!findings.length) findings.push('No strong patterns above threshold; review the important people below.');
+    document.getElementById('ovFindings').innerHTML = findings.map(f => `<li>${f}</li>`).join('');
+    document.getElementById('ovLeads').innerHTML = leads.leads.slice(0, 3).map(l =>
+      `<div class="lead" onclick="openEvidenceDrawer('${l.entity_id}')" title="Click to inspect evidence">` +
+      `<b>${l.entity_id} — ${l.label}</b><span class="score">${l.lead_score}/100</span> ${threatBadge(l.priority)}` +
+      `<br><span class="muted">${plainDescription(l)}</span>` +
+      `<div style="margin-top:8px"><button class="btn" onclick="event.stopPropagation();openEvidenceDrawer('${l.entity_id}')">Inspect Evidence</button></div>` +
+      `<details><summary>Details</summary><span class="muted">${(l.reasons || []).join('<br>')}</span></details></div>`
+    ).join('');
+    renderRiskBar(iid);
+    loadOverviewGraph(iid);
+  } catch (e) {
+    document.getElementById('ovSub').innerHTML = `<div class="error">Could not load results: ${e.message}</div>`;
+  }
+}
+
+// ---- Main overview 3D graph (entire case network, filters + subgraph hops) ----
+const OV_COLORS = { A: '#4C9AFF', B: '#AB68FF', C: '#FF7A45', Bridge: '#FFC53D' };
+const OV_BRIDGES = new Set(['X1', 'X2', 'X3', 'X4']);
+let _ovGraph = null, _ovGraph3D = null, _ovCell = 'All', _ovFocus = null, _ovHops = 1;
+let _simRemoved = null, _simStats = null;
+
+async function loadOverviewGraph(iid) {
+  const stats = document.getElementById('ovGraphStats');
+  stats.textContent = 'Loading 3D network…';
+  closeOvPopover();
+  try {
+    _ovGraph = await api(`/investigations/${iid}/graph`);
+    _ovFocus = null; _ovHops = 1; _ovCell = 'All';
+    _simRemoved = null; _simStats = null;
+    document.getElementById('simBanner').style.display = 'none';
+    document.querySelectorAll('#ovCellFilter button').forEach(b =>
+      b.className = b.dataset.cell === 'All' ? 'btn btn-primary' : 'btn');
+    ['fltPerson', 'fltPhone', 'fltAccount', 'fltFIR'].forEach(id => { document.getElementById(id).checked = true; });
+    document.getElementById('ovFocusBar').style.display = 'none';
+    renderMainGraph3D();
+  } catch (e) {
+    stats.innerHTML = `<span class="error">Graph unavailable: ${e.message}</span>`;
+  }
+}
+function setOvCell(cell) {
+  _ovCell = cell;
+  document.querySelectorAll('#ovCellFilter button').forEach(b =>
+    b.className = b.dataset.cell === cell ? 'btn btn-primary' : 'btn');
+  renderMainGraph3D();
+}
+function setOvHops(n) { _ovHops = n; renderMainGraph3D(); }
+function clearOvFocus() {
+  _ovFocus = null; _ovHops = 1;
+  document.getElementById('ovFocusBar').style.display = 'none';
+  closeOvPopover();
+  renderMainGraph3D();
+}
+function ovNodeColor(n) {
+  if (n.kind === 'Person') return OV_COLORS[n.cell] || '#94A3B8';
+  if (n.kind === 'FIR') return '#34D399';
+  if (n.kind === 'Phone' || n.kind === 'Account') return '#64748B';
+  return '#94A3B8';
+}
+function ovFiltered() {
+  const showKind = {
+    Person: document.getElementById('fltPerson').checked,
+    Phone: document.getElementById('fltPhone').checked,
+    Account: document.getElementById('fltAccount').checked,
+    FIR: document.getElementById('fltFIR').checked,
+  };
+  const byId = new Map(_ovGraph.nodes.map(n => [n.id, n]));
+  // 0) WHAT-IF simulation: hide the removed node entirely
+  const simHidden = _simRemoved ? new Set([_simRemoved]) : new Set();
+  // 1) type + cell filter (bridges always visible)
+  let keep = new Set();
+  _ovGraph.nodes.forEach(n => {
+    if (simHidden.has(n.id)) return;
+    if (n.kind in showKind && !showKind[n.kind]) return;
+    if (n.kind === 'Person' && _ovCell !== 'All' && n.cell !== _ovCell && !OV_BRIDGES.has(n.id)) return;
+    keep.add(n.id);
+  });
+  // 2) focus hops: restrict to N-hop neighborhood of the focused node
+  if (_ovFocus && byId.has(_ovFocus)) {
+    const adj = new Map();
+    _ovGraph.edges.forEach(e => {
+      if (!adj.has(e.src)) adj.set(e.src, []);
+      if (!adj.has(e.dst)) adj.set(e.dst, []);
+      adj.get(e.src).push(e.dst); adj.get(e.dst).push(e.src);
+    });
+    let frontier = new Set([_ovFocus]);
+    const seen = new Set([_ovFocus]);
+    for (let i = 0; i < _ovHops; i++) {
+      const next = new Set();
+      frontier.forEach(id => (adj.get(id) || []).forEach(nb => { if (!seen.has(nb)) { seen.add(nb); next.add(nb); } }));
+      frontier = next;
+    }
+    keep = new Set([...keep].filter(id => seen.has(id)));
+  }
+  // 3) keep non-person context nodes only when linked to a kept person
+  const persons = new Set([...keep].filter(id => byId.get(id) && byId.get(id).kind === 'Person'));
+  const linked = new Set();
+  _ovGraph.edges.forEach(e => {
+    if (persons.has(e.src)) linked.add(e.dst);
+    if (persons.has(e.dst)) linked.add(e.src);
+  });
+  keep = new Set([...keep].filter(id => {
+    const n = byId.get(id);
+    return n && (n.kind === 'Person' || linked.has(id));
+  }));
+  const nodes = [...keep].map(id => {
+    const n = byId.get(id);
+    const bridge = OV_BRIDGES.has(id);
+    return {
+      id, name: n.label || id, cell: n.cell, role: n.role, kind: n.kind,
+      color: bridge ? OV_COLORS.Bridge : ovNodeColor(n),
+      __bridge: bridge,
+      val: bridge ? 22 : (n.kind === 'Person' ? Math.min(16, 4 + (n.degree || 0) * 0.15) : 5),
+    };
+  });
+  const inSet = new Set(nodes.map(n => n.id));
+  const links = _ovGraph.edges
+    .filter(e => inSet.has(e.src) && inSet.has(e.dst))
+    .map(e => ({
+      source: e.src, target: e.dst, name: e.kind,
+      __bridge: inSet.has(e.src) && inSet.has(e.dst) && (OV_BRIDGES.has(e.src) || OV_BRIDGES.has(e.dst)),
+      color: 'rgba(255,255,255,0.25)',
+    }));
+  return { nodes, links };
+}
+function renderMainGraph3D() {
+  const container = document.getElementById('mainGraph3D');
+  if (!container || !_ovGraph) return;
+  const data = ovFiltered();
+  document.getElementById('ovGraphStats').textContent =
+    `${data.nodes.length} of ${_ovGraph.nodes.length} nodes · ${data.links.length} links` +
+    (_ovFocus ? ` · focused on ${_ovFocus} (${_ovHops}-hop)` : '') +
+    (_simRemoved && _simStats ? ` · SIMULATION: −${_simStats.removed_edges} edges, ${_simStats.disconnected_components} components, impact ${_simStats.impact_score}` : '');
+  if (_ovGraph3D) { try { _ovGraph3D._destructor(); } catch (e) {} _ovGraph3D = null; }
+  container.innerHTML = '';
+  _ovGraph3D = ForceGraph3D()(container)
+    .graphData(data)
+    .nodeColor('color')
+    .nodeLabel(n => `${n.name} (${n.id})`)
+    .nodeRelSize(4)
+    .linkColor(l => l.__bridge ? '#FFC53D' : l.color)
+    .linkWidth(l => l.__bridge ? 2 : 1)
+    .linkDirectionalParticles(l => l.__bridge ? 3 : 0)
+    .linkDirectionalParticleWidth(l => l.__bridge ? 1.5 + Math.abs(Math.sin(Date.now() / 350)) * 2 : 0)
+    .linkDirectionalParticleSpeed(0.006)
+    .onNodeClick(ovNodeClick)
+    .onBackgroundClick(closeOvPopover)
+    .backgroundColor('#0A0E14');
+  setTimeout(() => { try { _ovGraph3D.width(container.clientWidth).height(container.clientHeight); } catch (e) {} }, 100);
+}
+function ovNodeClick(node) {
+  const pop = document.getElementById('ovPopover');
+  const isBridge = OV_BRIDGES.has(node.id);
+  pop.innerHTML =
+    `<div style="display:flex;justify-content:space-between;align-items:center">` +
+    `<b>${node.name || node.id}</b><button class="btn" onclick="closeOvPopover()">✕</button></div>` +
+    `<div class="muted mono">${node.id} · ${node.kind || ''}</div>` +
+    `<div style="margin:6px 0;font-size:13px">` +
+    (node.cell ? `Cell group: <b>${node.cell}</b><br>` : '') +
+    (node.role ? `Role: ${node.role}<br>` : '') +
+    (isBridge ? `<span style="color:#FFC53D;font-weight:600">◆ Bridge entity — links separate groups</span>` : '') +
+    `</div>` +
+    `<div style="display:flex;gap:6px;flex-wrap:wrap">` +
+    `<button class="btn" onclick="ovInspect('${node.id}',1)">Subgraph 1-Hop</button>` +
+    `<button class="btn" onclick="ovInspect('${node.id}',2)">Subgraph 2-Hop</button>` +
+    `<button class="btn" onclick="runWhatIf('${node.id}')">⚡ Simulate Removal (WHAT-IF)</button>` +
+    `<button class="btn btn-primary" onclick="openPerson('${node.id}')">Full Evidence</button>` +
+    `</div>`;
+  pop.style.display = 'block';
+}
+function closeOvPopover() {
+  const pop = document.getElementById('ovPopover');
+  if (pop) pop.style.display = 'none';
+}
+function ovInspect(id, hops) {
+  _ovFocus = id; _ovHops = hops;
+  document.getElementById('ovFocusId').textContent = id + ` (${hops}-hop)`;
+  document.getElementById('ovFocusBar').style.display = 'block';
+  closeOvPopover();
+  renderMainGraph3D();
+}
+async function runWhatIf(id) {
+  if (!_currentInv) { alert('Open a case overview first, then run the simulation.'); return; }
+  const banner = document.getElementById('simBanner');
+  banner.style.display = 'block';
+  banner.textContent = `⏳ Simulating removal of ${id}…`;
+  try {
+    const s = await api(`/investigations/${_currentInv}/whatif?remove_id=${encodeURIComponent(id)}`);
+    _simRemoved = id; _simStats = s;
+    _ovFocus = null; _ovHops = 1;
+    document.getElementById('ovFocusBar').style.display = 'none';
+    closeOvPopover();
+    banner.innerHTML =
+      `⚠️ SIMULATION ONLY — WHAT-IF SCENARIO: SUSPECT ${s.remove_id} REMOVED<br>` +
+      `<span style="font-weight:400">−${s.removed_edges} edges · ${s.disconnected_components} components · impact score ${s.impact_score} ` +
+      `<button class="btn" style="margin-left:8px" onclick="resetSimulation()">Reset Simulation</button></span>`;
+    renderMainGraph3D();
+  } catch (e) {
+    banner.textContent = `Simulation failed: ${e.message}`;
+  }
+}
+function resetSimulation() {
+  _simRemoved = null; _simStats = null;
+  document.getElementById('simBanner').style.display = 'none';
+  renderMainGraph3D();
+}
+
+function plainSignal(s) {
+  if (/bridge/i.test(s)) return 'Connects multiple groups';
+  if (/CALLS|communication hub|burst/i.test(s)) return 'Unusual communication activity';
+  if (/TRANSACTED|financial|structuring/i.test(s)) return 'Financial connection';
+  if (/degree/i.test(s)) return 'Connected to many records';
+  if (/Cross-case/i.test(s)) return 'Appears across multiple evidence sources';
+  if (/Lead Score/i.test(s)) return s.split('(')[0].trim();
+  return s.length > 140 ? s.slice(0, 140) + '…' : s;
+}
+async function doPeopleSearch() {
+  const q = document.getElementById('psQuery').value.trim();
+  const box = document.getElementById('psResults');
+  if (!q) { box.innerHTML = '<p class="muted">Enter a search term.</p>'; return; }
+  box.innerHTML = '<p class="muted">Searching…</p>';
+  try {
+    const d = await api('/people/search?q=' + encodeURIComponent(q));
+    if (!d.results.length) { box.innerHTML = '<p class="muted">No matches. Try a name, ID, phone or account.</p>'; return; }
+    box.innerHTML = `<table><thead><tr><th>Person</th><th>Role</th><th>Contact</th><th></th></tr></thead><tbody>` +
+      d.results.map(p => `<tr><td><b>${p.name}</b><br><span class="muted mono">${p.id} · ${p.cell}</span></td><td>${p.role || '—'}</td><td class="mono">${p.phone || ''}<br>${p.account || ''}</td><td><button class="btn" onclick="openPerson('${p.id}')">Open</button></td></tr>`).join('') +
+      `</tbody></table>`;
+  } catch (e) { box.innerHTML = `<div class="error">Search failed: ${e.message}</div>`; }
+}
+let _personId = null, _personHops = 1, _personGraph = null;
+async function openPerson(id) {
+  _personId = id; _personHops = 1;
+  navigate('person');
+  document.getElementById('personTitle').textContent = id;
+  document.getElementById('personSub').textContent = 'Loading live record…';
+  document.getElementById('personWhy').innerHTML = '<p class="muted">Loading…</p>';
+  try {
+    const w = await api('/why/' + encodeURIComponent(id));
+    const lead = w.lead || {};
+    document.getElementById('personTitle').textContent = `${w.id} — ${w.label}`;
+    document.getElementById('personSub').textContent = `${w.role || ''} · Group ${w.cell || '—'} · Priority ${lead.priority || '—'} ${lead.lead_score != null ? lead.lead_score + '/100' : ''}`;
+    document.getElementById('personWhy').innerHTML =
+      `<ul class="findings">` + w.top_signals.map(s => `<li>${plainSignal(s)}</li>`).join('') + `</ul>` +
+      `<details><summary>Technical Analysis</summary><span class="muted mono">` +
+      `bridge_score: ${(lead.signals || {}).bridge_score ?? '—'} · betweenness: ${w.centrality ? w.centrality.betweenness : '—'} · degree: ${w.degree}` +
+      `</span></details>`;
+    const ev = (w.sources || []).slice(0, 6);
+    document.getElementById('personEvidence').innerHTML = ev.length
+      ? ev.map(s => `<div style="padding:8px 0;border-bottom:1px solid var(--border)"><b class="mono">${s.source}</b> <span class="muted">${s.source_type} · Day ${s.day == null ? '—' : s.day} · confidence ${s.confidence}</span><br><span style="font-size:13px">${(s.supporting_text || '').slice(0, 160)}</span><br><span class="muted mono">hash ${s.evidence_hash || '—'}</span></div>`).join('')
+      : '<p class="muted">No evidence records.</p>';
+    const days = {};
+    (w.sources || []).forEach(s => { if (s.day != null) (days[s.day] = days[s.day] || []).push(s); });
+    const dayList = Object.keys(days).sort((a, b) => a - b);
+    document.getElementById('personTimeline').innerHTML = dayList.length
+      ? dayList.map(d => `<div style="padding:6px 0;border-bottom:1px solid var(--border)"><b>Day ${d}</b> <span class="muted">— ${days[d].length} record(s): ${days[d].slice(0, 3).map(s => s.source).join(', ')}</span></div>`).join('')
+      : '<p class="muted">No dated activity.</p>';
+    const g = await api('/graph');
+    _personGraph = g;
+    drawPerson();
+  } catch (e) {
+    document.getElementById('personSub').innerHTML = `<div class="error">Could not load person: ${e.message}</div>`;
+  }
+}
+function setHops(n) {
+  _personHops = n;
+  document.getElementById('hop1Btn').className = n === 1 ? 'btn btn-primary' : 'btn';
+  document.getElementById('hop2Btn').className = n === 2 ? 'btn btn-primary' : 'btn';
+  drawPerson();
+}
+function drawPerson() {
+  const container = document.getElementById('personCanvasContainer');
+  if (!container || !_personGraph || !_personId) return;
+  const edges = _personGraph.edges.filter(e => ['CALLED', 'TRANSACTED', 'MET', 'ASSOCIATED_WITH', 'CALLS'].includes(e.kind));
+  let keep = new Set([_personId]);
+  const hop1 = new Set();
+  edges.forEach(e => {
+    if (e.src === _personId) hop1.add(e.dst);
+    if (e.dst === _personId) hop1.add(e.src);
+  });
+  const nodes1 = [...hop1].filter(id => _personGraph.nodes.some(n => n.id === id));
+  nodes1.forEach(id => keep.add(id));
+  let shown = edges.filter(e => (e.src === _personId || e.dst === _personId) && keep.has(e.src === _personId ? e.dst : e.src));
+  if (_personHops === 2) {
+    const hop2 = new Set();
+    edges.forEach(e => {
+      if (hop1.has(e.src) && e.dst !== _personId) hop2.add(e.dst);
+      if (hop1.has(e.dst) && e.src !== _personId) hop2.add(e.src);
+    });
+    [...hop2].slice(0, 30).forEach(id => { if (_personGraph.nodes.some(n => n.id === id)) keep.add(id); });
+    shown = edges.filter(e => keep.has(e.src) && keep.has(e.dst)).slice(0, 120);
+  }
+  const ids = [...keep].slice(0, 41);
+  
+  // Format data for 3D Graph
+  const gData = {
+    nodes: ids.map(id => {
+      let node = _personGraph.nodes.find(n => n.id === id) || {id: id, cell: 'Unknown'};
+      let color = id === _personId ? '#FFC53D' : (node.cell === 'A' ? '#4C9AFF' : node.cell === 'B' ? '#AB68FF' : node.cell === 'C' ? '#FF7A45' : '#94A3B8');
+      return { id: id, name: node.label || id, color: color, val: id === _personId ? 25 : 10 };
+    }),
+    links: shown.map(e => ({ source: e.src, target: e.dst, name: e.kind, color: 'rgba(255,255,255,0.3)' }))
+  };
+
+  container.innerHTML = ''; // Clear previous
+  
+  // Instantiate 3D Graph
+  const Graph = ForceGraph3D()(container)
+    .graphData(gData)
+    .nodeColor('color')
+    .nodeLabel('name')
+    .nodeRelSize(4)
+    .linkColor('color')
+    .linkDirectionalParticles(2)
+    .linkDirectionalParticleWidth(1.5)
+    .onNodeClick(node => openPerson(node.id))
+    .backgroundColor('#0A0E14'); // Dark mode background for graph area
+
+  // Fix container dimensions
+  setTimeout(() => {
+    Graph.width(container.clientWidth).height(container.clientHeight);
+  }, 100);
+  const rel = edges.filter(e => e.src === _personId || e.dst === _personId).slice(0, 12);
+  document.getElementById('personConns').innerHTML = rel.length
+    ? `<table><thead><tr><th>Connection</th><th>Relation</th><th>Source</th></tr></thead><tbody>` +
+      rel.map(e => {
+        const other = e.src === _personId ? e.dst : e.src;
+        return `<tr><td><button class="btn" onclick="openPerson('${other}')">${other}</button></td><td>${e.kind}</td><td class="mono">${e.source || '—'}</td></tr>`;
+      }).join('') + `</tbody></table>`
+    : '<p class="muted">No direct relationships in the current graph.</p>';
+}
+
+async function loadTimeline() {
+  const strip = document.getElementById('storyStrip');
+  const groups = document.getElementById('tlGroups');
+  const bursts = document.getElementById('tlBursts');
+  try {
+    const [t, leads] = await Promise.all([api('/temporal'), api('/leads?limit=20')]);
+    strip.innerHTML = t.narrative_days.map(n => {
+      const b = n.actual_burst;
+      return `<div style="padding:8px 0;border-bottom:1px solid var(--border)"><b>Day ${n.target_day}</b> — ` +
+        (b ? `unusually high activity in group ${b.cell} (day ${b.day}, ${b.count} calls vs usual ${b.mean}).`
+           : `no major spike within 3 days.`) + `</div>`;
+    }).join('');
+    const byCell = {};
+    leads.leads.forEach(l => { (byCell[l.cell] = byCell[l.cell] || []).push(l); });
+    groups.innerHTML = t.correlated_groups.map((g, i) => {
+      const people = [...new Set(g.cells.flatMap(c => (byCell[c] || []).slice(0, 2).map(l => l.entity_id)))];
+      return `<div style="padding:10px 0;border-bottom:1px solid var(--border)">` +
+        `<b>Days ${g.days.join(', ')}</b> — Unusual activity across groups ${g.cells.join(', ')}.<br>` +
+        `<span class="muted">Calls were much higher than normal in the same week — worth comparing these groups.</span><br>` +
+        (people.length ? `<span class="muted">Related people: </span>` + people.map(id => `<button class="btn" onclick="openPerson('${id}')">${id}</button>`).join(' ') : '') +
+        `<details><summary>Evidence</summary><span class="muted">` +
+        g.supporting_bursts.map(b => `Day ${b.day} group ${b.cell}: ${b.count} calls (usual ${b.mean})`).join('<br>') +
+        `<br><span class="mono">hash ${g.evidence_hash}</span></span></details></div>`;
+    }).join('') || '<p class="muted">No correlated periods.</p>';
+    const all = [...t.bursts].sort((a, b) => a.day - b.day);
+    bursts.innerHTML = `<table><thead><tr><th>Day</th><th>Group</th><th>What happened</th><th></th></tr></thead><tbody>` +
+      all.map(b => `<tr><td><b>Day ${b.day}</b></td><td>${b.cell}</td><td>${b.count} calls vs usual ${b.mean} — much higher than normal.</td>` +
+        `<td><details><summary>Technical</summary><span class="mono muted">z-score ${b.zscore}, window ${b.window}</span></details></td></tr>`).join('') +
+      `</tbody></table>`;
+    _tlBursts = all;
+    resetPlay();
+  } catch (e) {
+    strip.innerHTML = `<div class="error">Could not load timeline: ${e.message}</div>`;
+    groups.innerHTML = ''; bursts.innerHTML = '';
+  }
+}
+
+let _tlBursts = [];
+let _playTimer = null;
+const BURST_ALERT_DAYS = new Set([58, 61, 64]);
+function tlDayInfo(day) {
+  const hits = _tlBursts.filter(b => b.day === day);
+  if (!hits.length) return 'No flagged spike on this day.';
+  return hits.map(b => `Group ${b.cell}: ${b.count} calls vs usual ${b.mean}.`).join(' ');
+}
+function showDay(day) {
+  day = Math.max(50, Math.min(70, day));
+  document.getElementById('daySlider').value = day;
+  document.getElementById('dayReadout').textContent = 'Day ' + day;
+  document.getElementById('dayInfo').textContent = tlDayInfo(day);
+  const banner = document.getElementById('burstBanner');
+  if (BURST_ALERT_DAYS.has(day)) {
+    banner.textContent = `⚡ SUSPICIOUS BURST DETECTED (Day ${day})`;
+    banner.style.display = 'block';
+  } else {
+    banner.style.display = 'none';
+  }
+}
+function scrubDay(day) {
+  stopPlay();
+  showDay(Number(day));
+}
+function togglePlay() {
+  if (_playTimer) { stopPlay(); return; }
+  let day = Number(document.getElementById('daySlider').value) || 50;
+  if (day >= 70) day = 50;
+  document.getElementById('playBtn').textContent = '⏸ PAUSE';
+  showDay(day);
+  _playTimer = setInterval(() => {
+    day++;
+    if (day > 70) { stopPlay(); return; }
+    showDay(day);
+  }, 1000);
+}
+function stopPlay() {
+  if (_playTimer) { clearInterval(_playTimer); _playTimer = null; }
+  document.getElementById('playBtn').textContent = '▶ PLAY NARRATIVE';
+}
+function resetPlay() {
+  stopPlay();
+  showDay(50);
+}
+
+async function loadFinancial() {
+  const story = document.getElementById('finStory');
+  const txns = document.getElementById('finTxns');
+  try {
+    const [flags, g] = await Promise.all([api('/structuring'), api('/graph')]);
+    if (!flags.length) {
+      story.innerHTML = '<p class="muted">No structuring pattern detected in the current data.</p>';
+    } else {
+      story.innerHTML = flags.map(f =>
+        `<div><b>${f.receiver}</b> received <b>${f.cash_small_count} small cash payments below ₹50,000</b> ` +
+        `between days ${f.window[0]}–${f.window[1]}. The money was then combined into ` +
+        `<b>${f.consolidations.length} larger transfers above ₹2.5 lakh</b>.</div>` +
+        `<div class="muted" style="margin-top:6px"><b>Why it matters:</b> splitting money into small amounts and re-combining it ` +
+        `is a classic way to hide large movements — worth reviewing. Confidence ${(f.confidence * 100).toFixed(0)}%.</div>` +
+        `<details style="margin-top:6px"><summary>Technical</summary><span class="mono muted">${f.explain}</span></details>`
+      ).join('');
+    }
+    const tedges = g.edges.filter(e => e.kind === 'TRANSACTED' && e.meta && e.meta.amount != null && !isNaN(Number(e.meta.amount)))
+      .sort((a, b) => Number(b.meta.amount) - Number(a.meta.amount)).slice(0, 12);
+    txns.innerHTML = `<table><thead><tr><th>Record</th><th>From → To</th><th>Amount</th><th>Day</th><th></th></tr></thead><tbody>` +
+      tedges.map((e, i) =>
+        `<tr><td class="mono">${e.source || '—'}</td><td><button class="btn" onclick="openPerson('${e.src}')">${e.src}</button> → ` +
+        `<button class="btn" onclick="openPerson('${e.dst}')">${e.dst}</button></td>` +
+        `<td>₹${Number(e.meta.amount).toLocaleString('en-IN')}</td><td>Day ${e.day == null ? '—' : e.day}</td>` +
+        `<td><button class="btn" onclick="document.getElementById('finEv${i}').style.display=document.getElementById('finEv${i}').style.display==='none'?'block':'none'">Evidence</button></td></tr>` +
+        `<tr id="finEv${i}" style="display:none"><td colspan="5"><span class="muted">${(e.supporting_text || '').slice(0, 160)}</span><br>` +
+        `<span class="mono muted">hash ${e.evidence_hash || '—'} · confidence ${e.confidence} · ${e.meta.txn_type || ''}</span></td></tr>`
+      ).join('') + `</tbody></table>`;
+  } catch (e) {
+    story.innerHTML = `<div class="error">Could not load financial data: ${e.message}</div>`;
+    txns.innerHTML = '';
+  }
+}
+
+async function loadCommunications() {
+  const burstsEl = document.getElementById('commBursts');
+  const pairsEl = document.getElementById('commPairs');
+  try {
+    const [bursts, g] = await Promise.all([api('/bursts'), api('/graph')]);
+    const top = [...bursts].sort((a, b) => b.zscore - a.zscore).slice(0, 3);
+    burstsEl.innerHTML = top.map(b =>
+      `<div style="padding:8px 0;border-bottom:1px solid var(--border)"><b>Day ${b.day}, group ${b.cell}</b> — ` +
+      `${b.count} calls vs usual ${b.mean}. Much higher than normal.</div>`
+    ).join('') +
+    `<div class="muted" style="margin-top:6px">${bursts.length} unusual days detected in total. ` +
+    `<button class="btn" onclick="navigate('intelligence')">Open Timeline →</button></div>` +
+    `<details style="margin-top:6px"><summary>Technical</summary><span class="mono muted">` +
+    top.map(b => `Day ${b.day} ${b.cell}: z-score ${b.zscore}`).join('<br>') + `</span></details>`;
+    const cellOf = {};
+    g.nodes.forEach(n => { cellOf[n.id] = n.cell; });
+    const pairs = {};
+    g.edges.filter(e => e.kind === 'CALLED').forEach(e => {
+      const a = e.src, b = e.dst;
+      const key = a < b ? a + '|' + b : b + '|' + a;
+      if (!pairs[key]) pairs[key] = { a: a < b ? a : b, b: a < b ? b : a, count: 0, dur: 0, srcs: [] };
+      pairs[key].count++;
+      const d = Number(e.meta && e.meta.duration_sec);
+      if (!isNaN(d)) pairs[key].dur += d;
+      if (pairs[key].srcs.length < 3 && e.source) pairs[key].srcs.push(e.source);
+    });
+    const ranked = Object.values(pairs).sort((x, y) => y.count - x.count).slice(0, 10);
+    pairsEl.innerHTML = `<table><thead><tr><th>Contact pair</th><th>Calls</th><th>Talk time</th><th></th></tr></thead><tbody>` +
+      ranked.map((p, i) => {
+        const cross = cellOf[p.a] && cellOf[p.b] && cellOf[p.a] !== cellOf[p.b]
+          && !['Phone', 'Account', 'Noise'].includes(cellOf[p.a]) && !['Phone', 'Account', 'Noise'].includes(cellOf[p.b]);
+        return `<tr><td><button class="btn" onclick="openPerson('${p.a}')">${p.a}</button> ↔ ` +
+          `<button class="btn" onclick="openPerson('${p.b}')">${p.b}</button>` +
+          (cross ? ` <span class="pill pill-Bridge">cross-group</span>` : '') + `</td>` +
+          `<td>${p.count}</td><td>${Math.round(p.dur / 60)} min</td>` +
+          `<td><button class="btn" onclick="document.getElementById('commEv${i}').style.display=document.getElementById('commEv${i}').style.display==='none'?'block':'none'">Evidence</button></td></tr>` +
+          `<tr id="commEv${i}" style="display:none"><td colspan="4"><span class="muted">Sample records: </span>` +
+          `<span class="mono muted">${p.srcs.join(', ') || '—'}</span></td></tr>`;
+      }).join('') + `</tbody></table>`;
+  } catch (e) {
+    burstsEl.innerHTML = `<div class="error">Could not load communications: ${e.message}</div>`;
+    pairsEl.innerHTML = '';
+  }
+}
+
+let _reportData = null;
+async function loadReportPreview() {
+  const box = document.getElementById('reportPreview');
+  const msg = document.getElementById('reportMsg');
+  msg.textContent = '';
+  if (!_currentInv) {
+    box.innerHTML = '<p class="muted">Open a case overview first, then return here to preview its brief.</p>';
+    return;
+  }
+  box.innerHTML = '<p class="muted">Loading live case data…</p>';
+  try {
+    const [meta, stats, leads, graph] = await Promise.all([
+      api(`/investigations/${_currentInv}`),
+      api(`/investigations/${_currentInv}/stats`),
+      api(`/investigations/${_currentInv}/leads?limit=20`),
+      api(`/investigations/${_currentInv}/graph`),
+    ]);
+    _reportData = { meta, stats, leads: leads.leads || [], graph };
+    const top5 = _reportData.leads.slice(0, 5);
+    const bridges = [..._reportData.leads]
+      .sort((a, b) => ((b.signals || {}).bridge_score || 0) - ((a.signals || {}).bridge_score || 0))
+      .slice(0, 4);
+    box.innerHTML =
+      `<div><b>${meta.name}</b> <span class="muted">· ${stats.graph.node_count} entities · ${stats.graph.edge_count} links · ${(meta.files || []).length} file(s)</span></div>` +
+      `<div style="margin-top:8px"><b>Top suspects</b><br><span class="muted">` +
+      (top5.length ? top5.map(l => `${l.entity_id} — ${l.label || ''} (${l.lead_score}/100)`).join('<br>') : 'None') +
+      `</span></div>` +
+      `<div style="margin-top:8px"><b>Bridge entities</b><br><span class="muted">` +
+      (bridges.length ? bridges.map(l => `${l.entity_id} (bridge score ${((l.signals || {}).bridge_score ?? '—')})`).join('<br>') : 'None') +
+      `</span></div>`;
+  } catch (e) {
+    box.innerHTML = `<div class="error">Could not load brief data: ${e.message}</div>`;
+    _reportData = null;
+  }
+}
+function exportBriefPDF() {
+  const msg = document.getElementById('reportMsg');
+  if (!_reportData) { msg.textContent = 'Load the preview first (open a case overview, then return here).'; return; }
+  if (!window.jspdf || !window.jspdf.jsPDF) { msg.textContent = 'PDF library unavailable offline — connect once to load it, then retry.'; return; }
+  const { meta, stats, leads, graph } = _reportData;
+  const session = getSession() || {};
+  const doc = new window.jspdf.jsPDF();
+  const W = 190;
+  let y = 18;
+  const nextPage = (need) => { if (y + need > 280) { doc.addPage(); y = 18; } };
+  const para = (text, size = 10) => {
+    doc.setFontSize(size);
+    doc.splitTextToSize(String(text), W).forEach(line => { nextPage(7); doc.text(line, 10, y); y += 6; });
+  };
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(14);
+  doc.text(`CONFIDENTIAL LAW ENFORCEMENT BRIEF — CASE: ${meta.name}`, 10, y); y += 10;
+  doc.setFont('helvetica', 'normal');
+  para(`Investigation ID: ${meta.id} | Files: ${(meta.files || []).map(f => f.original || f).join(', ') || 'demo dataset'} | Generated: ${new Date().toLocaleString()} by ${session.name || session.username || 'unknown'} (${session.role || 'unknown role'}) | Entities: ${stats.graph.node_count} | Links: ${stats.graph.edge_count}`, 9);
+  y += 2;
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.text('Top 5 Identified Suspect Leads', 10, y); y += 8;
+  doc.setFont('helvetica', 'normal');
+  leads.slice(0, 5).forEach((l, i) => {
+    nextPage(18);
+    para(`${i + 1}. ${l.entity_id} — ${l.label || ''} | Score ${l.lead_score}/100 (${l.priority || ''}) | Role ${l.role || '—'}`, 10);
+  });
+  y += 2;
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.text('Identified Cross-Group Bridge Entities', 10, y); y += 8;
+  doc.setFont('helvetica', 'normal');
+  [...leads].sort((a, b) => ((b.signals || {}).bridge_score || 0) - ((a.signals || {}).bridge_score || 0)).slice(0, 4).forEach(l => {
+    para(`- ${l.entity_id} — bridge score ${((l.signals || {}).bridge_score ?? '—')}`, 10);
+  });
+  y += 2;
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.text('Evidence Audit Trail Hashes', 10, y); y += 8;
+  doc.setFont('helvetica', 'normal');
+  const seen = new Set();
+  (graph.edges || []).forEach(e => {
+    if (e.evidence_hash && !seen.has(e.evidence_hash) && seen.size < 15) {
+      seen.add(e.evidence_hash);
+      para(`- ${e.source || e.src} | hash ${e.evidence_hash}`, 9);
+    }
+  });
+  if (!seen.size) para('No hashed evidence records in this case graph.', 9);
+  y += 4;
+  para('Potential investigative leads — not guilt determinations. SIMULATION results (if any) are excluded from this brief.', 9);
+  const fname = `${(meta.name || 'case').replace(/[^A-Za-z0-9]+/g, '_')}_Intelligence_Brief.pdf`;
+  doc.save(fname);
+  msg.textContent = `Downloaded ${fname}`;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (getToken()) {
+    // Validate the stored session before showing the app
+    api('/me').then(() => enterApp()).catch(() => logout(true));
+  } else {
+    logout(true);
+  }
+});
+window.addEventListener('hashchange', () => {
+  if (!getToken()) { logout(true); return; }
+  navigate(location.hash.slice(1) || 'dashboard');
+});
+</script>
+</body>
+</html>
