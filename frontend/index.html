@@ -902,6 +902,18 @@ async function renderRiskBar(iid) {
 }
 // NER provenance chip (read-only P1 slice): surfaces which extractor produced
 // each evidence record so investigators can weigh spaCy NER vs heuristic
+// Format confidence numbers into intuitive qualitative levels
+function formatConfidence(val) {
+  if (val == null || val === '' || isNaN(Number(val))) return 'Hard Fact';
+  const c = Number(val);
+  if (c >= 0.95) return 'Hard Fact';
+  if (c >= 0.80) return 'High Probability';
+  if (c >= 0.55) return 'Inferred Intelligence';
+  return 'Weak Signal';
+}
+
+// NER provenance chip (read-only P1 slice): surfaces which extractor produced
+// each evidence record so investigators can weigh spaCy NER vs heuristic
 // fallback vs structured records. Backend already sends s.extractor.
 function extractorChip(s) {
   const ext = s.extractor || '';
@@ -917,7 +929,7 @@ function extractorChip(s) {
     label = 'heuristic fallback · needs review'; warn = true;
   }
   const style = warn ? ' style="background:#FFFBEB;border:1px solid #F59E0B;color:#92400E"' : '';
-  return ` <span class="tag"${style} title="Extractor: ${ext} · confidence ${s.confidence}">${label}</span>`;
+  return ` <span class="tag"${style} title="Extractor: ${ext} · Confidence: ${formatConfidence(s.confidence)}">${label}</span>`;
 }
 async function openEvidenceDrawer(entityId) {
   const drawer = document.getElementById('evidenceDrawer');
@@ -950,9 +962,9 @@ async function openEvidenceDrawer(entityId) {
       ((w.sources || []).length
         ? w.sources.slice(0, 6).map(s =>
           `<div style="padding:8px 0;border-bottom:1px solid var(--border)"><b class="mono">${s.source}</b> ` +
-          `<span class="muted">${s.source_type || ''}${s.day != null ? ' · Day ' + s.day : ''}</span>${extractorChip(s)}<br>` +
+          `<span class="muted">${s.source_type || ''}${s.day != null ? ' · Day ' + s.day : ''} · Confidence: <b>${formatConfidence(s.confidence)}</b></span>${extractorChip(s)}<br>` +
           `<span style="font-size:12px">${(s.supporting_text || '').slice(0, 160)}</span><br>` +
-          `<span class="mono muted">hash: ${(s.evidence_hash || '—').slice(0, 12)} · confidence ${s.confidence}</span></div>`
+          `<span class="mono muted">hash: ${(s.evidence_hash || '—').slice(0, 12)}</span></div>`
         ).join('')
         : '<p class="muted">No source records found.</p>');
   } catch (e) {
@@ -1248,7 +1260,7 @@ async function openPerson(id) {
       `</div></details>`;
     const ev = (w.sources || []).slice(0, 6);
     document.getElementById('personEvidence').innerHTML = ev.length
-      ? ev.map(s => `<div style="padding:8px 0;border-bottom:1px solid var(--border)"><b class="mono">${s.source}</b> <span class="muted">${s.source_type} · Day ${s.day == null ? '—' : s.day} · confidence ${s.confidence}</span>${extractorChip(s)}<br><span style="font-size:13px">${(s.supporting_text || '').slice(0, 160)}</span><br><span class="muted mono">hash ${s.evidence_hash || '—'}</span></div>`).join('')
+      ? ev.map(s => `<div style="padding:8px 0;border-bottom:1px solid var(--border)"><b class="mono">${s.source}</b> <span class="muted">${s.source_type} · Day ${s.day == null ? '—' : s.day} · Confidence: <b>${formatConfidence(s.confidence)}</b></span>${extractorChip(s)}<br><span style="font-size:13px">${(s.supporting_text || '').slice(0, 160)}</span><br><span class="muted mono">hash ${s.evidence_hash || '—'}</span></div>`).join('')
       : '<p class="muted">No evidence records.</p>';
     const days = {};
     (w.sources || []).forEach(s => { if (s.day != null) (days[s.day] = days[s.day] || []).push(s); });
@@ -1462,7 +1474,7 @@ async function loadFinancial() {
           `between days ${f.window[0]}–${f.window[1]}. The money was then combined into ` +
           `<b>${f.consolidations.length} larger transfers above ₹2.5 lakh</b>.</div>` +
           `<div class="muted" style="margin-top:6px"><b>Why it matters:</b> splitting money into small amounts and re-combining it ` +
-          `is a classic way to hide large movements — worth reviewing. Confidence ${(f.confidence * 100).toFixed(0)}%.</div>` +
+          `is a classic way to hide large movements — worth reviewing. Confidence: <b>${formatConfidence(f.confidence)}</b>.</div>` +
           `<details style="margin-top:6px"><summary>Pattern Details</summary><div class="muted" style="font-size:13px;margin-top:4px">Frequent cash deposits under the ₹50,000 reporting threshold, combined into bulk transfers to bypass regulatory scrutiny.</div></details>`;
       }).join('');
     }
@@ -1477,7 +1489,7 @@ async function loadFinancial() {
           `<td>₹${Number(e.meta.amount).toLocaleString('en-IN')}</td><td>Day ${e.day == null ? '—' : e.day}</td>` +
           `<td><button class="btn" onclick="document.getElementById('finEv${i}').style.display=document.getElementById('finEv${i}').style.display==='none'?'block':'none'">Evidence</button></td></tr>` +
           `<tr id="finEv${i}" style="display:none"><td colspan="5"><span class="muted">${(e.supporting_text || '').slice(0, 160)}</span><br>` +
-          `<span class="mono muted">confidence ${e.confidence} · ${e.meta.txn_type || ''}</span></td></tr>`;
+          `<span class="muted">Confidence: <b>${formatConfidence(e.confidence)}</b> · ${e.meta.txn_type || ''}</span></td></tr>`;
       }).join('') + `</tbody></table>`;
   } catch (e) {
     story.innerHTML = `<div class="error">Could not load financial data: ${e.message}</div>`;
