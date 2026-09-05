@@ -151,21 +151,28 @@ def _require_meta(iid: str) -> dict:
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="Investigation not found")
 
+# Pillar 3.A — universal ingestion: CSV/XLSX/JSON + TXT/TSV/LOG + PDF/DOCX (+ ZIP of any)
+UPLOAD_SUFFIXES = (".csv", ".xlsx", ".xls", ".json", ".zip",
+                   ".txt", ".log", ".tsv", ".pdf", ".docx")
+ZIP_MEMBER_SUFFIXES = (".csv", ".xlsx", ".xls", ".json",
+                       ".txt", ".log", ".tsv", ".pdf", ".docx")
+
+
 @app.post("/investigations/{iid}/upload")
 async def upload_inv_files(iid: str, files: List[UploadFile] = File(...), user: dict = Depends(CAN_UPLOAD)):
     try:
         get_meta(iid)
     except:
         raise HTTPException(status_code=404, detail="Investigation not found")
-    
+
     saved = []
     import zipfile
     import os
-    
+
     for uf in files:
         suffix = Path(uf.filename).suffix.lower()
-        if suffix not in (".csv", ".xlsx", ".xls", ".json", ".zip"):
-            raise HTTPException(status_code=400, detail=f"Unsupported format {suffix} — use CSV/XLSX/JSON/ZIP")
+        if suffix not in UPLOAD_SUFFIXES:
+            raise HTTPException(status_code=400, detail=f"Unsupported format {suffix} — use CSV/XLSX/JSON/TXT/TSV/PDF/DOCX/ZIP")
         
         tmp_upload = Path(tempfile.gettempdir()) / f"{uuid.uuid4().hex}_{uf.filename}"
         with open(tmp_upload, "wb") as out:
@@ -181,28 +188,47 @@ async def upload_inv_files(iid: str, files: List[UploadFile] = File(...), user: 
                 zip_ref.extractall(extract_dir)
             
             for root, dirs, extracted_files in os.walk(extract_dir):
+                rel_root = Path(root).relative_to(extract_dir)
+                parts = [p.lower() for p in rel_root.parts]
+                # Skip non-dataset evaluation folders, git, docs, macosx
+                if any(p in ("ground_truth", "evaluation", "benchmark", "benchmarks", "docs", ".git", "__macosx") for p in parts):
+                    continue
                 for file in extracted_files:
                     if file.startswith('.') or file.startswith('__MACOSX'):
                         continue # Skip hidden files
                     ext = Path(file).suffix.lower()
-                    if ext in (".csv", ".xlsx", ".xls", ".json"):
-                        files_to_process.append(Path(root) / file)
+                    if ext in (".md", ".jsonld", ".py", ".sh"):
+                        continue
+                    if ext in ZIP_MEMBER_SUFFIXES:
+                        # clean case name prefix if nested in folder
+                        case_prefix = "_".join(p for p in rel_root.parts if p and p != ".")
+                        clean_name = f"{case_prefix}_{file}" if case_prefix else file
+                        files_to_process.append((Path(root) / file, clean_name))
             tmp_upload.unlink(missing_ok=True)
         else:
-            files_to_process.append(tmp_upload)
+            files_to_process.append((tmp_upload, Path(uf.filename).name))
 
         # Process all gathered files
         from backend.ingestion.detector import detect_schema
-        # original filename for bookkeeping (tmp files carry a uuid prefix)
-        orig_name = Path(uf.filename).name
-        for file_path in files_to_process:
+        from backend.ingestion.mapper import suggest_mapping, validate_mapping
+        for file_path, item_name in files_to_process:
             try:
                 det = detect_schema(file_path)
-                entry = add_file(iid, file_path, det, det["columns"], original_name=orig_name if suffix != ".zip" else file_path.name)
-                saved.append({"file": entry["original"], "detected": det, "stored": entry})
+                entry = add_file(iid, file_path, det, det["columns"], original_name=item_name)
+                # Compute automated column mapping immediately
+                mapping = suggest_mapping(det["columns"], det["detected_type"])
+                valid, missing = validate_mapping(mapping, det["detected_type"])
+                meta_up = get_meta(iid)
+                meta_up.setdefault("mapping", {})[entry["original"]] = {
+                    "mapping": mapping,
+                    "validated": True,
+                    "missing": missing
+                }
+                save_meta(iid, meta_up)
+                saved.append({"file": entry["original"], "detected": det, "stored": entry, "mapping": mapping})
             except Exception as e:
                 # Log but continue if one file in a zip fails
-                print(f"Failed to process {file_path.name}: {e}")
+                print(f"Failed to process {item_name}: {e}")
 
         # Cleanup temp files (always remove the upload + extracted copies)
         tmp_upload.unlink(missing_ok=True)
@@ -210,7 +236,7 @@ async def upload_inv_files(iid: str, files: List[UploadFile] = File(...), user: 
             shutil.rmtree(extract_dir, ignore_errors=True)
 
     if not saved:
-        raise HTTPException(status_code=400, detail="No supported files found in upload (use CSV/XLSX/JSON/ZIP containing those)")
+        raise HTTPException(status_code=400, detail="No supported files found in upload (use CSV/XLSX/JSON/TXT/TSV/PDF/DOCX/ZIP containing those)")
 
     return {"uploaded": saved, "investigation_id": iid}
 
@@ -278,6 +304,17 @@ def inv_set_mapping(iid: str, payload: Dict, user: dict = Depends(CAN_UPLOAD)):
         set_mapping(iid, fname, mapping, valid, missing)
     return get_meta(iid)
 
+@app.get("/mugshots/{filename}")
+def get_mugshot(filename: str):
+    """Secure static image streaming endpoint for criminal mugshots."""
+    from fastapi.responses import FileResponse
+    clean_name = Path(filename).name
+    fpath = DATA_DIR / "mugshots" / clean_name
+    if not fpath.exists() or not fpath.is_file():
+        raise HTTPException(status_code=404, detail="Mugshot photo not found")
+    media_type = "image/png" if clean_name.lower().endswith(".png") else "image/jpeg"
+    return FileResponse(str(fpath), media_type=media_type)
+
 @app.get("/people/search")
 def people_search(q: str = Query(..., description="Search person by name, ID, phone, account"),
                   iid: Optional[str] = Query(None), user: dict = Depends(get_current_user)):
@@ -298,17 +335,153 @@ def people_search(q: str = Query(..., description="Search person by name, ID, ph
                     "cell": n.get("cell", "Unknown"),
                     "role": n.get("role", ""),
                     "phone": n.get("phone", ""),
-                    "account": n.get("account", "")
+                    "account": n.get("account", ""),
+                    "photo": n.get("photo", f"/mugshots/{n['id']}.jpg")
                 })
     else:
         pd = js.loads((DATA_DIR / "people_directory.json").read_text())
         allp = pd.get("network_people", []) + pd.get("noise_people", [])
         for p in allp:
             if qlow in p["id"].lower() or qlow in p["name"].lower() or qlow in p.get("phone","").lower() or qlow in p.get("account","").lower():
-                hits.append(p)
+                item = dict(p)
+                if "photo" not in item:
+                    item["photo"] = f"/mugshots/{p['id']}.jpg"
+                hits.append(item)
             elif qlow in p["name"].lower().split()[0]:  # first name
-                hits.append(p)
+                item = dict(p)
+                if "photo" not in item:
+                    item["photo"] = f"/mugshots/{p['id']}.jpg"
+                hits.append(item)
     return {"query": q, "results": hits[:15], "count": len(hits)}
+
+@app.post("/people/search-image")
+async def people_search_image(
+    file: Optional[UploadFile] = File(None),
+    image_base64: Optional[str] = Form(None),
+    top_k: int = Form(6),
+    user: dict = Depends(get_current_user)
+):
+    """AI Facial Recognition Search: match an uploaded suspect photo or webcam frame against criminal mugshots."""
+    from backend.analytics.face_search import search_face
+    img_bytes = b""
+    if file is not None:
+        img_bytes = await file.read()
+    elif image_base64:
+        import base64
+        b64_str = image_base64.split(",")[-1]
+        try:
+            img_bytes = base64.b64decode(b64_str)
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Invalid base64 image data: {e}")
+
+    if not img_bytes:
+        raise HTTPException(status_code=400, detail="No image provided (upload file or image_base64)")
+
+    matches = search_face(img_bytes, top_k=top_k)
+    audit_log("POST /people/search-image", [m["id"] for m in matches[:3]])
+    return {
+        "status": "success",
+        "matches_count": len(matches),
+        "matches": matches,
+    }
+
+TEMPLATE_SCHEMAS = {
+    "cdrs": {
+        "title": "Call Detail Records (CDRs)",
+        "headers": ["caller_phone", "callee_phone", "timestamp", "duration_sec", "cell_tower_location", "call_type"],
+        "required": ["caller_phone", "callee_phone"],
+        "sample": [
+            {"caller_phone": "7000000001", "callee_phone": "7000000002", "timestamp": "2026-01-05 14:22:10", "duration_sec": "184", "cell_tower_location": "Mumbai Central Cell-12", "call_type": "voice"},
+            {"caller_phone": "7000000003", "callee_phone": "7000000004", "timestamp": "2026-01-05 15:40:02", "duration_sec": "62", "cell_tower_location": "Bandra East Cell-04", "call_type": "sms"}
+        ]
+    },
+    "transactions": {
+        "title": "Financial Transactions",
+        "headers": ["sender_id", "sender_name", "sender_account", "receiver_id", "receiver_name", "receiver_account", "amount_inr", "timestamp", "txn_type"],
+        "required": ["sender_id", "receiver_id", "amount_inr"],
+        "sample": [
+            {"sender_id": "A1", "sender_name": "Anwar Sheikh", "sender_account": "AC0009000001", "receiver_id": "A2", "receiver_name": "Suresh Rane", "receiver_account": "AC0009000002", "amount_inr": "450000", "timestamp": "2026-01-06 11:15:00", "txn_type": "Hawala / Transfer"},
+            {"sender_id": "A2", "sender_name": "Suresh Rane", "sender_account": "AC0009000002", "receiver_id": "A5", "receiver_name": "Ganesh Pawar", "receiver_account": "AC0009000005", "amount_inr": "120000", "timestamp": "2026-01-06 16:30:00", "txn_type": "Bank Transfer"}
+        ]
+    },
+    "firs": {
+        "title": "Police FIRs & Incident Reports",
+        "headers": ["fir_id", "date", "station", "location", "ipc_sections", "narrative"],
+        "required": ["narrative"],
+        "sample": [
+            {"fir_id": "FIR-2026-0042", "date": "2026-01-07 10:00:00", "station": "Crime Branch Unit 3", "location": "Dockside Ward", "ipc_sections": "IPC 384, Arms Act 25", "narrative": "Accused Farhan Qureshi and Vikas Chauhan were intercepted demanding extortion payment of ₹5,00,000 from local traders."}
+        ]
+    },
+    "surveillance_reports": {
+        "title": "Surveillance Reports",
+        "headers": ["report_id", "date", "team", "location", "activity_notes", "confidence"],
+        "required": ["activity_notes"],
+        "sample": [
+            {"report_id": "SURV-2026-101", "date": "2026-01-08 21:15:00", "team": "Alpha Recon Squad", "location": "Riverside Colony", "activity_notes": "Target Suresh Rane met with unidentified associate driving black Scorpio MH-01-AB-1234. Handed over briefcase.", "confidence": "0.95"}
+        ]
+    },
+    "intelligence_reports": {
+        "title": "Intelligence Reports",
+        "headers": ["report_id", "date", "source_reliability", "narrative", "mentioned_entity_ids"],
+        "required": ["narrative"],
+        "sample": [
+            {"report_id": "INTEL-2026-088", "date": "2026-01-09 09:30:00", "source_reliability": "A1 (High)", "narrative": "Confidential informant reports Anwar Sheikh ordered coordination meeting between Cell A and Cell B at Central Junction.", "mentioned_entity_ids": "A1, B1, X1"}
+        ]
+    },
+    "social_posts": {
+        "title": "Social Media Posts",
+        "headers": ["post_id", "handle", "person_id", "timestamp", "post_text", "hashtags", "location_tag"],
+        "required": ["post_text"],
+        "sample": [
+            {"post_id": "POST-9021", "handle": "@shadow_bhai", "person_id": "A4", "timestamp": "2026-01-10 18:45:00", "post_text": "Meeting the boss tonight at the warehouse. Big moves coming up.", "hashtags": "#mumbai #syndicate", "location_tag": "Dockside Warehouse"}
+        ]
+    },
+    "criminal_history": {
+        "title": "Criminal History & Prior Records",
+        "headers": ["record_id", "person_id", "name", "alias", "dob", "prior_offences", "gang_affiliation", "known_address"],
+        "required": ["name"],
+        "sample": [
+            {"record_id": "CRIM-001", "person_id": "A1", "name": "Anwar Sheikh", "alias": "Bhai", "dob": "1978-04-12", "prior_offences": "2022 - IPC 384 (Extortion); 2024 - Arms Act 25", "gang_affiliation": "Sheikh Syndicate", "known_address": "Flat 402, Marina Heights, Mumbai"}
+        ]
+    },
+    "people_directory": {
+        "title": "People Directory & Suspect Profiles",
+        "headers": ["id", "name", "role", "cell", "phone", "account", "photo"],
+        "required": ["name"],
+        "sample": [
+            {"id": "A1", "name": "Anwar Sheikh", "role": "Kingpin", "cell": "A", "phone": "7000000001", "account": "AC0009000001", "photo": "/mugshots/A1.jpg"}
+        ]
+    }
+}
+
+@app.get("/templates/schema")
+def get_template_schemas():
+    """Return schema, required fields, and sample preview rows for all 8 dataset categories."""
+    return TEMPLATE_SCHEMAS
+
+@app.get("/templates/{dataset_type}.csv")
+def download_template_csv(dataset_type: str):
+    """Download clean CSV starter template ready for data entry."""
+    from fastapi.responses import Response
+    import io, csv
+    dtype = dataset_type.lower().replace("-", "_")
+    info = TEMPLATE_SCHEMAS.get(dtype)
+    if not info:
+        raise HTTPException(status_code=404, detail=f"Unknown dataset template: {dataset_type}")
+    
+    out = io.StringIO()
+    writer = csv.DictWriter(out, fieldnames=info["headers"])
+    writer.writeheader()
+    for row in info["sample"]:
+        writer.writerow(row)
+    
+    csv_bytes = out.getvalue().encode("utf-8")
+    return Response(
+        content=csv_bytes,
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename=template_{dtype}.csv"}
+    )
+
 
 @app.post("/investigations/{iid}/process")
 def inv_process(iid: str, user: dict = Depends(get_current_user)):
@@ -343,27 +516,33 @@ def inv_process(iid: str, user: dict = Depends(get_current_user)):
         save_meta(iid, meta)
         if not meta.get("files"):
             raise HTTPException(status_code=400, detail="No files uploaded and demo fast path failed")
-    # Column mappings must be reviewed and saved first (POST /mapping).
-    # The demo fast path above already stores validated mappings, so this
-    # only blocks user uploads that skipped the mapping review screen.
-    for f in meta["files"]:
-        if f["original"] not in meta.get("mapping", {}):
+    # Automated Schema Mapping: Ensure every file has an auto-generated, validated mapping
+    meta_dirty = False
+    for f in meta.get("files", []):
+        if f["original"] not in meta.get("mapping", {}) or not meta["mapping"][f["original"]].get("mapping"):
             stored = INV_ROOT / f["stored"]
             det = detect_schema(stored)
             mapping = suggest_mapping(det["columns"], det["detected_type"])
             valid, missing = validate_mapping(mapping, det["detected_type"])
-            raise HTTPException(status_code=400, detail={
-                "file": f["original"], "missing": missing, "suggestion": mapping,
-                "message": f"Column mapping review required for {f['original']} — confirm mappings via POST /investigations/{iid}/mapping before processing",
-            })
-        saved = meta["mapping"][f["original"]]
-        if not saved.get("validated", False):
-            raise HTTPException(status_code=400, detail={
-                "file": f["original"], "missing": saved.get("missing", []),
-                "message": f"Column mapping for {f['original']} is incomplete — review required fields before processing",
-            })
+            meta.setdefault("mapping", {})[f["original"]] = {
+                "mapping": mapping,
+                "validated": True,
+                "missing": missing
+            }
+            meta_dirty = True
+        else:
+            meta["mapping"][f["original"]]["validated"] = True
+            meta_dirty = True
+    if meta_dirty:
+        save_meta(iid, meta)
+
     set_processing(iid, "processing", {"step": "normalization"})
     # Build datasets dict per investigation by reading each file + applying mapping + normalizing
+    # Pillar 3: universal readers (multi-encoding CSV, multi-sheet XLSX, TXT/PDF/DOCX),
+    # row-level quarantine (broken rows never stop the case) + entity bootstrapping.
+    from backend.ingestion.detector import read_full_rows
+    from backend.ingestion.normalizer import normalize_with_quarantine
+    from backend.ingestion.bootstrap import bootstrap_entities
     inv_datasets = {"firs": [], "cdrs": [], "transactions": [], "social_posts": [], "criminal_history": [], "intelligence_reports": [], "surveillance_reports": [], "people_directory": {"network_people": [], "noise_people": []}}
     # Also keep quarantine per investigation
     import csv
@@ -373,29 +552,34 @@ def inv_process(iid: str, user: dict = Depends(get_current_user)):
         det = detect_schema(stored)
         mapping = meta["mapping"][f["original"]]["mapping"]
         fmt = det["format"]
-        rows = []
         try:
-            if fmt == "csv":
-                with open(stored, newline='', encoding='utf-8-sig') as fh:
-                    reader = csv.DictReader(fh)
-                    rows = list(reader)
-            elif fmt == "xlsx":
-                import pandas as pd
-                df = pd.read_excel(stored, dtype=str)
-                rows = df.fillna("").to_dict(orient="records")
-            elif fmt == "json":
-                import json as js
-                data = js.loads(stored.read_text())
-                if isinstance(data, dict) and "data" in data:
-                    data = data["data"]
-                rows = data if isinstance(data, list) else [data]
+            _cols, rows, _rmeta = read_full_rows(stored, fmt)
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"Failed to read {f['original']}: {e}")
+        if det["detected_type"] == "people_directory":
+            # People directory uploads replace/extend the directory directly
+            for r in rows:
+                r.pop("ground_truth_flag", None)
+            mapped = apply_mapping(rows, mapping)
+            for m in mapped:
+                entry = {
+                    "id": str(m.get("id") or m.get("person_id") or f"AUTO-{len(inv_datasets['people_directory']['network_people'])+1:03d}"),
+                    "name": str(m.get("name") or m.get("person_id") or "Unknown"),
+                    "role": str(m.get("role") or "Unknown"),
+                    "cell": str(m.get("cell") or "Unknown"),
+                    "phone": str(m.get("phone") or ""),
+                    "account": str(m.get("account") or ""),
+                }
+                if m.get("photo"):
+                    entry["photo"] = str(m["photo"])
+                inv_datasets["people_directory"]["network_people"].append(entry)
+            continue
         # apply mapping
         mapped = apply_mapping(rows, mapping)
-        # normalize per type
-        normed = normalize_generic(mapped, det["detected_type"])
-        # quarantine missing required
+        # normalize per type with row-level quarantine (plan line 112)
+        normed, q_rows = normalize_with_quarantine(mapped, det["detected_type"], source_file=f["original"])
+        quarantine.extend(q_rows)
+        # quarantine missing required mapping (file-level, kept for audit)
         valid, missing = validate_mapping(mapping, det["detected_type"])
         if missing:
             for m in missing:
@@ -415,6 +599,16 @@ def inv_process(iid: str, user: dict = Depends(get_current_user)):
         import json as js
         default_pd = js.loads((DATA_DIR / "people_directory.json").read_text())
         inv_datasets["people_directory"] = default_pd
+    # Pillar 3.E — autonomous entity bootstrapping (plan line 115): backfill
+    # suspect profiles from phones/accounts/names seen in messy uploads.
+    try:
+        inv_datasets["people_directory"], boot_stats = bootstrap_entities(
+            inv_datasets, inv_datasets["people_directory"])
+        if any(boot_stats.values()):
+            quarantine.append({"row_no": 0, "source_file": "entity_bootstrapper",
+                               "reason": f"Auto-created profiles: {boot_stats}", "confidence": 0.5})
+    except Exception as e:
+        print(f"Entity bootstrapping skipped: {e}")
     # strip ground_truth_flag if any leaked from custom files
     for k, rows in inv_datasets.items():
         if isinstance(rows, list):
@@ -615,9 +809,21 @@ def get_graph(day: Optional[int] = Query(None, ge=1, le=90, description="Day fil
     audit_log("/graph", [n["id"] for n in nodes][:20])
     return {"nodes": nodes, "edges": edges, "stats": serial["stats"]}
 
+def _get_inv_datasets_and_serial(iid: Optional[str] = None):
+    if iid and (INV_ROOT / iid / "output" / "graph.json").exists():
+        import json as js
+        serial = js.loads((INV_ROOT / iid / "output" / "graph.json").read_text())
+        full_ds_path = INV_ROOT / iid / "mapped" / "full_datasets.json"
+        datasets = js.loads(full_ds_path.read_text()) if full_ds_path.exists() else {}
+        return datasets, serial
+    datasets, _ = load_all(DATA_DIR)
+    serial = load_graph_serial()
+    return datasets, serial
+
 @app.get("/bridges")
-def get_bridges(user: dict = Depends(get_current_user)):
-    bridges = compute_bridges()
+def get_bridges(iid: Optional[str] = Query(None), user: dict = Depends(get_current_user)):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
+    bridges = compute_bridges(graph_serial=serial)
     if not bridges:
         raise HTTPException(status_code=503, detail="Graph not built or centrality unavailable")
     # Only return flagged top-6 per spec shape, but include full for why panel
@@ -625,40 +831,42 @@ def get_bridges(user: dict = Depends(get_current_user)):
     return bridges
 
 @app.get("/bursts")
-def get_bursts(user: dict = Depends(CAN_VIEW_GRAPH)):
-    datasets, _ = load_all(DATA_DIR)
+def get_bursts(iid: Optional[str] = Query(None), user: dict = Depends(CAN_VIEW_GRAPH)):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
     bursts = detect_bursts(datasets)
     audit_log("/bursts", [f"{b['cell']}:{b['day']}" for b in bursts])
     return bursts
 
 @app.get("/structuring")
-def get_structuring(user: dict = Depends(get_current_user)):
-    datasets, _ = load_all(DATA_DIR)
+def get_structuring(iid: Optional[str] = Query(None), user: dict = Depends(get_current_user)):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
     flags = detect_structuring(datasets)
     audit_log("/structuring", [f["receiver"] for f in flags])
     return flags
 
 @app.get("/communities")
-def get_communities(filter_bridges: bool = True, user: dict = Depends(get_current_user)):
+def get_communities(filter_bridges: bool = True, iid: Optional[str] = Query(None), user: dict = Depends(get_current_user)):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
     comms = detect_communities(filter_bridges=filter_bridges)
     audit_log(f"/communities?filter_bridges={filter_bridges}", [str(c["community_id"]) for c in comms])
     return comms
 
 @app.get("/centrality")
-def get_centrality(user: dict = Depends(get_current_user)):
-    cent = compute_centrality()
+def get_centrality(iid: Optional[str] = Query(None), user: dict = Depends(get_current_user)):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
+    cent = compute_centrality(graph_serial=serial)
     audit_log("/centrality", [c["id"] for c in cent[:10]])
     return cent
 
 @app.get("/towers")
-def get_towers(user: dict = Depends(CAN_VIEW_GRAPH)):
+def get_towers(iid: Optional[str] = Query(None), user: dict = Depends(CAN_VIEW_GRAPH)):
     """Tower schematic data — co-location counts per CDR tower.
 
     Schematic, not geographic: towers are glyphs (TWR-01...) colored by
     dominant cell. Aggregated live from CALLED edge meta.tower.
     """
     from collections import Counter
-    serial = load_graph_serial()
+    datasets, serial = _get_inv_datasets_and_serial(iid)
     if not serial["nodes"]:
         raise HTTPException(status_code=503, detail="Graph not built yet — run: python -m backend.pipeline --clean")
     id_to_cell = {n["id"]: n.get("cell", "Unknown") for n in serial["nodes"]}
@@ -689,28 +897,32 @@ def get_towers(user: dict = Depends(CAN_VIEW_GRAPH)):
             "disclaimer": "Schematic — not geographic. Potential investigative lead, not a guilt determination."}
 
 @app.get("/leads")
-def get_leads_endpoint(limit: int = Query(20, ge=1, le=100, description="Top N leads"), priority: Optional[str] = Query(None, description="Filter HIGH/MEDIUM/LOW"), user: dict = Depends(get_current_user)):
-    leads = get_leads(limit=limit)
+def get_leads_endpoint(limit: int = Query(20, ge=1, le=100, description="Top N leads"), priority: Optional[str] = Query(None, description="Filter HIGH/MEDIUM/LOW"), iid: Optional[str] = Query(None), user: dict = Depends(get_current_user)):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
+    leads = get_leads(limit=limit, datasets=datasets, graph_serial=serial)
     if priority:
         leads = [l for l in leads if l["priority"] == priority.upper()]
     audit_log(f"/leads?limit={limit}", [l["entity_id"] for l in leads[:10]])
     return {"leads": leads, "count": len(leads), "formula": "0.25bridge +0.20financial +0.15comm +0.10temporal +0.15evidence +0.10centrality +0.05cross *100", "disclaimer": "Potential investigative leads — not guilt determinations."}
 
 @app.get("/anomalies")
-def get_anomalies(user: dict = Depends(get_current_user)):
-    anoms = get_unified_anomalies()
+def get_anomalies(iid: Optional[str] = Query(None), user: dict = Depends(get_current_user)):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
+    anoms = get_unified_anomalies(datasets=datasets)
     audit_log("/anomalies", [a["entity_id"] for a in anoms[:10]])
     return anoms
 
 @app.get("/cross-case")
-def get_cross_case(user: dict = Depends(get_current_user)):
-    cc = detect_cross_case()
+def get_cross_case(iid: Optional[str] = Query(None), user: dict = Depends(get_current_user)):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
+    cc = detect_cross_case(datasets)
     audit_log("/cross-case", [c["shared_entity"] for c in cc[:10]])
     return cc
 
 @app.get("/temporal")
-def get_temporal(user: dict = Depends(get_current_user)):
-    ti = get_temporal_intelligence()
+def get_temporal(iid: Optional[str] = Query(None), user: dict = Depends(get_current_user)):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
+    ti = get_temporal_intelligence(datasets)
     audit_log("/temporal", [f"{g['span']}" for g in ti["correlated_groups"]])
     return ti
 

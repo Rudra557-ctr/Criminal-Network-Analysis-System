@@ -34,11 +34,11 @@ def detect_cross_case(datasets: Dict = None) -> List[Dict]:
     case_meta = {}  # case_id -> {cell, day, type}
 
     for row in datasets.get("firs", []):
-        fid = row.get("fir_id")
-        nar = row.get("narrative","")
+        fid = row.get("fir_id") or f"FIR-{row.get('day', 0)}"
+        nar = str(row.get("narrative") or "")
         # Map mentions in narrative to canonical
         for mention, canon in mention_map.items():
-            if mention in nar and canon != mention:
+            if mention and mention in nar and canon != mention:
                 # canon is person id like A1, X1
                 case_to_entities[fid].add(canon)
         # Also add location
@@ -46,14 +46,14 @@ def detect_cross_case(datasets: Dict = None) -> List[Dict]:
             case_to_entities[fid].add(f"LOC:{row.get('location')}")
         # Cell hint from ground_truth_flag is stripped, but we have ipc + narrative cell inference
         # Use location + day for meta
-        case_meta[fid] = {"day": row.get("day"), "location": row.get("location"), "type": "FIR", "ground_cell": row.get("ipc_sections","")[:20]}
+        case_meta[fid] = {"day": row.get("day"), "location": row.get("location"), "type": "FIR", "ground_cell": str(row.get("ipc_sections") or "")[:20]}
 
     # Similarly surveillance as cases
     for row in datasets.get("surveillance_reports", []):
-        rid = row.get("report_id")
-        notes = row.get("activity_notes","")
+        rid = row.get("report_id") or f"SURV-{row.get('day', 0)}"
+        notes = str(row.get("activity_notes") or "")
         for mention, canon in mention_map.items():
-            if mention in notes and canon != mention:
+            if mention and mention in notes and canon != mention:
                 case_to_entities[rid].add(canon)
         if row.get("location"):
             case_to_entities[rid].add(f"LOC:{row.get('location')}")

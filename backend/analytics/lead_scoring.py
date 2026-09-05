@@ -63,32 +63,47 @@ def compute_lead_scores(datasets: Dict = None, graph_serial: Dict = None) -> Lis
     # Temporal correlated set
     temp_intel = get_temporal_intelligence(datasets)
     correlated_cells = set()
-    for g in temp_intel["correlated_groups"]:
-        correlated_cells.update(g["cells"])
+    for g in temp_intel.get("correlated_groups", []):
+        correlated_cells.update(g.get("cells", []))
     # Map entity -> temporal 1 if its cell in correlated set
-    pd = datasets.get("people_directory", {})
-    id_to_cell = {p["id"]: p.get("cell") for p in pd.get("network_people", [])+pd.get("noise_people",[])}
+    pd = datasets.get("people_directory", {}) if isinstance(datasets, dict) else {}
+    id_to_cell = {p["id"]: p.get("cell") for p in pd.get("network_people", []) + pd.get("noise_people", []) if isinstance(p, dict) and "id" in p}
     # Cross-case map
     cross_entities = {c["shared_entity"]: c["confidence"] for c in detect_cross_case(datasets)}
 
     # Evidence quality: avg confidence of incident edges per entity
-    pkl = PROJECT_ROOT / "output" / "graph.pkl"
     evidence_quality = {}
-    if pkl.exists():
-        with open(pkl, "rb") as f:
-            G = pickle.load(f)
-        for nid in G.nodes:
-            if G.nodes[nid].get("kind") != "Person":
-                continue
-            edges = list(G.in_edges(nid, data=True)) + list(G.out_edges(nid, data=True))
-            if not edges:
-                evidence_quality[nid] = 0.0
-            else:
-                confs = [d.get("confidence", 0.5) for _, _, d in edges if d.get("confidence") is not None]
-                evidence_quality[nid] = sum(confs)/len(confs) if confs else 0.5
+    if graph_serial and "edges" in graph_serial:
+        node_confs = defaultdict(list)
+        for e in graph_serial.get("edges", []):
+            conf = e.get("confidence", 0.5)
+            node_confs[e.get("src")].append(conf)
+            node_confs[e.get("dst")].append(conf)
+        for nid, clist in node_confs.items():
+            evidence_quality[nid] = sum(clist)/len(clist) if clist else 0.5
+    else:
+        pkl = PROJECT_ROOT / "output" / "graph.pkl"
+        if pkl.exists():
+            with open(pkl, "rb") as f:
+                G = pickle.load(f)
+            for nid in G.nodes:
+                if G.nodes[nid].get("kind") != "Person":
+                    continue
+                edges = list(G.in_edges(nid, data=True)) + list(G.out_edges(nid, data=True))
+                if not edges:
+                    evidence_quality[nid] = 0.0
+                else:
+                    confs = [d.get("confidence", 0.5) for _, _, d in edges if d.get("confidence") is not None]
+                    evidence_quality[nid] = sum(confs)/len(confs) if confs else 0.5
 
     leads = []
-    for p in pd.get("network_people", []) + pd.get("noise_people", []):
+    people_list = pd.get("network_people", []) + pd.get("noise_people", [])
+    if not people_list and graph_serial:
+        people_list = [
+            {"id": n["id"], "name": n.get("label", n["id"]), "cell": n.get("cell", "Unknown"), "role": n.get("role", "Suspect")}
+            for n in graph_serial.get("nodes", []) if n.get("kind") in ("Person", None)
+        ]
+    for p in people_list:
         # Noise persons with degree <2 are low priority but still scored
         pid = p["id"]
         # Skip isolated noise already? Keep but will be low

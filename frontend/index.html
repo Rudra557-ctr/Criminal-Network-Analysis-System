@@ -112,7 +112,17 @@ html[data-theme="dark"] .error{background:#3A1D1D;border-color:#7F2D2D;color:#FC
 .profilepill .avatar{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
 .btn-logout{border-color:#7F2D2D;color:#FCA5A5}
 .btn-logout:hover{background:rgba(239,68,68,.12);border-color:#EF4444}
-details{margin-top:8px;font-size:12px;color:var(--muted)}
+.modal-backdrop{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,.75);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:9999;padding:16px}
+.modal-backdrop.active{display:flex}
+.modal-card{background:var(--panel);border:1px solid var(--panel-border);border-radius:12px;padding:20px;box-shadow:0 16px 48px rgba(0,0,0,.4);color:var(--text)}
+.tmpl-tab{background:none;border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;color:var(--muted);white-space:nowrap;transition:all .15s}
+.tmpl-tab.active,.tmpl-tab:hover{background:var(--accent-light);color:var(--accent);border-color:var(--accent);font-weight:600}
+.tag-req{background:#FEF2F2;color:#B91C1C;border:1px solid #FECACA;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;display:inline-block}
+.tag-opt{background:var(--accent-light);color:var(--muted);font-size:10px;padding:2px 6px;border-radius:4px;display:inline-block}
+.match-meter{height:8px;border-radius:4px;background:rgba(148,163,184,.25);overflow:hidden;margin:6px 0}
+.match-meter-fill{height:100%;border-radius:4px;transition:width .5s ease}
+.suspect-match-card{border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;background:var(--panel);transition:border-color .15s;box-shadow:0 2px 10px rgba(0,0,0,.04)}
+.suspect-match-card:hover{border-color:var(--accent-cyan)}
 @media(max-width:800px){.demo-grid{grid-template-columns:1fr}body{flex-direction:column}.sidebar{width:100%;min-width:0;height:auto;position:static;flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px}.sidebar nav{flex-direction:row;flex-wrap:wrap;margin-top:0}.sidebar nav button{width:auto}.sidebar-footer{flex-direction:row;margin-top:0;padding-top:0;border-top:none;margin-left:auto}}
 </style>
 <script src="https://unpkg.com/3d-force-graph"></script>
@@ -176,7 +186,10 @@ details{margin-top:8px;font-size:12px;color:var(--muted)}
 <section id="view-dashboard" class="view">
   <h2>Criminal Network Intelligence System</h2>
   <p class="sub">Decision support for investigators. Findings are potential leads, not determinations of guilt.</p>
-  <button class="btn btn-primary" onclick="navigate('investigations')">+ New Investigation</button>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn btn-primary" onclick="navigate('investigations')">+ New Investigation</button>
+    <button class="btn" onclick="openTemplatesModal()">📋 View Expected Formats &amp; Templates</button>
+  </div>
   <div class="card" style="margin-top:16px">
     <h3>Investigations</h3>
     <div id="invList"><p class="muted">Loading…</p></div>
@@ -202,8 +215,13 @@ details{margin-top:8px;font-size:12px;color:var(--muted)}
 </section>
 
 <section id="view-investigations" class="view">
-  <h2>Investigations</h2>
-  <p class="sub">Create a new investigation — upload case files or run the full demo dataset.</p>
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+    <div>
+      <h2 style="margin:0">Investigations</h2>
+      <p class="sub" style="margin:2px 0 0">Create a new investigation — upload case files or run the full demo dataset.</p>
+    </div>
+    <button class="btn" onclick="openTemplatesModal()">📋 View Expected Formats &amp; Templates</button>
+  </div>
   <div class="card" id="createCaseCard">
     <h3>Create New Investigation</h3>
     <label for="unifiedCaseName">Case name</label>
@@ -249,7 +267,7 @@ details{margin-top:8px;font-size:12px;color:var(--muted)}
   </div>
   <div class="card">
     <h3>3. Run analysis</h3>
-    <p class="sub">Demo data runs immediately. Uploaded files go through column-mapping review first.</p>
+    <p class="sub">Demo data and uploaded files automatically map in the backend and proceed directly to the dashboard.</p>
     <button class="btn btn-primary" id="runBtn" onclick="runAnalysis()">Start analysis</button>
   </div>
 </section>
@@ -323,20 +341,28 @@ details{margin-top:8px;font-size:12px;color:var(--muted)}
 
 <section id="view-people" class="view">
   <h2>People</h2>
-  <p class="sub">Search by name, person ID, phone number or account.</p>
+  <p class="sub">Search by name, person ID, phone number or account, or identify suspects using AI facial recognition.</p>
   <div class="card">
-    <label for="psQuery">Search</label>
-    <input type="text" id="psQuery" placeholder="e.g. Mehta, X1, 7000000001, AC0009000001" onkeydown="if(event.key==='Enter')doPeopleSearch()">
-    <button class="btn btn-primary" onclick="doPeopleSearch()">Search</button>
-    <div id="psResults" style="margin-top:12px"><p class="muted">Enter a name, ID, phone or account above.</p></div>
+    <label for="psQuery">Search Criminal Directory</label>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <input type="text" id="psQuery" style="flex:1;min-width:220px;margin-bottom:0" placeholder="e.g. Mehta, X1, 7000000001, AC0009000001" onkeydown="if(event.key==='Enter')doPeopleSearch()">
+      <button class="btn btn-primary" onclick="doPeopleSearch()">Search</button>
+      <button class="btn" onclick="openImageSearchModal()" style="background:linear-gradient(135deg,rgba(2,132,199,0.15),rgba(30,64,175,0.22));border-color:var(--accent-cyan);color:var(--text);font-weight:600">📷 Search by Photo / CCTV</button>
+    </div>
+    <div id="psResults" style="margin-top:14px"><p class="muted">Enter a name, ID, phone or account above, or click "Search by Photo / CCTV" to match suspect mugshots.</p></div>
   </div>
 </section>
 
 <section id="view-person" class="view">
   <button class="btn" onclick="navigate('people')">← Back to People</button>
-  <h2 id="personTitle" style="margin-top:12px">Person</h2>
-  <p class="sub" id="personSub"></p>
-  <div class="card">
+  <div style="display:flex;gap:16px;align-items:center;margin-top:14px;flex-wrap:wrap">
+    <img id="personPhoto" src="" alt="Mugshot" style="width:72px;height:72px;border-radius:10px;object-fit:cover;border:2px solid var(--accent);background:var(--bg);box-shadow:0 4px 12px rgba(0,0,0,0.15);display:none">
+    <div>
+      <h2 id="personTitle" style="margin:0">Person</h2>
+      <p class="sub" id="personSub" style="margin:4px 0 0"></p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
     <h3>Why this person is important</h3>
     <div id="personWhy"><p class="muted">Loading…</p></div>
   </div>
@@ -480,6 +506,91 @@ details{margin-top:8px;font-size:12px;color:var(--muted)}
   </div>
   <div class="drawer-body" id="drawerBody"><p class="muted">Select a lead to inspect its evidence.</p></div>
 </aside>
+
+<!-- Modal: Expected Dataset Formats & Starter Templates (Pillar 2) -->
+<div id="templatesModal" class="modal-backdrop" onclick="if(event.target===this)closeTemplatesModal()">
+  <div class="modal-card" style="max-width:900px;width:95%;max-height:88vh;display:flex;flex-direction:column">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--border)">
+      <div>
+        <h3 style="font-size:17px;margin:0">📋 Expected Dataset Formats &amp; Starter Templates</h3>
+        <p class="muted" style="margin:2px 0 0">Universal schema guide, column specifications, and one-click starter CSV templates for all 8 supported data feeds.</p>
+      </div>
+      <button class="btn" onclick="closeTemplatesModal()" style="font-weight:700">✕</button>
+    </div>
+    <div style="display:flex;gap:6px;overflow-x:auto;padding:12px 0;border-bottom:1px solid var(--border)" id="tmplNavTabs"></div>
+    <div id="tmplTabContent" style="flex:1;overflow-y:auto;padding:14px 0"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap;gap:8px">
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" id="tmplDownloadBtn" onclick="downloadCurrentTemplate()">⬇️ Download Active Template (.csv)</button>
+        <button class="btn" onclick="downloadAllTemplates()">⬇️ Download All 8 Templates</button>
+      </div>
+      <button class="btn" onclick="closeTemplatesModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: AI Facial Recognition & Suspect Search (Pillar 1) -->
+<div id="imageSearchModal" class="modal-backdrop" onclick="if(event.target===this)closeImageSearchModal()">
+  <div class="modal-card" style="max-width:900px;width:95%;max-height:90vh;display:flex;flex-direction:column">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--border)">
+      <div>
+        <h3 style="font-size:17px;margin:0">📷 AI Facial Recognition &amp; Criminal Search</h3>
+        <p class="muted" style="margin:2px 0 0">Match surveillance stills, scene photos, CCTV crops, or webcam snapshots against the criminal mugshots database.</p>
+      </div>
+      <button class="btn" onclick="closeImageSearchModal()" style="font-weight:700">✕</button>
+    </div>
+    
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn btn-primary" id="imgTabUploadBtn" onclick="switchImgInputTab('upload')">📁 Upload Photo / CCTV</button>
+      <button class="btn" id="imgTabWebcamBtn" onclick="switchImgInputTab('webcam')">🎥 Live Webcam Capture</button>
+    </div>
+
+    <div style="flex:1;overflow-y:auto;padding:12px 0">
+      <!-- Upload Tab Panel -->
+      <div id="imgPanelUpload">
+        <div id="imgDropZone" style="border:2px dashed var(--accent-cyan);border-radius:8px;padding:24px;text-align:center;cursor:pointer;background:var(--accent-light);transition:background 0.2s"
+             onclick="document.getElementById('imgSearchFileInput').click()"
+             ondragover="event.preventDefault();this.style.background='rgba(2,132,199,0.2)'"
+             ondragleave="this.style.background='var(--accent-light)'"
+             ondrop="event.preventDefault();handleImageDrop(event)">
+          <div style="font-size:32px">📸</div>
+          <b style="font-size:14px">Drop suspect photo here, or click to browse</b>
+          <div class="muted" style="margin-top:4px">Supports JPG, PNG, WEBP, CCTV stills, or ID crops</div>
+          <input type="file" id="imgSearchFileInput" accept="image/*" style="display:none" onchange="handleImageFileSelect(this.files)">
+        </div>
+      </div>
+
+      <!-- Webcam Tab Panel -->
+      <div id="imgPanelWebcam" style="display:none;text-align:center">
+        <video id="webcamVideo" autoplay playsinline style="width:100%;max-width:440px;height:260px;background:#000;border-radius:8px;object-fit:cover;border:1px solid var(--border)"></video>
+        <canvas id="webcamCanvas" style="display:none"></canvas>
+        <div style="margin-top:10px;display:flex;justify-content:center;gap:8px">
+          <button class="btn btn-primary" onclick="captureWebcamFrame()">📸 Capture Photo</button>
+          <button class="btn" onclick="stopWebcam()">Stop Camera</button>
+        </div>
+      </div>
+
+      <!-- Query Image Preview & Search Action -->
+      <div id="imgQueryPreviewWrap" style="display:none;margin-top:14px;padding:14px;border:1px solid var(--border);border-radius:8px;background:var(--panel)">
+        <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+          <img id="imgQueryPreview" style="width:90px;height:90px;border-radius:8px;object-fit:cover;border:2px solid var(--accent)">
+          <div style="flex:1;min-width:200px">
+            <b id="imgQueryFilename">suspect.jpg</b>
+            <div class="muted" id="imgQueryFilesize"></div>
+            <button class="btn btn-primary" id="btnExecuteFaceSearch" onclick="executeFaceSearch()" style="margin-top:8px">⚡ Run Facial Match Search</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search Results Area -->
+      <div id="imgSearchResults" style="margin-top:16px"></div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;padding-top:12px;border-top:1px solid var(--border)">
+      <button class="btn" onclick="closeImageSearchModal()">Close</button>
+    </div>
+  </div>
+</div>
 <script>
 const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? `http://${location.hostname}:8000` : 'http://127.0.0.1:8000';
 let _currentInv = null, _selectedFiles = [], _useDemo = null;
@@ -615,10 +726,10 @@ function enterApp() {
   navigate(location.hash.slice(1) || 'dashboard');
 }
 function applyRoleUI(role) {
-  // Investigators cannot upload raw data: hide the upload step
+  // Investigators and Analysts have full upload and case creation permissions
   const uploadCard = document.getElementById('uploadCard');
-  if (uploadCard) uploadCard.style.display = (role === 'investigator') ? 'none' : '';
-  // Analysts cannot view the final intelligence graph: hide graph-backed views
+  if (uploadCard) uploadCard.style.display = '';
+  // Analysts view graph-backed views as well or keep analyst UI
   ['people', 'financial', 'communications'].forEach(v => {
     const btn = document.querySelector(`#mainNav button[data-view="${v}"]`);
     if (btn) btn.style.display = (role === 'analyst') ? 'none' : '';
@@ -746,20 +857,15 @@ async function submitUnifiedInvestigation(prefix) {
     const meta = await api('/investigations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, description }) });
     _currentInv = meta.id;
 
-    const session = getSession();
-    if (session && session.role === 'investigator') {
-      errBox.innerHTML = '<div class="error">Uploading raw data requires the Analyst or Supervisor role.</div>';
-      return;
-    }
-    if (!_selectedFiles.length) { alert('Please select at least one .zip or .csv file to upload.'); return; }
+    if (!_selectedFiles.length) { alert('Please select at least one .zip, .csv, .xlsx, or .txt file to upload.'); return; }
     // 2. Upload Files directly
     const fd = new FormData();
     _selectedFiles.forEach(f => fd.append('files', f));
-    btn.textContent = 'Uploading files…';
+    btn.textContent = 'Uploading & Analyzing…';
     const uploadData = await api(`/investigations/${meta.id}/upload`, { method: 'POST', body: fd });
     _useDemo = null;
-    // 3. Move directly to Column Mapping Review
-    await openMapping(uploadData);
+    // 3. Automatically run analysis and proceed directly to Dashboard
+    await runAnalysis();
   } catch(e) {
     alert('Failed to create case: ' + e.message);
   } finally {
@@ -768,17 +874,15 @@ async function submitUnifiedInvestigation(prefix) {
 }
 let _pendingMaps = null; // filename -> {suggested, required, columns, detected_type}
 async function uploadFiles() {
-  const session = getSession();
-  if (session && session.role === 'investigator') { showError('newError', 'Uploading raw data requires the Analyst or Supervisor role.'); return; }
   if (!_currentInv) { showError('newError', 'Create the investigation first (enter a case name above via Investigations page), then upload.'); navigate('investigations'); return; }
   if (!_selectedFiles.length) { document.getElementById('uploadResult').textContent = 'Select files first.'; return; }
   const fd = new FormData();
   _selectedFiles.forEach(f => fd.append('files', f));
-  document.getElementById('uploadResult').textContent = 'Uploading…';
+  document.getElementById('uploadResult').textContent = 'Uploading & Analyzing…';
   try {
     const data = await api(`/investigations/${_currentInv}/upload`, { method: 'POST', body: fd });
     _useDemo = null;
-    await openMapping(data);
+    await runAnalysis();
   } catch (e) { showError('newError', 'Upload failed: ' + e.message); }
 }
 async function openMapping(uploadData) {
@@ -897,14 +1001,16 @@ async function runAnalysis() {
       mark(`Building relationships (${res.relationships} relationships)`, 'done') +
       mark(`Building network (${res.stats.node_count} entities, ${res.stats.edge_count} links)`, 'done') +
       mark('Running intelligence analysis', 'run');
-    await api(`/investigations/${_currentInv}/leads?limit=3`);
+    try {
+      await api(`/investigations/${_currentInv}/leads?limit=3`);
+    } catch(err) {
+      console.warn('Leads warmup notice:', err);
+    }
     steps.innerHTML += mark('Running intelligence analysis', 'done') +
       `<li><button class="btn btn-primary" onclick="openOverview('${_currentInv}')">View Investigation</button></li>`;
     setTimeout(() => { openOverview(_currentInv); }, 600);
   } catch (e) {
-    const needMap = /mapping/i.test(e.message);
-    steps.innerHTML += `<li><div class="error">Analysis failed: ${e.message}</div></li>` +
-      (needMap ? `<li><button class="btn btn-primary" onclick="openMapping()">Review column mapping →</button></li>` : '');
+    steps.innerHTML += `<li><div class="error">Analysis failed: ${e.message}</div></li>`;
   }
 }
 
@@ -1198,10 +1304,15 @@ function renderMainGraph3D() {
 function ovNodeClick(node) {
   const pop = document.getElementById('ovPopover');
   const isBridge = OV_BRIDGES.has(node.id);
+  const isPerson = (node.kind === 'Person' || (node.id && /^[ABCXN]\d+$/.test(node.id)));
+  const photoHtml = isPerson
+    ? `<img src="${API}/mugshots/${node.id}.jpg" onerror="this.style.display='none'" style="width:44px;height:44px;border-radius:6px;object-fit:cover;border:1px solid var(--border)">`
+    : '';
+
   pop.innerHTML =
-    `<div style="display:flex;justify-content:space-between;align-items:center">` +
-    `<b>${node.name || node.id}</b><button class="btn" onclick="closeOvPopover()">✕</button></div>` +
-    `<div class="muted mono">${node.id} · ${node.kind || ''}</div>` +
+    `<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">` +
+    `<div style="display:flex;gap:8px;align-items:center">${photoHtml}<div><b>${node.name || node.id}</b><div class="muted mono">${node.id} · ${node.kind || ''}</div></div></div>` +
+    `<button class="btn" onclick="closeOvPopover()">✕</button></div>` +
     `<div style="margin:6px 0;font-size:13px">` +
     (node.cell ? `Cell group: <b>${node.cell}</b><br>` : '') +
     (node.role ? `Role: ${node.role}<br>` : '') +
@@ -1269,9 +1380,19 @@ async function doPeopleSearch() {
   try {
     const iidParam = _currentInv ? '&iid=' + encodeURIComponent(_currentInv) : '';
     const d = await api('/people/search?q=' + encodeURIComponent(q) + iidParam);
-    if (!d.results.length) { box.innerHTML = '<p class="muted">No matches. Try a name, ID, phone or account.</p>'; return; }
-    box.innerHTML = `<table><thead><tr><th>Person</th><th>Role</th><th>Contact</th><th></th></tr></thead><tbody>` +
-      d.results.map(p => `<tr><td><b>${p.name}</b><br><span class="muted mono">${p.id} · ${p.cell}</span></td><td>${p.role || '—'}</td><td class="mono">${p.phone || ''}<br>${p.account || ''}</td><td><button class="btn" onclick="openPerson('${p.id}')">Open</button></td></tr>`).join('') +
+    if (!d.results.length) { box.innerHTML = '<p class="muted">No matches. Try a name, ID, phone or account, or click "Search by Photo / CCTV".</p>'; return; }
+    box.innerHTML = `<table><thead><tr><th>Suspect / Person</th><th>Role</th><th>Contact &amp; Accounts</th><th>Action</th></tr></thead><tbody>` +
+      d.results.map(p => `<tr>
+        <td>
+          <div style="display:flex;gap:10px;align-items:center">
+            <img src="${p.photo || API + '/mugshots/' + p.id + '.jpg'}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=1E40AF&color=fff'" style="width:40px;height:40px;border-radius:6px;object-fit:cover;border:1px solid var(--border)">
+            <div><b>${p.name}</b><br><span class="muted mono">${p.id} · Cell ${p.cell || '—'}</span></div>
+          </div>
+        </td>
+        <td>${p.role || '—'}</td>
+        <td class="mono">${p.phone || '—'}<br>${p.account || ''}</td>
+        <td><button class="btn" onclick="openPerson('${p.id}')">Open</button></td>
+      </tr>`).join('') +
       `</tbody></table>`;
   } catch (e) { box.innerHTML = `<div class="error">Search failed: ${e.message}</div>`; }
 }
@@ -1279,6 +1400,12 @@ let _personId = null, _personHops = 1, _personGraph = null;
 async function openPerson(id) {
   _personId = id; _personHops = 1;
   navigate('person');
+  const photoEl = document.getElementById('personPhoto');
+  if (photoEl) {
+    photoEl.src = `${API}/mugshots/${id}.jpg`;
+    photoEl.style.display = 'block';
+    photoEl.onerror = () => { photoEl.style.display = 'none'; };
+  }
   document.getElementById('personTitle').textContent = id;
   document.getElementById('personSub').textContent = 'Loading live record…';
   document.getElementById('personWhy').innerHTML = '<p class="muted">Loading…</p>';
@@ -1311,6 +1438,450 @@ async function openPerson(id) {
   } catch (e) {
     document.getElementById('personSub').innerHTML = `<div class="error">Could not load person: ${e.message}</div>`;
   }
+}
+
+// ---------------------------------------------------------------------------
+// Pillar 2 — Dataset Formats & Starter CSV Templates Modal Logic
+// ---------------------------------------------------------------------------
+let _templateSchemas = null;
+let _activeTemplateTab = 'cdrs';
+
+async function openTemplatesModal() {
+  const modal = document.getElementById('templatesModal');
+  if (!modal) return;
+  modal.classList.add('active');
+  if (!_templateSchemas) {
+    try {
+      _templateSchemas = await api('/templates/schema');
+    } catch (e) {
+      console.warn('Using local fallback template schemas:', e);
+      _templateSchemas = {
+        cdrs: {
+          title: "Call Detail Records (CDRs)",
+          headers: ["caller_phone", "callee_phone", "timestamp", "duration_sec", "cell_tower_location", "call_type"],
+          required: ["caller_phone", "callee_phone"],
+          sample: [
+            {caller_phone: "7000000001", callee_phone: "7000000002", timestamp: "2026-01-05 14:22:10", duration_sec: "184", cell_tower_location: "Mumbai Central Cell-12", call_type: "voice"},
+            {caller_phone: "7000000003", callee_phone: "7000000004", timestamp: "2026-01-05 15:40:02", duration_sec: "62", cell_tower_location: "Bandra East Cell-04", call_type: "sms"}
+          ]
+        },
+        transactions: {
+          title: "Financial Transactions",
+          headers: ["sender_id", "sender_name", "sender_account", "receiver_id", "receiver_name", "receiver_account", "amount_inr", "timestamp", "txn_type"],
+          required: ["sender_id", "receiver_id", "amount_inr"],
+          sample: [
+            {sender_id: "A1", sender_name: "Anwar Sheikh", sender_account: "AC0009000001", receiver_id: "A2", receiver_name: "Suresh Rane", receiver_account: "AC0009000002", amount_inr: "450000", timestamp: "2026-01-06 11:15:00", txn_type: "Hawala / Transfer"},
+            {sender_id: "A2", sender_name: "Suresh Rane", sender_account: "AC0009000002", receiver_id: "A5", receiver_name: "Ganesh Pawar", receiver_account: "AC0009000005", amount_inr: "120000", timestamp: "2026-01-06 16:30:00", txn_type: "Bank Transfer"}
+          ]
+        },
+        firs: {
+          title: "Police FIRs & Incident Reports",
+          headers: ["fir_id", "date", "station", "location", "ipc_sections", "narrative"],
+          required: ["narrative"],
+          sample: [
+            {fir_id: "FIR-2026-0042", date: "2026-01-07 10:00:00", station: "Crime Branch Unit 3", location: "Dockside Ward", ipc_sections: "IPC 384, Arms Act 25", narrative: "Accused Farhan Qureshi and Vikas Chauhan intercepted demanding extortion payment of ₹5,00,000."}
+          ]
+        },
+        surveillance_reports: {
+          title: "Surveillance Reports",
+          headers: ["report_id", "date", "team", "location", "activity_notes", "confidence"],
+          required: ["activity_notes"],
+          sample: [
+            {report_id: "SURV-2026-101", date: "2026-01-08 21:15:00", team: "Alpha Recon Squad", location: "Riverside Colony", activity_notes: "Target Suresh Rane met with associate driving black Scorpio MH-01-AB-1234.", confidence: "0.95"}
+          ]
+        },
+        intelligence_reports: {
+          title: "Intelligence Reports",
+          headers: ["report_id", "date", "source_reliability", "narrative", "mentioned_entity_ids"],
+          required: ["narrative"],
+          sample: [
+            {report_id: "INTEL-2026-088", date: "2026-01-09 09:30:00", source_reliability: "A1 (High)", narrative: "Confidential informant reports Anwar Sheikh ordered coordination meeting between Cell A and Cell B.", mentioned_entity_ids: "A1, B1, X1"}
+          ]
+        },
+        social_posts: {
+          title: "Social Media Posts",
+          headers: ["post_id", "handle", "person_id", "timestamp", "post_text", "hashtags", "location_tag"],
+          required: ["post_text"],
+          sample: [
+            {post_id: "POST-9021", handle: "@shadow_bhai", person_id: "A4", timestamp: "2026-01-10 18:45:00", post_text: "Meeting the boss tonight at the warehouse. Big moves coming up.", hashtags: "#mumbai #syndicate", location_tag: "Dockside Warehouse"}
+          ]
+        },
+        criminal_history: {
+          title: "Criminal History & Prior Records",
+          headers: ["record_id", "person_id", "name", "alias", "dob", "prior_offences", "gang_affiliation", "known_address"],
+          required: ["name"],
+          sample: [
+            {record_id: "CRIM-001", person_id: "A1", name: "Anwar Sheikh", alias: "Bhai", dob: "1978-04-12", prior_offences: "2022 - IPC 384 (Extortion); 2024 - Arms Act 25", gang_affiliation: "Sheikh Syndicate", known_address: "Flat 402, Marina Heights, Mumbai"}
+          ]
+        },
+        people_directory: {
+          title: "People Directory & Suspect Profiles",
+          headers: ["id", "name", "role", "cell", "phone", "account", "photo"],
+          required: ["name"],
+          sample: [
+            {id: "A1", name: "Anwar Sheikh", role: "Kingpin", cell: "A", phone: "7000000001", account: "AC0009000001", photo: "/mugshots/A1.jpg"}
+          ]
+        }
+      };
+    }
+  }
+  renderTemplateTabs();
+  renderActiveTemplate();
+}
+
+function closeTemplatesModal() {
+  const modal = document.getElementById('templatesModal');
+  if (modal) modal.classList.remove('active');
+}
+
+const TAB_ICONS = {
+  cdrs: "📞 CDRs",
+  transactions: "💳 Financial",
+  firs: "📄 Police FIRs",
+  surveillance_reports: "👁️ Surveillance",
+  intelligence_reports: "🕵️ Intel Reports",
+  social_posts: "📱 Social Media",
+  criminal_history: "⚖️ Criminal History",
+  people_directory: "👤 People Directory"
+};
+
+function renderTemplateTabs() {
+  const container = document.getElementById('tmplNavTabs');
+  if (!container || !_templateSchemas) return;
+  const keys = Object.keys(_templateSchemas);
+  container.innerHTML = keys.map(k => {
+    const label = TAB_ICONS[k] || k;
+    const active = (k === _activeTemplateTab) ? 'active' : '';
+    return `<button class="tmpl-tab ${active}" onclick="switchTemplateTab('${k}')">${label}</button>`;
+  }).join('');
+}
+
+function switchTemplateTab(tabKey) {
+  _activeTemplateTab = tabKey;
+  renderTemplateTabs();
+  renderActiveTemplate();
+}
+
+function renderActiveTemplate() {
+  const content = document.getElementById('tmplTabContent');
+  if (!content || !_templateSchemas || !_templateSchemas[_activeTemplateTab]) return;
+  const info = _templateSchemas[_activeTemplateTab];
+  const reqSet = new Set(info.required || []);
+  
+  let html = `
+    <div style="margin-bottom:12px">
+      <h4 style="font-size:15px;margin:0 0 4px">${info.title}</h4>
+      <div class="muted">Supported input formats: CSV, XLSX, TSV, or TXT. Column matching is 100+ alias-aware and tolerant of common synonyms.</div>
+    </div>
+    
+    <div style="margin-bottom:14px">
+      <b style="font-size:12px;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted)">Standard Schema &amp; Requirements:</b>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">
+        ${info.headers.map(h => {
+          const isReq = reqSet.has(h);
+          return `<div style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;background:var(--bg)">
+            <code class="mono" style="font-weight:600">${h}</code>
+            ${isReq ? '<span class="tag-req">Required</span>' : '<span class="tag-opt">Optional</span>'}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <div style="margin-bottom:8px">
+      <b style="font-size:12px;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted)">Live Sample Rows:</b>
+    </div>
+    <div style="overflow-x:auto;border:1px solid var(--border);border-radius:8px;background:var(--bg)">
+      <table>
+        <thead>
+          <tr>${info.headers.map(h => `<th class="mono">${h}</th>`).join('')}</tr>
+        </thead>
+        <tbody>
+          ${info.sample.map(row => `<tr>${info.headers.map(h => `<td>${row[h] || '—'}</td>`).join('')}</tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+  content.innerHTML = html;
+}
+
+function downloadCurrentTemplate() {
+  if (!_activeTemplateTab) return;
+  window.open(`${API}/templates/${_activeTemplateTab}.csv`, '_blank');
+}
+
+function downloadAllTemplates() {
+  if (!_templateSchemas) return;
+  Object.keys(_templateSchemas).forEach((k, idx) => {
+    setTimeout(() => {
+      const link = document.createElement('a');
+      link.href = `${API}/templates/${k}.csv`;
+      link.download = `template_${k}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }, idx * 200);
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Pillar 1 — AI Facial Recognition & Suspect Search Modal Logic
+// ---------------------------------------------------------------------------
+let _searchImageBase64 = null;
+let _searchImageFile = null;
+let _webcamStream = null;
+
+function openImageSearchModal() {
+  const modal = document.getElementById('imageSearchModal');
+  if (!modal) return;
+  modal.classList.add('active');
+  switchImgInputTab('upload');
+  resetImageSearch();
+}
+
+function closeImageSearchModal() {
+  stopWebcam();
+  const modal = document.getElementById('imageSearchModal');
+  if (modal) modal.classList.remove('active');
+}
+
+function resetImageSearch() {
+  _searchImageBase64 = null;
+  _searchImageFile = null;
+  const prevWrap = document.getElementById('imgQueryPreviewWrap');
+  if (prevWrap) prevWrap.style.display = 'none';
+  const resBox = document.getElementById('imgSearchResults');
+  if (resBox) resBox.innerHTML = '';
+  const btn = document.getElementById('btnExecuteFaceSearch');
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = '⚡ Run Facial Match Search';
+  }
+}
+
+function switchImgInputTab(tab) {
+  const uploadBtn = document.getElementById('imgTabUploadBtn');
+  const webcamBtn = document.getElementById('imgTabWebcamBtn');
+  const uploadPanel = document.getElementById('imgPanelUpload');
+  const webcamPanel = document.getElementById('imgPanelWebcam');
+  
+  if (!uploadBtn || !webcamBtn) return;
+
+  if (tab === 'webcam') {
+    uploadBtn.className = 'btn';
+    webcamBtn.className = 'btn btn-primary';
+    uploadPanel.style.display = 'none';
+    webcamPanel.style.display = 'block';
+    startWebcam();
+  } else {
+    uploadBtn.className = 'btn btn-primary';
+    webcamBtn.className = 'btn';
+    uploadPanel.style.display = 'block';
+    webcamPanel.style.display = 'none';
+    stopWebcam();
+  }
+}
+
+async function startWebcam() {
+  const video = document.getElementById('webcamVideo');
+  if (!video) return;
+  try {
+    if (_webcamStream) stopWebcam();
+    _webcamStream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' } });
+    video.srcObject = _webcamStream;
+  } catch (err) {
+    alert('Could not access webcam: ' + err.message + '\nPlease check browser permissions or use photo upload.');
+    switchImgInputTab('upload');
+  }
+}
+
+function stopWebcam() {
+  if (_webcamStream) {
+    _webcamStream.getTracks().forEach(track => track.stop());
+    _webcamStream = null;
+  }
+  const video = document.getElementById('webcamVideo');
+  if (video) video.srcObject = null;
+}
+
+function captureWebcamFrame() {
+  const video = document.getElementById('webcamVideo');
+  const canvas = document.getElementById('webcamCanvas');
+  if (!video || !canvas) return;
+  canvas.width = video.videoWidth || 640;
+  canvas.height = video.videoHeight || 480;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+  _searchImageBase64 = dataUrl;
+  _searchImageFile = null;
+  
+  document.getElementById('imgQueryPreview').src = dataUrl;
+  document.getElementById('imgQueryFilename').textContent = 'Live Webcam Capture (' + new Date().toLocaleTimeString() + ')';
+  document.getElementById('imgQueryFilesize').textContent = 'Camera frame snapshot · Ready to analyze';
+  document.getElementById('imgQueryPreviewWrap').style.display = 'block';
+  document.getElementById('imgSearchResults').innerHTML = '';
+}
+
+function handleImageFileSelect(files) {
+  if (!files || !files.length) return;
+  const file = files[0];
+  _searchImageFile = file;
+  _searchImageBase64 = null;
+  
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    _searchImageBase64 = e.target.result;
+    document.getElementById('imgQueryPreview').src = e.target.result;
+    document.getElementById('imgQueryFilename').textContent = file.name;
+    document.getElementById('imgQueryFilesize').textContent = (file.size / 1024).toFixed(1) + ' KB · ' + file.type;
+    document.getElementById('imgQueryPreviewWrap').style.display = 'block';
+    document.getElementById('imgSearchResults').innerHTML = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleImageDrop(e) {
+  if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+    handleImageFileSelect(e.dataTransfer.files);
+  }
+}
+
+async function executeFaceSearch() {
+  const btn = document.getElementById('btnExecuteFaceSearch');
+  const resBox = document.getElementById('imgSearchResults');
+  if (!_searchImageBase64 && !_searchImageFile) {
+    alert('Please select or capture a photo first.');
+    return;
+  }
+  
+  btn.disabled = true;
+  btn.textContent = '⏳ Extracting embeddings & matching mugshots…';
+  resBox.innerHTML = `
+    <div style="text-align:center;padding:24px;border:1px dashed var(--border);border-radius:8px">
+      <div style="font-size:24px">🔍</div>
+      <b>Searching Criminal Mugshots Database…</b>
+      <p class="muted" style="margin-top:4px">Computing 128-dimensional facial vector similarity across all registered suspects.</p>
+    </div>
+  `;
+
+  try {
+    const fd = new FormData();
+    if (_searchImageFile) {
+      fd.append('file', _searchImageFile);
+    } else if (_searchImageBase64) {
+      fd.append('image_base64', _searchImageBase64);
+    }
+    fd.append('top_k', 6);
+
+    const token = getToken();
+    const resp = await fetch(`${API}/people/search-image`, {
+      method: 'POST',
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+      body: fd
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({ detail: resp.statusText }));
+      throw new Error(err.detail || 'Facial match search failed');
+    }
+
+    const data = await resp.json();
+    renderFaceSearchResults(data);
+  } catch (err) {
+    resBox.innerHTML = `<div class="error">Facial recognition search error: ${err.message}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '⚡ Run Facial Match Search';
+  }
+}
+
+function renderFaceSearchResults(data) {
+  const resBox = document.getElementById('imgSearchResults');
+  if (!data || !data.matches || !data.matches.length) {
+    resBox.innerHTML = '<div class="muted" style="padding:16px;text-align:center">No matching suspects found in the mugshot database.</div>';
+    return;
+  }
+
+  const matches = data.matches;
+  let html = `
+    <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
+      <b style="font-size:14px">Top ${matches.length} Candidate Suspects (Ranked by Match Confidence):</b>
+      <span class="muted">${data.matches_count} total compared</span>
+    </div>
+  `;
+
+  matches.forEach((m) => {
+    const score = m.similarity_score;
+    const badgeColor = m.badge_color || (score >= 85 ? 'green' : score >= 70 ? 'blue' : 'yellow');
+    const badgeStyle = badgeColor === 'green'
+      ? 'background:#ECFDF5;color:#065F46;border:1px solid #A7F3D0'
+      : badgeColor === 'blue'
+      ? 'background:#EFF6FF;color:#1E40AF;border:1px solid #BFDBFE'
+      : 'background:#FFFBEB;color:#92400E;border:1px solid #FDE68A';
+
+    const barColor = score >= 85 ? '#10B981' : score >= 70 ? '#3B82F6' : '#F59E0B';
+
+    html += `
+      <div class="suspect-match-card">
+        <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+          <!-- Mugshot photo vs Query preview side-by-side -->
+          <div style="display:flex;gap:8px;align-items:center">
+            <div style="text-align:center">
+              <img src="${_searchImageBase64}" style="width:68px;height:68px;border-radius:6px;object-fit:cover;border:1px solid var(--border)">
+              <div class="muted" style="font-size:10px;margin-top:2px">Query</div>
+            </div>
+            <div style="font-weight:700;color:var(--muted)">→</div>
+            <div style="text-align:center">
+              <img src="${m.photo || API + '/mugshots/' + m.id + '.jpg'}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(m.name)}&background=1E40AF&color=fff'" style="width:68px;height:68px;border-radius:6px;object-fit:cover;border:2px solid ${barColor};box-shadow:0 2px 6px rgba(0,0,0,0.15)">
+              <div class="muted" style="font-size:10px;margin-top:2px">Mugshot</div>
+            </div>
+          </div>
+
+          <!-- Suspect Dossier details -->
+          <div style="flex:1;min-width:240px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:6px">
+              <div>
+                <b style="font-size:15px">${m.name}</b>
+                <span class="muted mono" style="margin-left:6px">${m.id} · Cell ${m.cell || '—'}</span>
+                ${m.alias ? `<span class="tag" style="margin-left:4px">aka "${m.alias}"</span>` : ''}
+              </div>
+              <span class="threat" style="${badgeStyle};font-size:11px">
+                ${score}% Match — ${m.confidence_level}
+              </span>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="match-meter">
+              <div class="match-meter-fill" style="width:${score}%;background:${barColor}"></div>
+            </div>
+
+            <div style="font-size:12px;margin-top:6px;line-height:1.5">
+              <div><b>Role:</b> ${m.role || 'Suspect'} · <b>Phone:</b> <span class="mono">${m.phone || '—'}</span> · <b>Account:</b> <span class="mono">${m.account || '—'}</span></div>
+              ${m.prior_offences ? `<div><b>Prior FIR Charges:</b> <span style="color:#B91C1C">${m.prior_offences}</span></div>` : ''}
+              ${m.gang_affiliation ? `<div><b>Affiliation:</b> ${m.gang_affiliation} · <b>Address:</b> ${m.known_address || '—'}</div>` : ''}
+            </div>
+
+            <!-- Action buttons -->
+            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+              <button class="btn btn-primary" onclick="closeImageSearchModal();openPerson('${m.id}')">👤 View Full Dossier</button>
+              <button class="btn" onclick="closeImageSearchModal();jumpToPersonGraph('${m.id}')">🕸️ Open in Network Graph</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  resBox.innerHTML = html;
+}
+
+function jumpToPersonGraph(personId) {
+  navigate('overview');
+  setTimeout(() => {
+    if (typeof ovInspect === 'function') {
+      ovInspect(personId, 1);
+    }
+  }, 250);
 }
 function setHops(n) {
   _personHops = n;
@@ -1392,7 +1963,8 @@ async function loadTimeline() {
   try {
     const leadsUrl = _currentInv ? `/investigations/${_currentInv}/leads?limit=100` : '/leads?limit=100';
     const graphUrl = _currentInv ? `/investigations/${_currentInv}/graph` : '/graph';
-    const [t, leads, g] = await Promise.all([api('/temporal'), api(leadsUrl), api(graphUrl)]);
+    const temporalUrl = _currentInv ? `/temporal?iid=${_currentInv}` : '/temporal';
+    const [t, leads, g] = await Promise.all([api(temporalUrl), api(leadsUrl), api(graphUrl)]);
 
     // Map ID -> Full Name
     const nameMap = {};
@@ -1490,7 +2062,8 @@ async function loadFinancial() {
   try {
     const graphUrl = _currentInv ? `/investigations/${_currentInv}/graph` : '/graph';
     const leadsUrl = _currentInv ? `/investigations/${_currentInv}/leads?limit=100` : '/leads?limit=100';
-    const [flags, g, leads] = await Promise.all([api('/structuring'), api(graphUrl), api(leadsUrl)]);
+    const structUrl = _currentInv ? `/structuring?iid=${_currentInv}` : '/structuring';
+    const [flags, g, leads] = await Promise.all([api(structUrl), api(graphUrl), api(leadsUrl)]);
 
     // Map ID -> Full Name
     const nameMap = {};
@@ -1540,7 +2113,8 @@ async function loadCommunications() {
   try {
     const graphUrl = _currentInv ? `/investigations/${_currentInv}/graph` : '/graph';
     const leadsUrl = _currentInv ? `/investigations/${_currentInv}/leads?limit=100` : '/leads?limit=100';
-    const [bursts, g, leads] = await Promise.all([api('/bursts'), api(graphUrl), api(leadsUrl)]);
+    const burstUrl = _currentInv ? `/bursts?iid=${_currentInv}` : '/bursts';
+    const [bursts, g, leads] = await Promise.all([api(burstUrl), api(graphUrl), api(leadsUrl)]);
 
     // Map ID -> Full Name
     const nameMap = {};

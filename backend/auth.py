@@ -167,6 +167,6 @@ def require_roles(*allowed: str):
 
 
 # Convenience role groups used by the API routes
-CAN_UPLOAD = require_roles("analyst", "supervisor")
+CAN_UPLOAD = require_roles("analyst", "supervisor", "investigator")
 CAN_VIEW_GRAPH = require_roles("investigator", "supervisor")
 REQUIRE_SUPERVISOR = require_roles("supervisor")

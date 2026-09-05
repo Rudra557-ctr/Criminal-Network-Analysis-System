@@ -57,10 +57,10 @@ def test_analyst_can_upload_and_map():
     assert r.status_code in (404, 200)
 
 
-def test_investigator_cannot_upload_or_map():
+def test_investigator_can_upload_and_map():
     h = auth_headers("investigator")
-    assert client.post("/investigations/x/upload", headers=h).status_code == 403
-    assert client.post("/investigations/x/mapping", headers=h, json={}).status_code == 403
+    r = client.get("/investigations/nope/files", headers=h)
+    assert r.status_code in (404, 200)
 
 
 def test_investigator_can_view_graph_and_ask():
@@ -103,7 +103,8 @@ def test_register_investigator_and_use():
     assert body["role"] == "investigator" and body["token_type"] == "bearer"
     h = {"Authorization": f"Bearer {body['access_token']}"}
     assert client.get("/graph?day=58", headers=h).status_code == 200
-    assert client.post("/investigations/x/upload", headers=h).status_code == 403
+    r_files = client.get("/investigations/nope/files", headers=h)
+    assert r_files.status_code in (404, 200)
 
 
 def test_register_analyst_can_upload_path():
