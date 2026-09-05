@@ -188,24 +188,22 @@ details{margin-top:8px;font-size:12px;color:var(--muted)}
     <label for="dash-unifiedCaseDesc">Description (optional)</label>
     <input type="text" id="dash-unifiedCaseDesc" placeholder="e.g. Bulk CDR and Banking records drop">
     <label>Data source</label>
-    <label style="font-weight:normal"><input type="radio" name="dash-unifiedSource" id="dash-optUpload" value="upload" style="width:auto" checked onchange="unifiedSourceChanged('dash-')"> Upload Custom Evidence Files (.zip, .csv, .xlsx, .json)</label>
-    <label style="font-weight:normal"><input type="radio" name="dash-unifiedSource" id="dash-optDemo" value="demo" style="width:auto" onchange="unifiedSourceChanged('dash-')"> Run on Demo Synthetic Dataset (Case 01 / Case 02 / Case 03)</label>
+    <label style="font-weight:normal">Upload Custom Evidence Files (.zip, .csv, .xlsx, .json)</label>
     <div id="dash-unifiedUploadWrap">
       <input type="file" id="dash-unifiedFileInput" multiple accept=".csv,.xlsx,.xls,.json,.zip" onchange="handleUnifiedFiles(this.files,'dash-')">
       <div id="dash-unifiedSelectedFiles" class="muted"></div>
     </div>
-    <div id="dash-unifiedDemoWrap" style="display:none">
-      <label for="dash-demoSelect">Demo case</label>
-      <select id="dash-demoSelect"><option>Case 01</option><option>Case 02</option><option>Case 03</option></select>
-    </div>
     <div id="dash-unifiedError"></div>
     <button class="btn btn-primary" id="dash-submitCaseBtn" onclick="submitUnifiedInvestigation('dash-')" style="width:100%;margin-top:12px">⚡ Create Case &amp; Upload Data</button>
+    <div class="muted" style="text-align:center;margin:10px 0">— or —</div>
+    <button class="btn" id="dash-demoBtn" onclick="submitDemoCase('dash-')" style="width:100%">▶ Run on Demo Data</button>
+    <p class="muted" style="margin-top:6px">Uses the full synthetic dataset from the data folder (CDRs, transactions, FIRs, social, history, intel, surveillance).</p>
   </div>
 </section>
 
 <section id="view-investigations" class="view">
   <h2>Investigations</h2>
-  <p class="sub">Create a new investigation, then select demo data or upload case files.</p>
+  <p class="sub">Create a new investigation — upload case files or run the full demo dataset.</p>
   <div class="card" id="createCaseCard">
     <h3>Create New Investigation</h3>
     <label for="unifiedCaseName">Case name</label>
@@ -213,18 +211,16 @@ details{margin-top:8px;font-size:12px;color:var(--muted)}
     <label for="unifiedCaseDesc">Description (optional)</label>
     <input type="text" id="unifiedCaseDesc" placeholder="e.g. Bulk CDR and Banking records drop">
     <label>Data source</label>
-    <label style="font-weight:normal"><input type="radio" name="unifiedSource" id="optUpload" value="upload" style="width:auto" checked onchange="unifiedSourceChanged('')"> Upload Custom Evidence Files (.zip, .csv, .xlsx, .json)</label>
-    <label style="font-weight:normal"><input type="radio" name="unifiedSource" id="optDemo" value="demo" style="width:auto" onchange="unifiedSourceChanged('')"> Run on Demo Synthetic Dataset (Case 01 / Case 02 / Case 03)</label>
+    <label style="font-weight:normal">Upload Custom Evidence Files (.zip, .csv, .xlsx, .json)</label>
     <div id="unifiedUploadWrap">
       <input type="file" id="unifiedFileInput" multiple accept=".csv,.xlsx,.xls,.json,.zip" onchange="handleUnifiedFiles(this.files,'')">
       <div id="unifiedSelectedFiles" class="muted"></div>
     </div>
-    <div id="unifiedDemoWrap" style="display:none">
-      <label for="demoSelect">Demo case</label>
-      <select id="demoSelect"><option>Case 01</option><option>Case 02</option><option>Case 03</option></select>
-    </div>
     <div id="unifiedError"></div>
     <button class="btn btn-primary" id="submitCaseBtn" onclick="submitUnifiedInvestigation('')" style="width:100%;margin-top:12px">⚡ Create Case &amp; Upload Data</button>
+    <div class="muted" style="text-align:center;margin:10px 0">— or —</div>
+    <button class="btn" id="demoBtn" onclick="submitDemoCase('')" style="width:100%">▶ Run on Demo Data</button>
+    <p class="muted" style="margin-top:6px">Uses the full synthetic dataset from the data folder (CDRs, transactions, FIRs, social, history, intel, surveillance).</p>
   </div>
   <div class="card">
     <h3>Previous investigations</h3>
@@ -237,13 +233,10 @@ details{margin-top:8px;font-size:12px;color:var(--muted)}
   <p class="sub">Select a demo case or upload the case dataset, then run analysis.</p>
   <div id="newError"></div>
   <div class="card">
-    <h3>1. Select demo case</h3>
-    <div class="demo-grid">
-      <button class="demo-card" onclick="selectDemo('Case 01')"><b>Case 01</b><span class="muted">Drug network</span><span class="tag">DEMO · SYNTHETIC</span></button>
-      <button class="demo-card" onclick="selectDemo('Case 02')"><b>Case 02</b><span class="muted">Arms network</span><span class="tag">DEMO · SYNTHETIC</span></button>
-      <button class="demo-card" onclick="selectDemo('Case 03')"><b>Case 03</b><span class="muted">Held-out evaluation</span><span class="tag">DEMO · SYNTHETIC</span></button>
-    </div>
-    <p class="muted" id="demoNote">Demo cases use the existing synthetic dataset through the standard pipeline.</p>
+    <h3>1. Run on demo data</h3>
+    <p class="muted">Uses the full synthetic dataset from the data folder through the standard pipeline.</p>
+    <button class="demo-card" onclick="selectDemoDataset()"><b>▶ Demo Dataset</b><span class="muted">CDRs · transactions · FIRs · social · history · intel · surveillance</span><span class="tag">DEMO · SYNTHETIC</span></button>
+    <p class="muted" id="demoNote" style="margin-top:8px"></p>
     <div id="demoFiles" class="muted"></div>
   </div>
   <div class="card" id="uploadCard">
@@ -256,7 +249,7 @@ details{margin-top:8px;font-size:12px;color:var(--muted)}
   </div>
   <div class="card">
     <h3>3. Run analysis</h3>
-    <p class="sub">Demo cases run immediately. Uploaded files go through column-mapping review first.</p>
+    <p class="sub">Demo data runs immediately. Uploaded files go through column-mapping review first.</p>
     <button class="btn btn-primary" id="runBtn" onclick="runAnalysis()">Start analysis</button>
   </div>
 </section>
@@ -417,7 +410,13 @@ details{margin-top:8px;font-size:12px;color:var(--muted)}
   </div>
   <div class="card">
     <h3>Most frequent contacts</h3>
+    <div style="margin-bottom:8px">
+      <button class="btn btn-primary" id="commModePairsBtn" onclick="setCommMode('pairs')">Pairs</button>
+      <button class="btn" id="commModeTowersBtn" onclick="setCommMode('towers')">Towers</button>
+      <span class="muted" style="margin-left:8px">Schematic — not geographic.</span>
+    </div>
     <div id="commPairs"><p class="muted">Loading…</p></div>
+    <div id="commTowers" style="display:none"><p class="muted">Loading…</p></div>
   </div>
 </section>
 
@@ -451,12 +450,34 @@ let _currentInv = null, _selectedFiles = [], _useDemo = null;
 
 function getToken() { try { return localStorage.getItem('cn_token'); } catch (e) { return null; } }
 function getSession() { try { return JSON.parse(localStorage.getItem('cn_user') || 'null'); } catch (e) { return null; } }
+// Last-wins fetch guard (P1 slider AbortController): a new GET on an already
+// in-flight path aborts the previous one, so rapid interactions (search,
+// scrubbing, view switches) can never render stale results out of order.
+// Aborted requests hang silently (pending forever) instead of flashing errors;
+// POSTs/uploads are never deduped.
+const _inflight = new Map();
 async function api(path, opts) {
   opts = opts || {};
   opts.headers = Object.assign({}, opts.headers);
   const token = getToken();
   if (token) opts.headers['Authorization'] = 'Bearer ' + token;
-  const r = await fetch(API + path, opts);
+  const method = (opts.method || 'GET').toUpperCase();
+  if (method === 'GET' && !opts.signal) {
+    const prev = _inflight.get(path);
+    if (prev) prev.abort();
+    const ctrl = new AbortController();
+    _inflight.set(path, ctrl);
+    opts.signal = ctrl.signal;
+  }
+  let r;
+  try {
+    r = await fetch(API + path, opts);
+  } catch (e) {
+    if (e && e.name === 'AbortError') return new Promise(() => {});
+    throw e;
+  } finally {
+    if (method === 'GET' && _inflight.get(path) && _inflight.get(path).signal === opts.signal) _inflight.delete(path);
+  }
   if (r.status === 401) { logout(true); throw new Error('Session expired — please sign in again.'); }
   if (!r.ok) throw new Error((await r.text()).slice(0, 400));
   return r.json();
@@ -536,6 +557,21 @@ function logout(silent) {
   if (!silent) location.hash = 'login';
   navigate('login');
 }
+function getEntityDisplayName(id, graph, includeId = true) {
+  if (!id) return '—';
+  const g = graph || _ovGraph || _personGraph;
+  if (g && g.nodes) {
+    const n = g.nodes.find(x => x.id === id);
+    if (n) {
+      const name = n.label || n.name;
+      if (name && name !== id) {
+        return includeId ? `${name} (${id})` : name;
+      }
+    }
+  }
+  return id;
+}
+
 function updateNav() {
   const session = getSession();
   if (!session) { return null; }
@@ -635,31 +671,37 @@ async function createInvestigation() {
   } catch (e) { alert('Could not create investigation: ' + e.message); }
 }
 const DEMO_FILES = ['cdrs.csv','transactions.csv','firs.csv','social_posts.csv','criminal_history.csv','intelligence_reports.csv','surveillance_reports.csv','people_directory.json'];
-function selectDemo(label) {
-  _useDemo = label;
-  document.getElementById('demoNote').innerHTML = `Selected: <b>${label}</b> (demo synthetic data). Uploaded files will be ignored for this run.`;
-  document.getElementById('demoFiles').innerHTML = `<b>${label}</b> — Dataset ready<br>Files:<br>` + DEMO_FILES.map(f => `• ${f}`).join('<br>');
+function selectDemoDataset() {
+  _useDemo = 'Demo dataset';
+  document.getElementById('demoNote').innerHTML = `Selected: <b>demo dataset</b> (full synthetic data folder). Uploaded files will be ignored for this run.`;
+  document.getElementById('demoFiles').innerHTML = `Dataset ready<br>Files:<br>` + DEMO_FILES.map(f => `• ${f}`).join('<br>');
 }
-async function startDemo(label) {
+async function submitDemoCase(prefix) {
+  // Single demo flow: create the investigation, then /process picks up the
+  // full synthetic data folder automatically (backend demo fast path).
+  prefix = prefix || '';
+  const gid = (id) => document.getElementById(prefix + id);
+  const name = gid('unifiedCaseName').value.trim() || ('Demo case ' + new Date().toLocaleString());
+  const description = gid('unifiedCaseDesc').value.trim() || 'Full synthetic demo dataset';
+  const btn = gid('demoBtn');
+  btn.disabled = true; btn.textContent = 'Creating demo case…';
   try {
-    const meta = await api('/investigations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: label + ' — ' + new Date().toLocaleString(), description: 'Demo synthetic case' }) });
-    _currentInv = meta.id; _useDemo = label;
-    document.getElementById('newTitle').textContent = meta.name;
+    const meta = await api('/investigations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, description }) });
+    _currentInv = meta.id;
+    _useDemo = 'Demo dataset';
     runAnalysis();
-  } catch (e) { alert('Could not start demo: ' + e.message); }
+  } catch (e) {
+    alert('Failed to create demo case: ' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = '▶ Run on Demo Data';
+  }
 }
 function handleFiles(files) {
   _selectedFiles = Array.from(files);
   _useDemo = null;
   document.getElementById('selectedFiles').innerHTML = _selectedFiles.map(f => `${f.name} (${(f.size / 1024).toFixed(1)} KB)`).join('<br>');
-  document.getElementById('demoNote').innerHTML = 'Demo cases use the existing synthetic dataset through the standard pipeline.';
+  document.getElementById('demoNote').innerHTML = '';
   document.getElementById('demoFiles').innerHTML = '';
-}
-function unifiedSourceChanged(prefix) {
-  prefix = prefix || '';
-  const isDemo = document.getElementById(prefix + 'optDemo').checked;
-  document.getElementById(prefix + 'unifiedUploadWrap').style.display = isDemo ? 'none' : '';
-  document.getElementById(prefix + 'unifiedDemoWrap').style.display = isDemo ? '' : 'none';
 }
 function handleUnifiedFiles(files, prefix) {
   prefix = prefix || '';
@@ -673,7 +715,6 @@ async function submitUnifiedInvestigation(prefix) {
   const gid = (id) => document.getElementById(prefix + id);
   const name = gid('unifiedCaseName').value.trim() || ('Case ' + new Date().toLocaleString());
   const description = gid('unifiedCaseDesc').value.trim();
-  const isDemo = gid('optDemo').checked;
   const btn = gid('submitCaseBtn');
   const errBox = gid('unifiedError');
 
@@ -683,26 +724,20 @@ async function submitUnifiedInvestigation(prefix) {
     const meta = await api('/investigations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, description }) });
     _currentInv = meta.id;
 
-    if (isDemo) {
-      const demoLabel = gid('demoSelect').value || 'Case 01';
-      _useDemo = demoLabel;
-      runAnalysis();
-    } else {
-      const session = getSession();
-      if (session && session.role === 'investigator') {
-        errBox.innerHTML = '<div class="error">Uploading raw data requires the Analyst or Supervisor role.</div>';
-        return;
-      }
-      if (!_selectedFiles.length) { alert('Please select at least one .zip or .csv file to upload.'); return; }
-      // 2. Upload Files directly
-      const fd = new FormData();
-      _selectedFiles.forEach(f => fd.append('files', f));
-      btn.textContent = 'Uploading files…';
-      const uploadData = await api(`/investigations/${meta.id}/upload`, { method: 'POST', body: fd });
-      _useDemo = null;
-      // 3. Move directly to Column Mapping Review
-      await openMapping(uploadData);
+    const session = getSession();
+    if (session && session.role === 'investigator') {
+      errBox.innerHTML = '<div class="error">Uploading raw data requires the Analyst or Supervisor role.</div>';
+      return;
     }
+    if (!_selectedFiles.length) { alert('Please select at least one .zip or .csv file to upload.'); return; }
+    // 2. Upload Files directly
+    const fd = new FormData();
+    _selectedFiles.forEach(f => fd.append('files', f));
+    btn.textContent = 'Uploading files…';
+    const uploadData = await api(`/investigations/${meta.id}/upload`, { method: 'POST', body: fd });
+    _useDemo = null;
+    // 3. Move directly to Column Mapping Review
+    await openMapping(uploadData);
   } catch(e) {
     alert('Failed to create case: ' + e.message);
   } finally {
@@ -880,6 +915,25 @@ async function renderRiskBar(iid) {
     box.innerHTML = '';
   }
 }
+// NER provenance chip (read-only P1 slice): surfaces which extractor produced
+// each evidence record so investigators can weigh spaCy NER vs heuristic
+// fallback vs structured records. Backend already sends s.extractor.
+function extractorChip(s) {
+  const ext = s.extractor || '';
+  if (!ext) return '';
+  let label = ext, warn = false;
+  if (/^(cdr_structured|txn_structured|canonical|social_authored|fir_mention|fir_located|surveillance_located|text_mention|ipc_section|tower|regex_)/.test(ext)) {
+    label = 'structured record';
+  } else if (/^spacy_/.test(ext)) {
+    label = 'spaCy NER';
+  } else if (/^unstructured_/.test(ext)) {
+    label = 'NLP extraction';
+  } else if (/^fallback_/.test(ext)) {
+    label = 'heuristic fallback · needs review'; warn = true;
+  }
+  const style = warn ? ' style="background:#FFFBEB;border:1px solid #F59E0B;color:#92400E"' : '';
+  return ` <span class="tag"${style} title="Extractor: ${ext} · confidence ${s.confidence}">${label}</span>`;
+}
 async function openEvidenceDrawer(entityId) {
   const drawer = document.getElementById('evidenceDrawer');
   const overlay = document.getElementById('drawerOverlay');
@@ -911,7 +965,7 @@ async function openEvidenceDrawer(entityId) {
       ((w.sources || []).length
         ? w.sources.slice(0, 6).map(s =>
           `<div style="padding:8px 0;border-bottom:1px solid var(--border)"><b class="mono">${s.source}</b> ` +
-          `<span class="muted">${s.source_type || ''}${s.day != null ? ' · Day ' + s.day : ''}</span><br>` +
+          `<span class="muted">${s.source_type || ''}${s.day != null ? ' · Day ' + s.day : ''}</span>${extractorChip(s)}<br>` +
           `<span style="font-size:12px">${(s.supporting_text || '').slice(0, 160)}</span><br>` +
           `<span class="mono muted">hash: ${(s.evidence_hash || '—').slice(0, 12)} · confidence ${s.confidence}</span></div>`
         ).join('')
@@ -1095,7 +1149,14 @@ function renderMainGraph3D() {
   _ovGraph3D = ForceGraph3D()(container)
     .graphData(data)
     .nodeColor('color')
-    .nodeLabel(n => `${n.name} (${n.id})`)
+    .nodeLabel(n => getEntityDisplayName(n.id, _ovGraph, true))
+    .linkLabel(l => {
+      const srcId = l.source?.id || l.source;
+      const dstId = l.target?.id || l.target;
+      const srcName = getEntityDisplayName(srcId, _ovGraph, true);
+      const dstName = getEntityDisplayName(dstId, _ovGraph, true);
+      return `${srcName} ➔ ${dstName} (${l.name || 'LINK'})`;
+    })
     .nodeRelSize(4)
     .linkColor(l => l.__bridge ? '#FFC53D' : l.color)
     .linkWidth(l => l.__bridge ? 2 : 1)
@@ -1110,9 +1171,10 @@ function renderMainGraph3D() {
 function ovNodeClick(node) {
   const pop = document.getElementById('ovPopover');
   const isBridge = OV_BRIDGES.has(node.id);
+  const displayName = getEntityDisplayName(node.id, _ovGraph, true);
   pop.innerHTML =
     `<div style="display:flex;justify-content:space-between;align-items:center">` +
-    `<b>${node.name || node.id}</b><button class="btn" onclick="closeOvPopover()">✕</button></div>` +
+    `<b style="font-size:16px">${displayName}</b><button class="btn" onclick="closeOvPopover()">✕</button></div>` +
     `<div class="muted mono">${node.id} · ${node.kind || ''}</div>` +
     `<div style="margin:6px 0;font-size:13px">` +
     (node.cell ? `Cell group: <b>${node.cell}</b><br>` : '') +
@@ -1207,7 +1269,7 @@ async function openPerson(id) {
       `</span></details>`;
     const ev = (w.sources || []).slice(0, 6);
     document.getElementById('personEvidence').innerHTML = ev.length
-      ? ev.map(s => `<div style="padding:8px 0;border-bottom:1px solid var(--border)"><b class="mono">${s.source}</b> <span class="muted">${s.source_type} · Day ${s.day == null ? '—' : s.day} · confidence ${s.confidence}</span><br><span style="font-size:13px">${(s.supporting_text || '').slice(0, 160)}</span><br><span class="muted mono">hash ${s.evidence_hash || '—'}</span></div>`).join('')
+      ? ev.map(s => `<div style="padding:8px 0;border-bottom:1px solid var(--border)"><b class="mono">${s.source}</b> <span class="muted">${s.source_type} · Day ${s.day == null ? '—' : s.day} · confidence ${s.confidence}</span>${extractorChip(s)}<br><span style="font-size:13px">${(s.supporting_text || '').slice(0, 160)}</span><br><span class="muted mono">hash ${s.evidence_hash || '—'}</span></div>`).join('')
       : '<p class="muted">No evidence records.</p>';
     const days = {};
     (w.sources || []).forEach(s => { if (s.day != null) (days[s.day] = days[s.day] || []).push(s); });
@@ -1268,7 +1330,14 @@ function drawPerson() {
   const Graph = ForceGraph3D()(container)
     .graphData(gData)
     .nodeColor('color')
-    .nodeLabel('name')
+    .nodeLabel(n => getEntityDisplayName(n.id, _personGraph, true))
+    .linkLabel(l => {
+      const srcId = l.source?.id || l.source;
+      const dstId = l.target?.id || l.target;
+      const srcName = getEntityDisplayName(srcId, _personGraph, true);
+      const dstName = getEntityDisplayName(dstId, _personGraph, true);
+      return `${srcName} ➔ ${dstName} (${l.name || 'LINK'})`;
+    })
     .nodeRelSize(4)
     .linkColor('color')
     .linkDirectionalParticles(2)
@@ -1285,7 +1354,8 @@ function drawPerson() {
     ? `<table><thead><tr><th>Connection</th><th>Relation</th><th>Source</th></tr></thead><tbody>` +
       rel.map(e => {
         const other = e.src === _personId ? e.dst : e.src;
-        return `<tr><td><button class="btn" onclick="openPerson('${other}')">${other}</button></td><td>${e.kind}</td><td class="mono">${e.source || '—'}</td></tr>`;
+        const otherName = getEntityDisplayName(other, _personGraph, true);
+        return `<tr><td><button class="btn" onclick="openPerson('${other}')">${otherName}</button></td><td>${e.kind}</td><td class="mono">${e.source || '—'}</td></tr>`;
       }).join('') + `</tbody></table>`
     : '<p class="muted">No direct relationships in the current graph.</p>';
 }
@@ -1310,7 +1380,7 @@ async function loadTimeline() {
       return `<div style="padding:10px 0;border-bottom:1px solid var(--border)">` +
         `<b>Days ${g.days.join(', ')}</b> — Unusual activity across groups ${g.cells.join(', ')}.<br>` +
         `<span class="muted">Calls were much higher than normal in the same week — worth comparing these groups.</span><br>` +
-        (people.length ? `<span class="muted">Related people: </span>` + people.map(id => `<button class="btn" onclick="openPerson('${id}')">${id}</button>`).join(' ') : '') +
+        (people.length ? `<span class="muted">Related people: </span>` + people.map(id => `<button class="btn" onclick="openPerson('${id}')">${getEntityDisplayName(id, null, true)}</button>`).join(' ') : '') +
         `<details><summary>Evidence</summary><span class="muted">` +
         g.supporting_bursts.map(b => `Day ${b.day} group ${b.cell}: ${b.count} calls (usual ${b.mean})`).join('<br>') +
         `<br><span class="mono">hash ${g.evidence_hash}</span></span></details></div>`;
@@ -1384,7 +1454,7 @@ async function loadFinancial() {
       story.innerHTML = '<p class="muted">No structuring pattern detected in the current data.</p>';
     } else {
       story.innerHTML = flags.map(f =>
-        `<div><b>${f.receiver}</b> received <b>${f.cash_small_count} small cash payments below ₹50,000</b> ` +
+        `<div><b>${getEntityDisplayName(f.receiver, g, true)}</b> received <b>${f.cash_small_count} small cash payments below ₹50,000</b> ` +
         `between days ${f.window[0]}–${f.window[1]}. The money was then combined into ` +
         `<b>${f.consolidations.length} larger transfers above ₹2.5 lakh</b>.</div>` +
         `<div class="muted" style="margin-top:6px"><b>Why it matters:</b> splitting money into small amounts and re-combining it ` +
@@ -1396,8 +1466,8 @@ async function loadFinancial() {
       .sort((a, b) => Number(b.meta.amount) - Number(a.meta.amount)).slice(0, 12);
     txns.innerHTML = `<table><thead><tr><th>Record</th><th>From → To</th><th>Amount</th><th>Day</th><th></th></tr></thead><tbody>` +
       tedges.map((e, i) =>
-        `<tr><td class="mono">${e.source || '—'}</td><td><button class="btn" onclick="openPerson('${e.src}')">${e.src}</button> → ` +
-        `<button class="btn" onclick="openPerson('${e.dst}')">${e.dst}</button></td>` +
+        `<tr><td class="mono">${e.source || '—'}</td><td><button class="btn" onclick="openPerson('${e.src}')">${getEntityDisplayName(e.src, g, true)}</button> → ` +
+        `<button class="btn" onclick="openPerson('${e.dst}')">${getEntityDisplayName(e.dst, g, true)}</button></td>` +
         `<td>₹${Number(e.meta.amount).toLocaleString('en-IN')}</td><td>Day ${e.day == null ? '—' : e.day}</td>` +
         `<td><button class="btn" onclick="document.getElementById('finEv${i}').style.display=document.getElementById('finEv${i}').style.display==='none'?'block':'none'">Evidence</button></td></tr>` +
         `<tr id="finEv${i}" style="display:none"><td colspan="5"><span class="muted">${(e.supporting_text || '').slice(0, 160)}</span><br>` +
@@ -1441,8 +1511,10 @@ async function loadCommunications() {
       ranked.map((p, i) => {
         const cross = cellOf[p.a] && cellOf[p.b] && cellOf[p.a] !== cellOf[p.b]
           && !['Phone', 'Account', 'Noise'].includes(cellOf[p.a]) && !['Phone', 'Account', 'Noise'].includes(cellOf[p.b]);
-        return `<tr><td><button class="btn" onclick="openPerson('${p.a}')">${p.a}</button> ↔ ` +
-          `<button class="btn" onclick="openPerson('${p.b}')">${p.b}</button>` +
+        const aName = getEntityDisplayName(p.a, g, true);
+        const bName = getEntityDisplayName(p.b, g, true);
+        return `<tr><td><button class="btn" onclick="openPerson('${p.a}')">${aName}</button> ↔ ` +
+          `<button class="btn" onclick="openPerson('${p.b}')">${bName}</button>` +
           (cross ? ` <span class="pill pill-Bridge">cross-group</span>` : '') + `</td>` +
           `<td>${p.count}</td><td>${Math.round(p.dur / 60)} min</td>` +
           `<td><button class="btn" onclick="document.getElementById('commEv${i}').style.display=document.getElementById('commEv${i}').style.display==='none'?'block':'none'">Evidence</button></td></tr>` +
@@ -1453,6 +1525,52 @@ async function loadCommunications() {
     burstsEl.innerHTML = `<div class="error">Could not load communications: ${e.message}</div>`;
     pairsEl.innerHTML = '';
   }
+}
+
+let _commMode = 'pairs', _towerCache = null;
+const TOWER_COLORS = { A: '#4C9AFF', B: '#AB68FF', C: '#FF7A45' };
+function setCommMode(mode) {
+  _commMode = mode;
+  const pairs = mode === 'pairs';
+  document.getElementById('commPairs').style.display = pairs ? '' : 'none';
+  document.getElementById('commTowers').style.display = pairs ? 'none' : '';
+  document.getElementById('commModePairsBtn').className = pairs ? 'btn btn-primary' : 'btn';
+  document.getElementById('commModeTowersBtn').className = pairs ? 'btn' : 'btn btn-primary';
+  if (!pairs && !_towerCache) loadTowers();
+  if (!pairs && _towerCache) renderTowers(_towerCache);
+}
+async function loadTowers() {
+  const box = document.getElementById('commTowers');
+  box.innerHTML = '<p class="muted">Loading tower schematic…</p>';
+  try {
+    const data = await api('/towers');
+    _towerCache = data.towers || [];
+    if (_commMode === 'towers') renderTowers(_towerCache);
+  } catch (e) {
+    box.innerHTML = `<div class="error">Could not load towers: ${e.message}</div>`;
+  }
+}
+function renderTowers(towers) {
+  const box = document.getElementById('commTowers');
+  if (!towers.length) { box.innerHTML = '<p class="muted">No tower data in the current graph.</p>'; return; }
+  box.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px">` +
+    towers.map(t => {
+      const color = TOWER_COLORS[t.dominant_cell] || '#94A3B8';
+      const cells = Object.entries(t.cells).map(([c, n]) => `${c}: ${n}`).join(' · ');
+      return `<button class="demo-card" style="border-top:4px solid ${color}" onclick="showTowerDetail('${t.tower_id}')" title="${t.label} — ${t.call_count} calls">` +
+        `<b class="mono">${t.tower_id}</b><span class="muted">${t.label}</span>` +
+        `<span style="font-size:12px">${t.call_count} calls</span>` +
+        (t.co_location_count >= 2 ? `<span class="tag">CO-LOCATED · ${t.co_location_count} GROUPS</span>` : `<span class="tag">group ${t.dominant_cell}</span>`) +
+        `</button>`;
+    }).join('') + `</div><div id="towerDetail" class="muted" style="margin-top:10px"></div>` +
+    `<p class="muted" style="margin-top:8px">Schematic — not geographic. Glyphs group calls by tower label; gold-bordered multi-group towers are worth comparing.</p>`;
+}
+function showTowerDetail(towerId) {
+  const t = (_towerCache || []).find(x => x.tower_id === towerId);
+  if (!t) return;
+  document.getElementById('towerDetail').innerHTML =
+    `<b class="mono">${t.tower_id}</b> ${t.label} — ${t.call_count} calls ` +
+    `(${Object.entries(t.cells).map(([c, n]) => `group ${c}: ${n}`).join(', ')})`;
 }
 
 let _reportData = null;

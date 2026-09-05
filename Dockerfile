@@ -2,10 +2,14 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY requirements.txt third_party/en_core_web_sm-3.7.1-py3-none-any.whl ./
 RUN pip install --no-cache-dir -r requirements.txt
-# Pre-install spacy model offline-capable; fallback to regex if unavailable
-RUN python -m spacy download en_core_web_sm || echo "spaCy model download failed - will use regex fallback"
+# Vendored spaCy model — offline install, no network needed at build time
+# (matches spacy==3.7.4 in requirements.txt). Runtime keeps its graceful
+# regex/canonical fallback if the model is ever absent.
+RUN pip install --no-cache-dir --no-index ./en_core_web_sm-3.7.1-py3-none-any.whl \
+  && python -c "import en_core_web_sm; print('spaCy model vendored:', en_core_web_sm.__version__)" \
+  && rm ./en_core_web_sm-3.7.1-py3-none-any.whl
 
 COPY . .
 

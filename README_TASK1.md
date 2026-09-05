@@ -135,7 +135,7 @@ Manual verification:
 
 1. **Bridge detection partial**: X1 (Hawala, rank 10) and X2 (Weapons, rank 11) outside top6; X4(4th)/X3(6th) in top6 plus B11/C2/C12/B2. Expected per design success = X1-X4 all in top6; current 2/4. Root cause: NetworkX betweenness on sparse peripheral bridges undervalues vs star hub C12 (0.12). Mitigation deferred: raise cross weight to 0.5 or use weighted degree; not added in Task1 per "do not add new algorithms".
 2. **Burst day 64**: Event C day 64 has 0 CDR calls (burst window is 58-63 per generate_dataset.py:158 `range(ev_day-6, ev_day)`), so detector finds peaks at 58/59 near 64 but not exactly 64 — correct per data generation, but UI story slice 50-70 would show 58/61 spikes clearly, 64 via structuring not burst.
-3. **SpaCy model**: `en_core_web_sm` not vendored; fallback uses canonical substring matching (honest, not inventing). Full offline Docker vendoring deferred.
+3. **SpaCy model**: `en_core_web_sm-3.7.1` vendored under `third_party/` and installed offline in Docker (`COPY + pip install --no-index`, matching `spacy==3.7.4`); runtime keeps the canonical-substring fallback if the model is ever absent.
 4. **Neo4j GDS**: Not exercised in CI (fallback); Docker Compose pinned but requires `NEO4JLABS_PLUGINS` to fetch GDS on first run (needs network).
 5. **Frontend**: Minimal HTML not Cytoscape.js live-reveal with triple-cue gold glow — deferred to Phase 6 per boundaries.
 6. **RBAC/audit**: Single `demo-operator` user, no auth — per `criminal-network-live-reveal.md:86` explicit non-goal for MVP.

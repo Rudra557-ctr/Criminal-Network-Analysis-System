@@ -27,11 +27,15 @@ from backend.config import NEO4J_DATABASE
 OUTPUT_DIR = PROJECT_ROOT / "output"
 GRAPH_JSON = OUTPUT_DIR / "graph.json"
 
-def build_in_memory_graph(datasets: Dict, entities: List[Dict], relationships: List[Dict], mention_map: Dict[str,str]) -> Dict:
+def build_in_memory_graph(datasets: Dict, entities: List[Dict], relationships: List[Dict], mention_map: Dict[str,str], output_dir: Path = None) -> Dict:
     """
     Build NetworkX graph + serializable dict for API.
     Nodes: Person, Phone, Account, Location, FIR, Post, Event
     Edges with provenance.
+
+    output_dir overrides the module-level OUTPUT_DIR/GRAPH_JSON so
+    per-investigation builds can write to their own directory without
+    mutating shared globals (concurrency-safe). Defaults to OUTPUT_DIR.
     """
     if not HAS_NX:
         raise RuntimeError("networkx required for in-memory graph")
@@ -155,14 +159,16 @@ def build_in_memory_graph(datasets: Dict, entities: List[Dict], relationships: L
 
     serial = {"nodes": nodes, "edges": edges, "stats": {"node_count": len(nodes), "edge_count": len(edges)}}
 
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    with open(GRAPH_JSON, "w", encoding='utf-8') as f:
+    out_dir = Path(output_dir) if output_dir is not None else OUTPUT_DIR
+    graph_json = out_dir / "graph.json"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    with open(graph_json, "w", encoding='utf-8') as f:
         json.dump(serial, f, indent=2, default=str)
     # also pickle for fast analytics
-    with open(OUTPUT_DIR / "graph.pkl", "wb") as f:
+    with open(out_dir / "graph.pkl", "wb") as f:
         pickle.dump(G, f)
 
-    print(f"[graph] built in-memory: {len(nodes)} nodes, {len(edges)} edges → {GRAPH_JSON}")
+    print(f"[graph] built in-memory: {len(nodes)} nodes, {len(edges)} edges → {graph_json}")
     return serial
 
 def build_neo4j_graph(datasets: Dict, entities: List[Dict], relationships: List[Dict], mention_map: Dict, iid: str = "default"):
@@ -216,21 +222,28 @@ def build_neo4j_graph(datasets: Dict, entities: List[Dict], relationships: List[
 
         print(f"[graph] Neo4j populated: {len(pd.get('network_people',[]))+len(pd.get('noise_people',[]))} persons + {len(relationships)} rels for iid {iid}")
 
-def build_graph(datasets: Dict, entities: List[Dict], relationships: List[Dict], mention_map: Dict, clean: bool=False, iid: str = "default"):
+def build_graph(datasets: Dict, entities: List[Dict], relationships: List[Dict], mention_map: Dict, clean: bool=False, iid: str = "default", output_dir: Path = None):
     """
     Unified entry — tries Neo4j, always builds in-memory fallback.
     Returns serial dict.
+
+    output_dir overrides the module-level OUTPUT_DIR/GRAPH_JSON for
+    per-investigation builds. It is passed as a parameter (not via global
+    mutation) so concurrent requests cannot corrupt each other's output.
+    Defaults to OUTPUT_DIR.
     """
+    out_dir = Path(output_dir) if output_dir is not None else OUTPUT_DIR
+    graph_json = out_dir / "graph.json"
     if clean:
         from backend.graph.schema import clear_graph
         if is_available():
             clear_graph()
         # also clear output graph
-        if GRAPH_JSON.exists():
-            GRAPH_JSON.unlink()
+        if graph_json.exists():
+            graph_json.unlink()
 
     # Always build in-memory (source of truth for API fallback)
-    serial = build_in_memory_graph(datasets, entities, relationships, mention_map)
+    serial = build_in_memory_graph(datasets, entities, relationships, mention_map, output_dir=out_dir)
 
     # Opportunistically push to Neo4j if available
     if is_available():

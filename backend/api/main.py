@@ -433,28 +433,16 @@ def inv_process(iid: str, user: dict = Depends(get_current_user)):
     # Run extraction → resolution → graph per investigation (reuse existing modules)
     from backend.extraction.entity_extractor import extract_all
     from backend.resolution.resolver import resolve_entities, write_resolution
-    from backend.graph.builder import build_in_memory_graph
-    import pickle
     all_entities, relationships = extract_all(inv_datasets)
     struct = [e for e in all_entities if e.get("confidence",0) >= 0.8]
     unstruct = [e for e in all_entities if e.get("confidence",0) < 0.8]
     mention_map, res_rows = resolve_entities(struct, unstruct, inv_datasets["people_directory"], datasets=inv_datasets)
-    # Build graph per investigation
-    import networkx as nx
-    # Reuse builder but patch output path
-    from backend.graph.builder import OUTPUT_DIR
-    orig_out = OUTPUT_DIR
-    # Temporarily override
+    # Build graph per investigation — output_dir is passed as a parameter so
+    # concurrent /process requests cannot corrupt each other's output via
+    # shared module globals (see backend.graph.builder.build_graph).
     import backend.graph.builder as gb
-    gb.OUTPUT_DIR = out_dir
-    gb.GRAPH_JSON = out_dir / "graph.json"
-    
     # We call build_graph instead of just in_memory to ensure Neo4j gets the case-isolated push
-    serial = gb.build_graph(inv_datasets, all_entities, relationships, mention_map, iid=iid)
-    
-    # restore
-    gb.OUTPUT_DIR = orig_out
-    gb.GRAPH_JSON = orig_out / "graph.json"
+    serial = gb.build_graph(inv_datasets, all_entities, relationships, mention_map, iid=iid, output_dir=out_dir)
     # Save resolution/quarantine per investigation
     import csv as csvm
     with open(out_dir / "resolution.csv", "w", newline='', encoding='utf-8') as fh:
@@ -526,17 +514,6 @@ def inv_graph(iid: str, day: Optional[int] = Query(None, ge=1, le=90), user: dic
             filtered_edges[idx] = e
         return {"day": day, "nodes": filtered_nodes, "edges": filtered_edges, "total_nodes": len(nodes), "total_edges": len(edges)}
     return serial
-
-@app.get("/investigations/{iid}/leads")
-def inv_leads(iid: str, limit: int = Query(20, ge=1, le=100), user: dict = Depends(get_current_user)):
-    out = INV_ROOT / iid / "output" / "graph.json"
-    if not out.exists():
-        raise HTTPException(status_code=404, detail="Not processed")
-    # For now reuse global lead scoring but load investigation graph? Simplified: reuse global leads (since per-investigation scoring needs datasets)
-    # Load investigation datasets from mapped preview
-    # For demo, return global leads filtered to investigation's entities
-    leads = get_leads(limit=limit)
-    return {"leads": leads[:limit], "investigation_id": iid}
 
 @app.get("/investigations/{iid}/whatif")
 def inv_whatif(iid: str, remove_id: str = Query(..., description="Node ID to simulate removing"),
@@ -678,6 +655,44 @@ def get_centrality(user: dict = Depends(get_current_user)):
     cent = compute_centrality()
     audit_log("/centrality", [c["id"] for c in cent[:10]])
     return cent
+
+@app.get("/towers")
+def get_towers(user: dict = Depends(CAN_VIEW_GRAPH)):
+    """Tower schematic data — co-location counts per CDR tower.
+
+    Schematic, not geographic: towers are glyphs (TWR-01...) colored by
+    dominant cell. Aggregated live from CALLED edge meta.tower.
+    """
+    from collections import Counter
+    serial = load_graph_serial()
+    if not serial["nodes"]:
+        raise HTTPException(status_code=503, detail="Graph not built yet — run: python -m backend.pipeline --clean")
+    id_to_cell = {n["id"]: n.get("cell", "Unknown") for n in serial["nodes"]}
+    agg = {}
+    for e in serial["edges"]:
+        if e.get("kind") != "CALLED":
+            continue
+        tower = ((e.get("meta") or {}).get("tower")) or "Unknown"
+        cell = id_to_cell.get(e.get("src"), "Unknown")
+        entry = agg.setdefault(tower, {"calls": 0, "cells": Counter()})
+        entry["calls"] += 1
+        entry["cells"][cell] += 1
+    towers = []
+    for i, label in enumerate(sorted(agg), start=1):
+        entry = agg[label]
+        cells = dict(entry["cells"])
+        towers.append({
+            "tower_id": f"TWR-{i:02d}",
+            "label": label,
+            "call_count": entry["calls"],
+            "cells": cells,
+            "dominant_cell": max(cells, key=cells.get),
+            "co_location_count": len([c for c in cells if c in ("A", "B", "C")]),
+        })
+    towers.sort(key=lambda t: t["call_count"], reverse=True)
+    audit_log("/towers", [t["tower_id"] for t in towers[:10]])
+    return {"towers": towers, "count": len(towers),
+            "disclaimer": "Schematic — not geographic. Potential investigative lead, not a guilt determination."}
 
 @app.get("/leads")
 def get_leads_endpoint(limit: int = Query(20, ge=1, le=100, description="Top N leads"), priority: Optional[str] = Query(None, description="Filter HIGH/MEDIUM/LOW"), user: dict = Depends(get_current_user)):

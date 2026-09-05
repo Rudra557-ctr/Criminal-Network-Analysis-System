@@ -93,3 +93,18 @@ def test_whatif_role_gated():
     assert client.get(f"/investigations/{iid}/whatif", params={"remove_id": "X1"}).status_code == 401
     assert client.get(f"/investigations/{iid}/whatif", params={"remove_id": "X1"}, headers=auth_headers("analyst")).status_code == 403
     assert client.get(f"/investigations/{iid}/whatif", params={"remove_id": "X1"}, headers=auth_headers("investigator")).status_code == 200
+
+def test_towers_schematic():
+    from conftest import auth_headers
+    assert client.get("/towers").status_code == 401
+    assert client.get("/towers", headers=auth_headers("analyst")).status_code == 403
+    r = client.get("/towers", headers=H)
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["count"] > 0 and len(body["towers"]) == body["count"]
+    assert "Schematic" in body["disclaimer"]
+    t0 = body["towers"][0]
+    assert {"tower_id", "label", "call_count", "cells", "dominant_cell", "co_location_count"} <= set(t0)
+    assert t0["tower_id"].startswith("TWR-")
+    assert sum(t["call_count"] for t in body["towers"]) == sum(
+        1 for e in client.get("/graph", headers=H).json()["edges"] if e["kind"] == "CALLED")

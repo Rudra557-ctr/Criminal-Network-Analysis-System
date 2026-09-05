@@ -26,7 +26,11 @@ def daily_counts_by_cell(datasets: Dict) -> Dict[str, Dict[int,int]]:
             continue
         # only count network cells A/B/C for burst (Noise excluded for main detectors)
         counts[cell][day] += 1
-    # also from transactions per cell
+    # Fuse transactions per sender cell as an additional temporal signal
+    # (design: the correlated burst week is only visible once CDR +
+    # financial signals are fused). CDR stays primary — one transaction
+    # counts as one event, the same scale as one call, so the z>2.0
+    # threshold behavior is preserved.
     for row in datasets.get("transactions", []):
         sid = row.get("sender_id")
         cell = id_to_cell.get(sid, "Noise")
@@ -35,8 +39,7 @@ def daily_counts_by_cell(datasets: Dict) -> Dict[str, Dict[int,int]]:
             day = int(day)
         except:
             continue
-        # transactions burst separate but we include as additional signal — keep CDR primary
-        pass
+        counts[cell][day] += 1
     return counts
 
 def zscore_for_day(day: int, counts: Dict[int,int]) -> float:
@@ -62,7 +65,6 @@ def detect_bursts(datasets: Dict) -> List[Dict]:
         for day in range(1,91):
             z = zscore_for_day(day, counts)
             if z > 2.0:
-                burdens = [counts.get(day- i,0) for i in range(0,7)]
                 bursts.append({"cell": cell, "day": day, "zscore": round(z,2), "count": counts.get(day,0),
                                "window": [day-6, day-1], "mean": round(sum(counts.get(d,0) for d in range(day-6,day))/6,2)})
     # Correlated bursts: ≥2 cells flag within 7-day span
@@ -81,6 +83,25 @@ def detect_bursts(datasets: Dict) -> List[Dict]:
         if key not in seen:
             seen.add(key)
             uniq_corr.append(c)
+    # Surface the "N cells synchronized" story on the bursts themselves.
+    # Additive fields only — the existing cell/day/zscore/count/window/mean
+    # contract is unchanged, so all current callers keep working. A burst is
+    # correlated when its day falls in a group spanning ≥2 cells within the
+    # 7-day window.
+    day_to_group = {}
+    for c in uniq_corr:
+        for d in c["burst_days"]:
+            day_to_group.setdefault(d, c)
+    for b in bursts:
+        group = day_to_group.get(b["day"])
+        if group is not None:
+            b["correlated"] = True
+            b["correlated_cells"] = group["cells"]
+            b["correlated_days"] = group["burst_days"]
+        else:
+            b["correlated"] = False
+            b["correlated_cells"] = [b["cell"]]
+            b["correlated_days"] = [b["day"]]
     return bursts
 
 def detect_correlated_bursts(bursts: List[Dict]) -> List[Dict]:
