@@ -1339,8 +1339,20 @@ async function loadTimeline() {
   const groups = document.getElementById('tlGroups');
   const bursts = document.getElementById('tlBursts');
   try {
-    const leadsUrl = _currentInv ? `/investigations/${_currentInv}/leads?limit=20` : '/leads?limit=20';
-    const [t, leads] = await Promise.all([api('/temporal'), api(leadsUrl)]);
+    const leadsUrl = _currentInv ? `/investigations/${_currentInv}/leads?limit=100` : '/leads?limit=100';
+    const graphUrl = _currentInv ? `/investigations/${_currentInv}/graph` : '/graph';
+    const [t, leads, g] = await Promise.all([api('/temporal'), api(leadsUrl), api(graphUrl)]);
+
+    // Map ID -> Full Name
+    const nameMap = {};
+    (g.nodes || []).forEach(n => {
+      if (n.label && n.label !== n.id) nameMap[n.id] = n.label;
+      else if (n.name && n.name !== n.id) nameMap[n.id] = n.name;
+    });
+    (leads.leads || []).forEach(l => {
+      if (l.label && l.label !== l.entity_id) nameMap[l.entity_id] = l.label;
+    });
+
     strip.innerHTML = t.narrative_days.map(n => {
       const b = n.actual_burst;
       return `<div style="padding:8px 0;border-bottom:1px solid var(--border)"><b>Day ${n.target_day}</b> — ` +
@@ -1354,10 +1366,13 @@ async function loadTimeline() {
       return `<div style="padding:10px 0;border-bottom:1px solid var(--border)">` +
         `<b>Days ${g.days.join(', ')}</b> — Unusual activity across groups ${g.cells.join(', ')}.<br>` +
         `<span class="muted">Calls were much higher than normal in the same week — worth comparing these groups.</span><br>` +
-        (people.length ? `<span class="muted">Related people: </span>` + people.map(id => `<button class="btn" onclick="openPerson('${id}')">${id}</button>`).join(' ') : '') +
+        (people.length ? `<span class="muted">Related people: </span>` + people.map(id => {
+          const pName = nameMap[id] ? `${nameMap[id]} (${id})` : id;
+          return `<button class="btn" onclick="openPerson('${id}')">👤 ${pName}</button>`;
+        }).join(' ') : '') +
         `<details><summary>Evidence</summary><span class="muted">` +
         g.supporting_bursts.map(b => `Day ${b.day} group ${b.cell}: ${b.count} calls (usual ${b.mean})`).join('<br>') +
-        `<br><span class="mono">hash ${g.evidence_hash}</span></span></details></div>`;
+        `</span></details></div>`;
     }).join('') || '<p class="muted">No correlated periods.</p>';
     const all = [...t.bursts].sort((a, b) => a.day - b.day);
     bursts.innerHTML = `<table><thead><tr><th>Day</th><th>Group</th><th>What happened</th><th></th></tr></thead><tbody>` +
