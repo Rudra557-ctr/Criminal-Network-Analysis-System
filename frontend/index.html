@@ -1440,30 +1440,45 @@ async function loadFinancial() {
   const txns = document.getElementById('finTxns');
   try {
     const graphUrl = _currentInv ? `/investigations/${_currentInv}/graph` : '/graph';
-    const [flags, g] = await Promise.all([api('/structuring'), api(graphUrl)]);
+    const leadsUrl = _currentInv ? `/investigations/${_currentInv}/leads?limit=100` : '/leads?limit=100';
+    const [flags, g, leads] = await Promise.all([api('/structuring'), api(graphUrl), api(leadsUrl)]);
+
+    // Map ID -> Full Name
+    const nameMap = {};
+    (g.nodes || []).forEach(n => {
+      if (n.label && n.label !== n.id) nameMap[n.id] = n.label;
+      else if (n.name && n.name !== n.id) nameMap[n.id] = n.name;
+    });
+    (leads.leads || []).forEach(l => {
+      if (l.label && l.label !== l.entity_id) nameMap[l.entity_id] = l.label;
+    });
+
     if (!flags.length) {
       story.innerHTML = '<p class="muted">No structuring pattern detected in the current data.</p>';
     } else {
-      story.innerHTML = flags.map(f =>
-        `<div><b>${f.receiver}</b> received <b>${f.cash_small_count} small cash payments below ₹50,000</b> ` +
-        `between days ${f.window[0]}–${f.window[1]}. The money was then combined into ` +
-        `<b>${f.consolidations.length} larger transfers above ₹2.5 lakh</b>.</div>` +
-        `<div class="muted" style="margin-top:6px"><b>Why it matters:</b> splitting money into small amounts and re-combining it ` +
-        `is a classic way to hide large movements — worth reviewing. Confidence ${(f.confidence * 100).toFixed(0)}%.</div>` +
-        `<details style="margin-top:6px"><summary>Pattern Details</summary><div class="muted" style="font-size:13px;margin-top:4px">Frequent cash deposits under the ₹50,000 reporting threshold, combined into bulk transfers to bypass regulatory scrutiny.</div></details>`
-      ).join('');
+      story.innerHTML = flags.map(f => {
+        const recvName = nameMap[f.receiver] ? `${nameMap[f.receiver]} (${f.receiver})` : f.receiver;
+        return `<div><b>${recvName}</b> received <b>${f.cash_small_count} small cash payments below ₹50,000</b> ` +
+          `between days ${f.window[0]}–${f.window[1]}. The money was then combined into ` +
+          `<b>${f.consolidations.length} larger transfers above ₹2.5 lakh</b>.</div>` +
+          `<div class="muted" style="margin-top:6px"><b>Why it matters:</b> splitting money into small amounts and re-combining it ` +
+          `is a classic way to hide large movements — worth reviewing. Confidence ${(f.confidence * 100).toFixed(0)}%.</div>` +
+          `<details style="margin-top:6px"><summary>Pattern Details</summary><div class="muted" style="font-size:13px;margin-top:4px">Frequent cash deposits under the ₹50,000 reporting threshold, combined into bulk transfers to bypass regulatory scrutiny.</div></details>`;
+      }).join('');
     }
     const tedges = g.edges.filter(e => e.kind === 'TRANSACTED' && e.meta && e.meta.amount != null && !isNaN(Number(e.meta.amount)))
       .sort((a, b) => Number(b.meta.amount) - Number(a.meta.amount)).slice(0, 12);
     txns.innerHTML = `<table><thead><tr><th>Record</th><th>From → To</th><th>Amount</th><th>Day</th><th></th></tr></thead><tbody>` +
-      tedges.map((e, i) =>
-        `<tr><td class="mono">${e.source || '—'}</td><td><button class="btn" onclick="openPerson('${e.src}')">${e.src}</button> → ` +
-        `<button class="btn" onclick="openPerson('${e.dst}')">${e.dst}</button></td>` +
-        `<td>₹${Number(e.meta.amount).toLocaleString('en-IN')}</td><td>Day ${e.day == null ? '—' : e.day}</td>` +
-        `<td><button class="btn" onclick="document.getElementById('finEv${i}').style.display=document.getElementById('finEv${i}').style.display==='none'?'block':'none'">Evidence</button></td></tr>` +
-        `<tr id="finEv${i}" style="display:none"><td colspan="5"><span class="muted">${(e.supporting_text || '').slice(0, 160)}</span><br>` +
-        `<span class="mono muted">hash ${e.evidence_hash || '—'} · confidence ${e.confidence} · ${e.meta.txn_type || ''}</span></td></tr>`
-      ).join('') + `</tbody></table>`;
+      tedges.map((e, i) => {
+        const srcName = nameMap[e.src] ? `${nameMap[e.src]} (${e.src})` : e.src;
+        const dstName = nameMap[e.dst] ? `${nameMap[e.dst]} (${e.dst})` : e.dst;
+        return `<tr><td class="mono">${e.source || '—'}</td><td><button class="btn" onclick="openPerson('${e.src}')">👤 ${srcName}</button> → ` +
+          `<button class="btn" onclick="openPerson('${e.dst}')">👤 ${dstName}</button></td>` +
+          `<td>₹${Number(e.meta.amount).toLocaleString('en-IN')}</td><td>Day ${e.day == null ? '—' : e.day}</td>` +
+          `<td><button class="btn" onclick="document.getElementById('finEv${i}').style.display=document.getElementById('finEv${i}').style.display==='none'?'block':'none'">Evidence</button></td></tr>` +
+          `<tr id="finEv${i}" style="display:none"><td colspan="5"><span class="muted">${(e.supporting_text || '').slice(0, 160)}</span><br>` +
+          `<span class="mono muted">confidence ${e.confidence} · ${e.meta.txn_type || ''}</span></td></tr>`;
+      }).join('') + `</tbody></table>`;
   } catch (e) {
     story.innerHTML = `<div class="error">Could not load financial data: ${e.message}</div>`;
     txns.innerHTML = '';
@@ -1475,7 +1490,19 @@ async function loadCommunications() {
   const pairsEl = document.getElementById('commPairs');
   try {
     const graphUrl = _currentInv ? `/investigations/${_currentInv}/graph` : '/graph';
-    const [bursts, g] = await Promise.all([api('/bursts'), api(graphUrl)]);
+    const leadsUrl = _currentInv ? `/investigations/${_currentInv}/leads?limit=100` : '/leads?limit=100';
+    const [bursts, g, leads] = await Promise.all([api('/bursts'), api(graphUrl), api(leadsUrl)]);
+
+    // Map ID -> Full Name
+    const nameMap = {};
+    (g.nodes || []).forEach(n => {
+      if (n.label && n.label !== n.id) nameMap[n.id] = n.label;
+      else if (n.name && n.name !== n.id) nameMap[n.id] = n.name;
+    });
+    (leads.leads || []).forEach(l => {
+      if (l.label && l.label !== l.entity_id) nameMap[l.entity_id] = l.label;
+    });
+
     const top = [...bursts].sort((a, b) => b.zscore - a.zscore).slice(0, 3);
     burstsEl.innerHTML = top.map(b =>
       `<div style="padding:8px 0;border-bottom:1px solid var(--border)"><b>Day ${b.day}, group ${b.cell}</b> — ` +
@@ -1502,8 +1529,10 @@ async function loadCommunications() {
       ranked.map((p, i) => {
         const cross = cellOf[p.a] && cellOf[p.b] && cellOf[p.a] !== cellOf[p.b]
           && !['Phone', 'Account', 'Noise'].includes(cellOf[p.a]) && !['Phone', 'Account', 'Noise'].includes(cellOf[p.b]);
-        return `<tr><td><button class="btn" onclick="openPerson('${p.a}')">${p.a}</button> ↔ ` +
-          `<button class="btn" onclick="openPerson('${p.b}')">${p.b}</button>` +
+        const aName = nameMap[p.a] ? `${nameMap[p.a]} (${p.a})` : p.a;
+        const bName = nameMap[p.b] ? `${nameMap[p.b]} (${p.b})` : p.b;
+        return `<tr><td><button class="btn" onclick="openPerson('${p.a}')">👤 ${aName}</button> ↔ ` +
+          `<button class="btn" onclick="openPerson('${p.b}')">👤 ${bName}</button>` +
           (cross ? ` <span class="pill pill-Bridge">cross-group</span>` : '') + `</td>` +
           `<td>${p.count}</td><td>${Math.round(p.dur / 60)} min</td>` +
           `<td><button class="btn" onclick="document.getElementById('commEv${i}').style.display=document.getElementById('commEv${i}').style.display==='none'?'block':'none'">Evidence</button></td></tr>` +
