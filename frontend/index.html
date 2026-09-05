@@ -843,6 +843,7 @@ async function runAnalysis() {
     await api(`/investigations/${_currentInv}/leads?limit=3`);
     steps.innerHTML += mark('Running intelligence analysis', 'done') +
       `<li><button class="btn btn-primary" onclick="openOverview('${_currentInv}')">View Investigation</button></li>`;
+    setTimeout(() => { openOverview(_currentInv); }, 600);
   } catch (e) {
     const needMap = /mapping/i.test(e.message);
     steps.innerHTML += `<li><div class="error">Analysis failed: ${e.message}</div></li>` +
@@ -935,6 +936,10 @@ async function openOverview(iid) {
     const meta = await api(`/investigations/${iid}`);
     const stats = await api(`/investigations/${iid}/stats`);
     const leads = await api(`/investigations/${iid}/leads?limit=5`);
+    try {
+      const topB = (leads.leads || []).filter(l => (l.signals || {}).bridge_score >= 0.35).map(l => l.entity_id);
+      if (topB.length) OV_BRIDGES = new Set(topB);
+    } catch(e) {}
     document.getElementById('ovTitle').textContent = meta.name + ' — Investigation overview';
     document.getElementById('ovSub').textContent = meta.description || '';
     const casePill = document.getElementById('casePill');
@@ -969,9 +974,9 @@ async function openOverview(iid) {
 }
 
 // ---- Main overview 3D graph (entire case network, filters + subgraph hops) ----
-const OV_COLORS = { A: '#4C9AFF', B: '#AB68FF', C: '#FF7A45', Bridge: '#FFC53D' };
-const OV_BRIDGES = new Set(['X1', 'X2', 'X3', 'X4']);
 let _ovGraph = null, _ovGraph3D = null, _ovCell = 'All', _ovFocus = null, _ovHops = 1;
+let OV_BRIDGES = new Set(['X1', 'X2', 'X3', 'X4']);
+const OV_COLORS = { A: '#4C9AFF', B: '#AB68FF', C: '#FF7A45', Bridge: '#FFC53D' };
 let _simRemoved = null, _simStats = null;
 
 async function loadOverviewGraph(iid) {

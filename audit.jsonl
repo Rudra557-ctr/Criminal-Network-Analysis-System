@@ -5552,3 +5552,95 @@
 {"ts": "2026-09-05T14:41:36.386567Z", "user": "demo-operator", "query": "/leads?limit=5", "result_ids": ["B1", "C12", "B11", "A1", "C2"]}
 {"ts": "2026-09-05T14:41:36.417148Z", "user": "demo-operator", "query": "/cross-case", "result_ids": ["LOC:Lakeview Chowk", "LOC:Eastgate", "LOC:Old Market Circle", "B1", "LOC:Riverside Colony", "LOC:Industrial Estate Road", "LOC:North Bypass", "LOC:New Colony", "LOC:Dockside Ward", "C1"]}
 {"ts": "2026-09-05T14:41:36.422683Z", "user": "demo-operator", "query": "/temporal", "result_ids": ["[2, 5]", "[4, 11]", "[5, 12]", "[11, 17]", "[17, 22]", "[21, 28]", "[28, 32]", "[32, 36]", "[36, 40]", "[49, 56]", "[53, 59]", "[69, 73]", "[71, 78]", "[73, 79]", "[78, 82]", "[79, 86]", "[82, 88]"]}
+{"ts": "2026-09-05T14:42:26.862171Z", "user": "demo-operator", "query": "POST /login ramesh345 (analyst)", "result_ids": ["ramesh345"]}
+{"ts": "2026-09-05T14:42:26.939898Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28", "ee3f2691"]}
+{"ts": "2026-09-05T14:42:26.947103Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28", "ee3f2691"]}
+{"ts": "2026-09-05T14:42:48.059969Z", "user": "demo-operator", "query": "POST /investigations 9fd56bbb", "result_ids": ["9fd56bbb"]}
+{"ts": "2026-09-05T14:43:31.255204Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:43:31.265761Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:43:32.536546Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:43:32.546649Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:53:17.156849Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:53:17.174771Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:53:24.102433Z", "user": "demo-operator", "query": "POST /login ramesh345 (analyst)", "result_ids": ["ramesh345"]}
+{"ts": "2026-09-05T14:53:24.110490Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:53:24.121484Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:53:28.885591Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:53:28.898590Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:53:48.488142Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:53:48.500409Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:53:55.233970Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:53:55.250442Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:53:55.770997Z", "user": "demo-operator", "query": "/temporal", "result_ids": ["[2, 5]", "[4, 11]", "[5, 12]", "[11, 17]", "[17, 22]", "[21, 28]", "[28, 32]", "[32, 36]", "[36, 40]", "[49, 56]", "[53, 59]", "[69, 73]", "[71, 78]", "[73, 79]", "[78, 82]", "[79, 86]", "[82, 88]"]}
+{"ts": "2026-09-05T14:53:55.783463Z", "user": "demo-operator", "query": "/temporal", "result_ids": ["[2, 5]", "[4, 11]", "[5, 12]", "[11, 17]", "[17, 22]", "[21, 28]", "[28, 32]", "[32, 36]", "[36, 40]", "[49, 56]", "[53, 59]", "[69, 73]", "[71, 78]", "[73, 79]", "[78, 82]", "[79, 86]", "[82, 88]"]}
+{"ts": "2026-09-05T14:55:30.295744Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:55:30.305331Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:55:38.885024Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:55:38.899925Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:55:39.783939Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:55:39.798187Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:55:40.583410Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:55:40.608930Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:55:41.817934Z", "user": "demo-operator", "query": "/temporal", "result_ids": ["[2, 5]", "[4, 11]", "[5, 12]", "[11, 17]", "[17, 22]", "[21, 28]", "[28, 32]", "[32, 36]", "[36, 40]", "[49, 56]", "[53, 59]", "[69, 73]", "[71, 78]", "[73, 79]", "[78, 82]", "[79, 86]", "[82, 88]"]}
+{"ts": "2026-09-05T14:55:41.829089Z", "user": "demo-operator", "query": "/temporal", "result_ids": ["[2, 5]", "[4, 11]", "[5, 12]", "[11, 17]", "[17, 22]", "[21, 28]", "[28, 32]", "[32, 36]", "[36, 40]", "[49, 56]", "[53, 59]", "[69, 73]", "[71, 78]", "[73, 79]", "[78, 82]", "[79, 86]", "[82, 88]"]}
+{"ts": "2026-09-05T14:55:59.758638Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:55:59.766882Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:56:01.370633Z", "user": "demo-operator", "query": "/temporal", "result_ids": ["[2, 5]", "[4, 11]", "[5, 12]", "[11, 17]", "[17, 22]", "[21, 28]", "[28, 32]", "[32, 36]", "[36, 40]", "[49, 56]", "[53, 59]", "[69, 73]", "[71, 78]", "[73, 79]", "[78, 82]", "[79, 86]", "[82, 88]"]}
+{"ts": "2026-09-05T14:56:01.406708Z", "user": "demo-operator", "query": "/temporal", "result_ids": ["[2, 5]", "[4, 11]", "[5, 12]", "[11, 17]", "[17, 22]", "[21, 28]", "[28, 32]", "[32, 36]", "[36, 40]", "[49, 56]", "[53, 59]", "[69, 73]", "[71, 78]", "[73, 79]", "[78, 82]", "[79, 86]", "[82, 88]"]}
+{"ts": "2026-09-05T14:56:01.443344Z", "user": "demo-operator", "query": "/leads?limit=20", "result_ids": ["C12", "B1", "B11", "C2", "A1", "B2", "A2", "B4", "C1", "C4"]}
+{"ts": "2026-09-05T14:56:01.493691Z", "user": "demo-operator", "query": "/leads?limit=20", "result_ids": ["C12", "B1", "B11", "C2", "A1", "B2", "A2", "B4", "C1", "C4"]}
+{"ts": "2026-09-05T14:56:02.931846Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:56:02.941798Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:57:59.481908Z", "user": "demo-operator", "query": "POST /login ramesh345 (analyst)", "result_ids": ["ramesh345"]}
+{"ts": "2026-09-05T14:57:59.512070Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:57:59.520931Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:58:10.446732Z", "user": "demo-operator", "query": "/temporal", "result_ids": ["[2, 5]", "[4, 11]", "[5, 12]", "[11, 17]", "[17, 22]", "[21, 28]", "[28, 32]", "[32, 36]", "[36, 40]", "[49, 56]", "[53, 59]", "[69, 73]", "[71, 78]", "[73, 79]", "[78, 82]", "[79, 86]", "[82, 88]"]}
+{"ts": "2026-09-05T14:58:10.462289Z", "user": "demo-operator", "query": "/temporal", "result_ids": ["[2, 5]", "[4, 11]", "[5, 12]", "[11, 17]", "[17, 22]", "[21, 28]", "[28, 32]", "[32, 36]", "[36, 40]", "[49, 56]", "[53, 59]", "[69, 73]", "[71, 78]", "[73, 79]", "[78, 82]", "[79, 86]", "[82, 88]"]}
+{"ts": "2026-09-05T14:58:11.216709Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:58:11.230199Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:58:12.750962Z", "user": "demo-operator", "query": "GET /investigations", "result_ids": ["9fd56bbb", "7e1ef45d", "2ab7001c", "758b2f7b", "2fda5c28"]}
+{"ts": "2026-09-05T14:59:49.709045Z", "user": "demo-operator", "query": "POST /login admin (supervisor)", "result_ids": ["admin"]}
+{"ts": "2026-09-05T14:59:49.711091Z", "user": "demo-operator", "query": "POST /investigations 995547d0", "result_ids": ["995547d0"]}
+{"ts": "2026-09-05T14:59:49.783049Z", "user": "demo-operator", "query": "POST /investigations/995547d0/process", "result_ids": [356]}
+{"ts": "2026-09-05T15:00:41.552387Z", "user": "demo-operator", "query": "POST /login admin (supervisor)", "result_ids": ["admin"]}
+{"ts": "2026-09-05T15:00:41.864196Z", "user": "demo-operator", "query": "/graph?day=58", "result_ids": ["A1", "PHONE_7000000001", "ACCT_AC0009000001", "A2", "PHONE_7000000002", "ACCT_AC0009000002", "A3", "PHONE_7000000003", "ACCT_AC0009000003", "A4", "PHONE_7000000004", "ACCT_AC0009000004", "A5", "PHONE_7000000005", "ACCT_AC0009000005", "A6", "PHONE_7000000006", "ACCT_AC0009000006", "A13", "PHONE_7000000007"]}
+{"ts": "2026-09-05T15:00:41.913284Z", "user": "demo-operator", "query": "/bridges", "result_ids": ["B1", "C12", "B11", "C2", "X3", "X4"]}
+{"ts": "2026-09-05T15:00:41.919519Z", "user": "demo-operator", "query": "/bursts", "result_ids": ["A:2", "A:17", "A:21", "A:32", "A:49", "A:53", "A:56", "A:57", "A:69", "A:71", "A:82", "A:86", "B:4", "B:5", "B:12", "B:22", "B:36", "B:55", "B:56", "B:70", "B:73", "B:79", "B:88", "C:4", "C:11", "C:28", "C:40", "C:58", "C:59", "C:78"]}
+{"ts": "2026-09-05T15:00:42.197533Z", "user": "demo-operator", "query": "/why/X1", "result_ids": ["X1", "TXN00157", "people_directory", "people_directory", "CDR00351", "CDR00352", "CDR00353", "CDR00354", "CDR00355", "CDR00356", "CDR00357", "CDR00358", "CDR00535"]}
+{"ts": "2026-09-05T15:00:42.205222Z", "user": "demo-operator", "query": "/ask?q=Who connects Cell A and Cell B", "result_ids": [1]}
+{"ts": "2026-09-05T15:00:42.206727Z", "user": "demo-operator", "query": "/ask?q=blabla unknown gibberish (unknown)", "result_ids": []}
+{"ts": "2026-09-05T15:00:42.208544Z", "user": "demo-operator", "query": "POST /investigations 417dbf32", "result_ids": ["417dbf32"]}
+{"ts": "2026-09-05T15:00:42.257597Z", "user": "demo-operator", "query": "POST /investigations/417dbf32/process", "result_ids": [356]}
+{"ts": "2026-09-05T15:00:42.262355Z", "user": "demo-operator", "query": "/investigations/417dbf32/whatif?remove_id=X1", "result_ids": ["X1"]}
+{"ts": "2026-09-05T15:00:42.264413Z", "user": "demo-operator", "query": "POST /investigations 69a23f13", "result_ids": ["69a23f13"]}
+{"ts": "2026-09-05T15:00:42.312894Z", "user": "demo-operator", "query": "POST /investigations/69a23f13/process", "result_ids": [356]}
+{"ts": "2026-09-05T15:00:42.317856Z", "user": "demo-operator", "query": "POST /investigations 61c975d2", "result_ids": ["61c975d2"]}
+{"ts": "2026-09-05T15:00:42.374009Z", "user": "demo-operator", "query": "POST /investigations/61c975d2/process", "result_ids": [356]}
+{"ts": "2026-09-05T15:00:42.375803Z", "user": "demo-operator", "query": "POST /login analyst (analyst)", "result_ids": ["analyst"]}
+{"ts": "2026-09-05T15:00:42.377494Z", "user": "demo-operator", "query": "POST /login investigator (investigator)", "result_ids": ["investigator"]}
+{"ts": "2026-09-05T15:00:42.381405Z", "user": "demo-operator", "query": "/investigations/61c975d2/whatif?remove_id=X1", "result_ids": ["X1"]}
+{"ts": "2026-09-05T15:00:42.382982Z", "user": "demo-operator", "query": "POST /login admin (supervisor)", "result_ids": ["admin"]}
+{"ts": "2026-09-05T15:00:42.383869Z", "user": "demo-operator", "query": "POST /login analyst (analyst)", "result_ids": ["analyst"]}
+{"ts": "2026-09-05T15:00:42.384638Z", "user": "demo-operator", "query": "POST /login investigator (investigator)", "result_ids": ["investigator"]}
+{"ts": "2026-09-05T15:00:42.385661Z", "user": "demo-operator", "query": "POST /login failed for 'admin'", "result_ids": []}
+{"ts": "2026-09-05T15:00:42.386693Z", "user": "demo-operator", "query": "POST /login failed for 'mallory'", "result_ids": []}
+{"ts": "2026-09-05T15:00:42.438108Z", "user": "demo-operator", "query": "/graph?day=58", "result_ids": ["A1", "PHONE_7000000001", "ACCT_AC0009000001", "A2", "PHONE_7000000002", "ACCT_AC0009000002", "A3", "PHONE_7000000003", "ACCT_AC0009000003", "A4", "PHONE_7000000004", "ACCT_AC0009000004", "A5", "PHONE_7000000005", "ACCT_AC0009000005", "A6", "PHONE_7000000006", "ACCT_AC0009000006", "A13", "PHONE_7000000007"]}
+{"ts": "2026-09-05T15:00:42.442688Z", "user": "demo-operator", "query": "/ask?q=Why was X1 flagged", "result_ids": [3]}
+{"ts": "2026-09-05T15:00:42.479129Z", "user": "demo-operator", "query": "/graph?day=58", "result_ids": ["A1", "PHONE_7000000001", "ACCT_AC0009000001", "A2", "PHONE_7000000002", "ACCT_AC0009000002", "A3", "PHONE_7000000003", "ACCT_AC0009000003", "A4", "PHONE_7000000004", "ACCT_AC0009000004", "A5", "PHONE_7000000005", "ACCT_AC0009000005", "A6", "PHONE_7000000006", "ACCT_AC0009000006", "A13", "PHONE_7000000007"]}
+{"ts": "2026-09-05T15:00:42.485832Z", "user": "demo-operator", "query": "/bursts", "result_ids": ["A:2", "A:17", "A:21", "A:32", "A:49", "A:53", "A:56", "A:57", "A:69", "A:71", "A:82", "A:86", "B:4", "B:5", "B:12", "B:22", "B:36", "B:55", "B:56", "B:70", "B:73", "B:79", "B:88", "C:4", "C:11", "C:28", "C:40", "C:58", "C:59", "C:78"]}
+{"ts": "2026-09-05T15:00:42.587329Z", "user": "demo-operator", "query": "/leads?limit=20", "result_ids": ["B1", "C12", "B11", "A1", "C2", "C1", "A2", "B2", "C11", "C4"]}
+{"ts": "2026-09-05T15:00:42.591900Z", "user": "demo-operator", "query": "POST /register judge_ddb1886b (investigator)", "result_ids": ["judge_ddb1886b"]}
+{"ts": "2026-09-05T15:00:42.628211Z", "user": "demo-operator", "query": "/graph?day=58", "result_ids": ["A1", "PHONE_7000000001", "ACCT_AC0009000001", "A2", "PHONE_7000000002", "ACCT_AC0009000002", "A3", "PHONE_7000000003", "ACCT_AC0009000003", "A4", "PHONE_7000000004", "ACCT_AC0009000004", "A5", "PHONE_7000000005", "ACCT_AC0009000005", "A6", "PHONE_7000000006", "ACCT_AC0009000006", "A13", "PHONE_7000000007"]}
+{"ts": "2026-09-05T15:00:42.633854Z", "user": "demo-operator", "query": "POST /register analyst_ce829f19 (analyst)", "result_ids": ["analyst_ce829f19"]}
+{"ts": "2026-09-05T15:00:42.635356Z", "user": "demo-operator", "query": "POST /register judge_924b3daa (investigator)", "result_ids": ["judge_924b3daa"]}
+{"ts": "2026-09-05T15:00:42.640288Z", "user": "demo-operator", "query": "POST /investigations 3f64a057", "result_ids": ["3f64a057"]}
+{"ts": "2026-09-05T15:00:42.644286Z", "user": "demo-operator", "query": "DELETE /investigations/3f64a057 by admin", "result_ids": ["3f64a057"]}
+{"ts": "2026-09-05T15:00:42.646130Z", "user": "demo-operator", "query": "POST /investigations 751cf82b", "result_ids": ["751cf82b"]}
+{"ts": "2026-09-05T15:00:42.648579Z", "user": "demo-operator", "query": "DELETE /investigations/751cf82b by admin", "result_ids": ["751cf82b"]}
+{"ts": "2026-09-05T15:00:42.649821Z", "user": "demo-operator", "query": "POST /investigations 402986e9", "result_ids": ["402986e9"]}
+{"ts": "2026-09-05T15:00:42.652255Z", "user": "demo-operator", "query": "DELETE /investigations/402986e9 by admin", "result_ids": ["402986e9"]}
+{"ts": "2026-09-05T15:00:42.653829Z", "user": "demo-operator", "query": "POST /investigations 4ef0569c", "result_ids": ["4ef0569c"]}
+{"ts": "2026-09-05T15:00:42.655381Z", "user": "demo-operator", "query": "DELETE /investigations/4ef0569c by admin", "result_ids": ["4ef0569c"]}
+{"ts": "2026-09-05T15:00:43.579792Z", "user": "demo-operator", "query": "/leads?limit=5", "result_ids": ["B1", "C12", "B11", "A1", "C2"]}
+{"ts": "2026-09-05T15:00:43.608876Z", "user": "demo-operator", "query": "/cross-case", "result_ids": ["LOC:Lakeview Chowk", "LOC:Eastgate", "LOC:Old Market Circle", "LOC:Riverside Colony", "B1", "LOC:Industrial Estate Road", "LOC:North Bypass", "LOC:New Colony", "LOC:Dockside Ward", "C1"]}
+{"ts": "2026-09-05T15:00:43.614313Z", "user": "demo-operator", "query": "/temporal", "result_ids": ["[2, 5]", "[4, 11]", "[5, 12]", "[11, 17]", "[17, 22]", "[21, 28]", "[28, 32]", "[32, 36]", "[36, 40]", "[49, 56]", "[53, 59]", "[69, 73]", "[71, 78]", "[73, 79]", "[78, 82]", "[79, 86]", "[82, 88]"]}

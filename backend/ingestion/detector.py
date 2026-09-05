@@ -20,7 +20,6 @@ TYPE_KEYWORDS = {
     "criminal_history": ["criminal", "history", "offence", "gang", "alias", "dob"],
     "intelligence_reports": ["intelligence", "source_reliability", "informant"],
     "surveillance_reports": ["surveillance", "team", "activity_notes", "vehicle"],
-    "people_directory": ["person_id", "name", "phone", "account", "directory", "person"],
 }
 
 def detect_format(file_path: Path) -> str:

@@ -397,9 +397,8 @@ def inv_process(iid: str, user: dict = Depends(get_current_user)):
                 rows = data if isinstance(data, list) else [data]
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"Failed to read {f['original']}: {e}")
-        # apply mapping to valid row dicts only
-        valid_rows = [r for r in rows if isinstance(r, dict)]
-        mapped = apply_mapping(valid_rows, mapping)
+        # apply mapping
+        mapped = apply_mapping(rows, mapping)
         # normalize per type
         normed = normalize_generic(mapped, det["detected_type"])
         # quarantine missing required
@@ -409,20 +408,14 @@ def inv_process(iid: str, user: dict = Depends(get_current_user)):
                 quarantine.append({"row_no": 0, "source_file": f["original"], "reason": f"Missing mapped field {m}", "confidence": 0.0})
         # merge into inv_datasets
         key = det["detected_type"]
-        if key == "people_directory":
-            if isinstance(normed, dict) and "network_people" in normed:
-                inv_datasets["people_directory"]["network_people"].extend(normed["network_people"])
-            elif isinstance(normed, list):
-                inv_datasets["people_directory"]["network_people"].extend(normed)
-        elif key in inv_datasets:
-            if isinstance(inv_datasets[key], list) and isinstance(normed, list):
+        if key in inv_datasets:
+            if isinstance(inv_datasets[key], list):
                 inv_datasets[key].extend(normed)
-            elif isinstance(normed, list):
+            else:
                 inv_datasets[key] = normed
-        elif key == "unknown":
-            # If tabular dict rows, treat unknown as firs-like text evidence
-            if isinstance(normed, list):
-                inv_datasets["firs"].extend([r for r in normed if isinstance(r, dict)])
+        else:
+            # unknown type → treat as firs-like
+            inv_datasets["firs"].extend(normed)
     # Ensure people_directory exists — if not uploaded, reuse default synthetic for demo (fast path)
     if not inv_datasets["people_directory"].get("network_people"):
         import json as js
