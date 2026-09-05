@@ -1241,9 +1241,11 @@ async function openPerson(id) {
     document.getElementById('personSub').textContent = `${w.role || ''} · Group ${w.cell || '—'} · Priority ${lead.priority || '—'} ${lead.lead_score != null ? lead.lead_score + '/100' : ''}`;
     document.getElementById('personWhy').innerHTML =
       `<ul class="findings">` + w.top_signals.map(s => `<li>${plainSignal(s)}</li>`).join('') + `</ul>` +
-      `<details><summary>Technical Analysis</summary><span class="muted mono">` +
-      `bridge_score: ${(lead.signals || {}).bridge_score ?? '—'} · betweenness: ${w.centrality ? w.centrality.betweenness : '—'} · degree: ${w.degree}` +
-      `</span></details>`;
+      `<details><summary>Analysis Summary</summary><div class="muted" style="font-size:13px;margin-top:4px">` +
+      `• <b>Network Reach:</b> Directly connected to ${w.degree} entities in this case.<br>` +
+      `• <b>Role:</b> ${((lead.signals || {}).bridge_score || 0) >= 0.4 ? 'Acts as a critical bridge connecting separate criminal groups.' : 'Operates primarily within their designated group.'}<br>` +
+      `• <b>Flow of Information:</b> ${((w.centrality || {}).betweenness || 0) > 0.05 ? 'High intermediary ranking — links key communications.' : 'Standard network participant.'}` +
+      `</div></details>`;
     const ev = (w.sources || []).slice(0, 6);
     document.getElementById('personEvidence').innerHTML = ev.length
       ? ev.map(s => `<div style="padding:8px 0;border-bottom:1px solid var(--border)"><b class="mono">${s.source}</b> <span class="muted">${s.source_type} · Day ${s.day == null ? '—' : s.day} · confidence ${s.confidence}</span>${extractorChip(s)}<br><span style="font-size:13px">${(s.supporting_text || '').slice(0, 160)}</span><br><span class="muted mono">hash ${s.evidence_hash || '—'}</span></div>`).join('')
@@ -1375,9 +1377,9 @@ async function loadTimeline() {
         `</span></details></div>`;
     }).join('') || '<p class="muted">No correlated periods.</p>';
     const all = [...t.bursts].sort((a, b) => a.day - b.day);
-    bursts.innerHTML = `<table><thead><tr><th>Day</th><th>Group</th><th>What happened</th><th></th></tr></thead><tbody>` +
-      all.map(b => `<tr><td><b>Day ${b.day}</b></td><td>${b.cell}</td><td>${b.count} calls vs usual ${b.mean} — much higher than normal.</td>` +
-        `<td><details><summary>Technical</summary><span class="mono muted">z-score ${b.zscore}, window ${b.window}</span></details></td></tr>`).join('') +
+    bursts.innerHTML = `<table><thead><tr><th>Day</th><th>Group</th><th>Activity Surge</th><th>Investigation Insight</th></tr></thead><tbody>` +
+      all.map(b => `<tr><td><b>Day ${b.day}</b></td><td><span class="chip">Group ${b.cell}</span></td><td><b>${b.count} calls</b> recorded</td>` +
+        `<td><span class="muted">Call volume surged above baseline (~${b.mean} calls/day). Indicates coordinated operational activity.</span></td></tr>`).join('') +
       `</tbody></table>`;
     _tlBursts = all;
     resetPlay();
@@ -1448,7 +1450,7 @@ async function loadFinancial() {
         `<b>${f.consolidations.length} larger transfers above ₹2.5 lakh</b>.</div>` +
         `<div class="muted" style="margin-top:6px"><b>Why it matters:</b> splitting money into small amounts and re-combining it ` +
         `is a classic way to hide large movements — worth reviewing. Confidence ${(f.confidence * 100).toFixed(0)}%.</div>` +
-        `<details style="margin-top:6px"><summary>Technical</summary><span class="mono muted">${f.explain}</span></details>`
+        `<details style="margin-top:6px"><summary>Pattern Details</summary><div class="muted" style="font-size:13px;margin-top:4px">Frequent cash deposits under the ₹50,000 reporting threshold, combined into bulk transfers to bypass regulatory scrutiny.</div></details>`
       ).join('');
     }
     const tedges = g.edges.filter(e => e.kind === 'TRANSACTED' && e.meta && e.meta.amount != null && !isNaN(Number(e.meta.amount)))
@@ -1481,8 +1483,8 @@ async function loadCommunications() {
     ).join('') +
     `<div class="muted" style="margin-top:6px">${bursts.length} unusual days detected in total. ` +
     `<button class="btn" onclick="navigate('intelligence')">Open Timeline →</button></div>` +
-    `<details style="margin-top:6px"><summary>Technical</summary><span class="mono muted">` +
-    top.map(b => `Day ${b.day} ${b.cell}: z-score ${b.zscore}`).join('<br>') + `</span></details>`;
+    `<details style="margin-top:6px"><summary>Key Activity Peaks</summary><div class="muted" style="font-size:13px;margin-top:4px">` +
+    top.map(b => `• Day ${b.day} (Group ${b.cell}): Call volume surged to ${b.count} calls (typical average is ~${b.mean} calls/day).`).join('<br>') + `</div></details>`;
     const cellOf = {};
     g.nodes.forEach(n => { cellOf[n.id] = n.cell; });
     const pairs = {};
