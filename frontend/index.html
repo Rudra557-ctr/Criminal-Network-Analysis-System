@@ -557,21 +557,6 @@ function logout(silent) {
   if (!silent) location.hash = 'login';
   navigate('login');
 }
-function getEntityDisplayName(id, graph, includeId = true) {
-  if (!id) return '—';
-  const g = graph || _ovGraph || _personGraph;
-  if (g && g.nodes) {
-    const n = g.nodes.find(x => x.id === id);
-    if (n) {
-      const name = n.label || n.name;
-      if (name && name !== id) {
-        return includeId ? `${name} (${id})` : name;
-      }
-    }
-  }
-  return id;
-}
-
 function updateNav() {
   const session = getSession();
   if (!session) { return null; }
@@ -1149,14 +1134,7 @@ function renderMainGraph3D() {
   _ovGraph3D = ForceGraph3D()(container)
     .graphData(data)
     .nodeColor('color')
-    .nodeLabel(n => getEntityDisplayName(n.id, _ovGraph, true))
-    .linkLabel(l => {
-      const srcId = l.source?.id || l.source;
-      const dstId = l.target?.id || l.target;
-      const srcName = getEntityDisplayName(srcId, _ovGraph, true);
-      const dstName = getEntityDisplayName(dstId, _ovGraph, true);
-      return `${srcName} ➔ ${dstName} (${l.name || 'LINK'})`;
-    })
+    .nodeLabel(n => `${n.name} (${n.id})`)
     .nodeRelSize(4)
     .linkColor(l => l.__bridge ? '#FFC53D' : l.color)
     .linkWidth(l => l.__bridge ? 2 : 1)
@@ -1171,10 +1149,9 @@ function renderMainGraph3D() {
 function ovNodeClick(node) {
   const pop = document.getElementById('ovPopover');
   const isBridge = OV_BRIDGES.has(node.id);
-  const displayName = getEntityDisplayName(node.id, _ovGraph, true);
   pop.innerHTML =
     `<div style="display:flex;justify-content:space-between;align-items:center">` +
-    `<b style="font-size:16px">${displayName}</b><button class="btn" onclick="closeOvPopover()">✕</button></div>` +
+    `<b>${node.name || node.id}</b><button class="btn" onclick="closeOvPopover()">✕</button></div>` +
     `<div class="muted mono">${node.id} · ${node.kind || ''}</div>` +
     `<div style="margin:6px 0;font-size:13px">` +
     (node.cell ? `Cell group: <b>${node.cell}</b><br>` : '') +
@@ -1319,7 +1296,8 @@ function drawPerson() {
     nodes: ids.map(id => {
       let node = _personGraph.nodes.find(n => n.id === id) || {id: id, cell: 'Unknown'};
       let color = id === _personId ? '#FFC53D' : (node.cell === 'A' ? '#4C9AFF' : node.cell === 'B' ? '#AB68FF' : node.cell === 'C' ? '#FF7A45' : '#94A3B8');
-      return { id: id, name: node.label || id, color: color, val: id === _personId ? 25 : 10 };
+      const pName = (node.label && node.label !== id) ? `${node.label} (${id})` : (node.label || id);
+      return { id: id, name: pName, color: color, val: id === _personId ? 25 : 10 };
     }),
     links: shown.map(e => ({ source: e.src, target: e.dst, name: e.kind, color: 'rgba(255,255,255,0.3)' }))
   };
@@ -1330,14 +1308,7 @@ function drawPerson() {
   const Graph = ForceGraph3D()(container)
     .graphData(gData)
     .nodeColor('color')
-    .nodeLabel(n => getEntityDisplayName(n.id, _personGraph, true))
-    .linkLabel(l => {
-      const srcId = l.source?.id || l.source;
-      const dstId = l.target?.id || l.target;
-      const srcName = getEntityDisplayName(srcId, _personGraph, true);
-      const dstName = getEntityDisplayName(dstId, _personGraph, true);
-      return `${srcName} ➔ ${dstName} (${l.name || 'LINK'})`;
-    })
+    .nodeLabel('name')
     .nodeRelSize(4)
     .linkColor('color')
     .linkDirectionalParticles(2)
@@ -1349,13 +1320,16 @@ function drawPerson() {
   setTimeout(() => {
     Graph.width(container.clientWidth).height(container.clientHeight);
   }, 100);
-  const rel = edges.filter(e => e.src === _personId || e.dst === _personId).slice(0, 12);
+  const rel = edges.filter(e => e.src === _personId || e.dst === _personId).slice(0, 20);
   document.getElementById('personConns').innerHTML = rel.length
-    ? `<table><thead><tr><th>Connection</th><th>Relation</th><th>Source</th></tr></thead><tbody>` +
+    ? `<table><thead><tr><th>Connected Person</th><th>Relationship</th><th>Source Record</th></tr></thead><tbody>` +
       rel.map(e => {
         const other = e.src === _personId ? e.dst : e.src;
-        const otherName = getEntityDisplayName(other, _personGraph, true);
-        return `<tr><td><button class="btn" onclick="openPerson('${other}')">${otherName}</button></td><td>${e.kind}</td><td class="mono">${e.source || '—'}</td></tr>`;
+        const nodeObj = _personGraph && _personGraph.nodes ? _personGraph.nodes.find(n => n.id === other) : null;
+        const displayName = (nodeObj && (nodeObj.label || nodeObj.name) && (nodeObj.label || nodeObj.name) !== other)
+          ? `${nodeObj.label || nodeObj.name} (${other})`
+          : (nodeObj?.label || other);
+        return `<tr><td><button class="btn" onclick="openPerson('${other}')">👤 ${displayName}</button></td><td><span class="chip">${e.kind}</span></td><td class="mono">${e.source || '—'}</td></tr>`;
       }).join('') + `</tbody></table>`
     : '<p class="muted">No direct relationships in the current graph.</p>';
 }
@@ -1380,7 +1354,7 @@ async function loadTimeline() {
       return `<div style="padding:10px 0;border-bottom:1px solid var(--border)">` +
         `<b>Days ${g.days.join(', ')}</b> — Unusual activity across groups ${g.cells.join(', ')}.<br>` +
         `<span class="muted">Calls were much higher than normal in the same week — worth comparing these groups.</span><br>` +
-        (people.length ? `<span class="muted">Related people: </span>` + people.map(id => `<button class="btn" onclick="openPerson('${id}')">${getEntityDisplayName(id, null, true)}</button>`).join(' ') : '') +
+        (people.length ? `<span class="muted">Related people: </span>` + people.map(id => `<button class="btn" onclick="openPerson('${id}')">${id}</button>`).join(' ') : '') +
         `<details><summary>Evidence</summary><span class="muted">` +
         g.supporting_bursts.map(b => `Day ${b.day} group ${b.cell}: ${b.count} calls (usual ${b.mean})`).join('<br>') +
         `<br><span class="mono">hash ${g.evidence_hash}</span></span></details></div>`;
@@ -1454,7 +1428,7 @@ async function loadFinancial() {
       story.innerHTML = '<p class="muted">No structuring pattern detected in the current data.</p>';
     } else {
       story.innerHTML = flags.map(f =>
-        `<div><b>${getEntityDisplayName(f.receiver, g, true)}</b> received <b>${f.cash_small_count} small cash payments below ₹50,000</b> ` +
+        `<div><b>${f.receiver}</b> received <b>${f.cash_small_count} small cash payments below ₹50,000</b> ` +
         `between days ${f.window[0]}–${f.window[1]}. The money was then combined into ` +
         `<b>${f.consolidations.length} larger transfers above ₹2.5 lakh</b>.</div>` +
         `<div class="muted" style="margin-top:6px"><b>Why it matters:</b> splitting money into small amounts and re-combining it ` +
@@ -1466,8 +1440,8 @@ async function loadFinancial() {
       .sort((a, b) => Number(b.meta.amount) - Number(a.meta.amount)).slice(0, 12);
     txns.innerHTML = `<table><thead><tr><th>Record</th><th>From → To</th><th>Amount</th><th>Day</th><th></th></tr></thead><tbody>` +
       tedges.map((e, i) =>
-        `<tr><td class="mono">${e.source || '—'}</td><td><button class="btn" onclick="openPerson('${e.src}')">${getEntityDisplayName(e.src, g, true)}</button> → ` +
-        `<button class="btn" onclick="openPerson('${e.dst}')">${getEntityDisplayName(e.dst, g, true)}</button></td>` +
+        `<tr><td class="mono">${e.source || '—'}</td><td><button class="btn" onclick="openPerson('${e.src}')">${e.src}</button> → ` +
+        `<button class="btn" onclick="openPerson('${e.dst}')">${e.dst}</button></td>` +
         `<td>₹${Number(e.meta.amount).toLocaleString('en-IN')}</td><td>Day ${e.day == null ? '—' : e.day}</td>` +
         `<td><button class="btn" onclick="document.getElementById('finEv${i}').style.display=document.getElementById('finEv${i}').style.display==='none'?'block':'none'">Evidence</button></td></tr>` +
         `<tr id="finEv${i}" style="display:none"><td colspan="5"><span class="muted">${(e.supporting_text || '').slice(0, 160)}</span><br>` +
@@ -1511,10 +1485,8 @@ async function loadCommunications() {
       ranked.map((p, i) => {
         const cross = cellOf[p.a] && cellOf[p.b] && cellOf[p.a] !== cellOf[p.b]
           && !['Phone', 'Account', 'Noise'].includes(cellOf[p.a]) && !['Phone', 'Account', 'Noise'].includes(cellOf[p.b]);
-        const aName = getEntityDisplayName(p.a, g, true);
-        const bName = getEntityDisplayName(p.b, g, true);
-        return `<tr><td><button class="btn" onclick="openPerson('${p.a}')">${aName}</button> ↔ ` +
-          `<button class="btn" onclick="openPerson('${p.b}')">${bName}</button>` +
+        return `<tr><td><button class="btn" onclick="openPerson('${p.a}')">${p.a}</button> ↔ ` +
+          `<button class="btn" onclick="openPerson('${p.b}')">${p.b}</button>` +
           (cross ? ` <span class="pill pill-Bridge">cross-group</span>` : '') + `</td>` +
           `<td>${p.count}</td><td>${Math.round(p.dur / 60)} min</td>` +
           `<td><button class="btn" onclick="document.getElementById('commEv${i}').style.display=document.getElementById('commEv${i}').style.display==='none'?'block':'none'">Evidence</button></td></tr>` +
