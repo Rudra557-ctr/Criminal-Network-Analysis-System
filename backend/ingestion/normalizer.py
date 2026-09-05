@@ -89,12 +89,29 @@ def normalize_firs(rows: List[Dict]) -> List[Dict]:
         })
     return out
 
-def normalize_generic(rows: List[Dict], dtype: str) -> List[Dict]:
+def normalize_people_directory(rows: List[Dict]) -> Dict:
+    people = []
+    for i, r in enumerate(rows):
+        if not isinstance(r, dict):
+            continue
+        pid = r.get("person_id") or r.get("id") or f"P{i+1:02d}"
+        people.append({
+            "id": str(pid),
+            "name": str(r.get("name") or r.get("caller_name") or f"Person {pid}"),
+            "phone": str(r.get("phone") or r.get("caller_phone") or ""),
+            "account": str(r.get("account") or r.get("receiver_account") or ""),
+            "location": str(r.get("location") or r.get("cell_tower_location") or "")
+        })
+    return {"network_people": people, "noise_people": []}
+
+def normalize_generic(rows: List[Dict], dtype: str):
     if dtype == "cdrs":
         return normalize_cdrs(rows)
     if dtype == "transactions":
         return normalize_transactions(rows)
     if dtype == "firs":
         return normalize_firs(rows)
+    if dtype == "people_directory":
+        return normalize_people_directory(rows)
     # fallback: return as-is
     return rows
