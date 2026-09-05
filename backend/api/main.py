@@ -124,12 +124,6 @@ def create_inv(payload: InvestigationCreate, user: dict = Depends(get_current_us
 @app.get("/investigations")
 def list_inv(user: dict = Depends(get_current_user)):
     invs = list_investigations()
-    # ensure 3 demo cases appear as virtual if none exist (fast path for judges)
-    if len(invs) == 0:
-        # auto-create 3 demo investigations pointing to synthetic variants (no case-specific logic)
-        for idx, title in enumerate(["Demo Case 01 — Drug Network", "Demo Case 02 — Arms Network", "Demo Case 03 — Evaluation (held-out)"], start=1):
-            m = create_investigation(title, f"Demonstration dataset {idx} — same pipeline, different sample")
-            invs.append(m)
     audit_log("GET /investigations", [x["id"] for x in invs[:5]])
     return {"investigations": invs}
 
