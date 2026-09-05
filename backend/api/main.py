@@ -139,8 +139,8 @@ def get_inv(iid: str, user: dict = Depends(get_current_user)):
 
 
 @app.delete("/investigations/{iid}")
-def delete_inv(iid: str, user: dict = Depends(REQUIRE_SUPERVISOR)):
-    """Delete an investigation: filesystem data + Neo4j graph nodes. Supervisor only."""
+def delete_inv(iid: str, user: dict = Depends(get_current_user)):
+    """Delete an investigation: filesystem data + Neo4j graph nodes. Allowed for all roles."""
     from backend.ingestion.store import delete_investigation
     from backend.graph.neo4j_client import delete_investigation_graph
 

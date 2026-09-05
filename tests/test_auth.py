@@ -139,12 +139,11 @@ def test_delete_requires_auth():
     assert client.delete(f"/investigations/{iid}", headers=auth_headers("supervisor")).status_code == 200
 
 
-def test_delete_forbidden_for_non_supervisors():
-    for role in ("analyst", "investigator"):
+def test_delete_allowed_for_all_roles():
+    for role in ("analyst", "investigator", "supervisor"):
         iid = _make_investigation(auth_headers("supervisor"))
         r = client.delete(f"/investigations/{iid}", headers=auth_headers(role))
-        assert r.status_code == 403, (role, r.text)
-        assert client.delete(f"/investigations/{iid}", headers=auth_headers("supervisor")).status_code == 200
+        assert r.status_code == 200, (role, r.text)
 
 
 def test_delete_removes_filesystem_and_is_idempotent_404():
