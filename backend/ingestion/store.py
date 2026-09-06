@@ -17,8 +17,28 @@ from typing import Dict, List
 ROOT = Path(__file__).resolve().parent.parent.parent / "data" / "investigations"
 ROOT.mkdir(parents=True, exist_ok=True)
 
+MAX_STORED_INVESTIGATIONS = 8
+
 def _id() -> str:
     return uuid.uuid4().hex[:8]
+
+def prune_old_investigations(max_keep: int = MAX_STORED_INVESTIGATIONS):
+    """
+    Keeps only the most recent `max_keep` investigations (5-10 range, default 8),
+    automatically deleting older investigation folders from disk.
+    """
+    invs = []
+    for p in ROOT.iterdir():
+        if p.is_dir() and (p / "meta.json").exists():
+            try:
+                meta = json.loads((p / "meta.json").read_text())
+                invs.append((meta.get("created", ""), p.name))
+            except Exception:
+                pass
+    invs.sort(key=lambda x: x[0], reverse=True)
+    if len(invs) > max_keep:
+        for created, iid in invs[max_keep:]:
+            delete_investigation(iid)
 
 def create_investigation(name: str, description: str = "") -> Dict:
     iid = _id()
@@ -37,19 +57,21 @@ def create_investigation(name: str, description: str = "") -> Dict:
     (ROOT / iid / "mapped").mkdir(exist_ok=True)
     (ROOT / iid / "output").mkdir(exist_ok=True)
     save_meta(iid, meta)
+    prune_old_investigations(MAX_STORED_INVESTIGATIONS)
     return meta
 
 def list_investigations() -> List[Dict]:
+    prune_old_investigations(MAX_STORED_INVESTIGATIONS)
     out=[]
     for p in ROOT.iterdir():
         if p.is_dir() and (p / "meta.json").exists():
             try:
                 out.append(json.loads((p / "meta.json").read_text()))
-            except:
+            except Exception:
                 pass
-    # also include default synthetic as virtual investigation
+    # Sort descending by created timestamp and return only up to MAX_STORED_INVESTIGATIONS
     out.sort(key=lambda x: x.get("created",""), reverse=True)
-    return out
+    return out[:MAX_STORED_INVESTIGATIONS]
 
 def get_meta(iid: str) -> Dict:
     p = ROOT / iid / "meta.json"

@@ -116,22 +116,59 @@ flowchart TD
 
 ---
 
+### Pillar 4: Proactive Case Recommendation Engine & "Explain This Connection" AI Feature
+
+#### A. "Explain This Connection" AI Engine (`backend/analytics/connection_explainer.py`)
+* **Multi-Modal Evidence Correlator**: When any connection line or relationship is queried:
+  * **📞 Telephony Logs**: Total calls, total airtime duration, directional counts, day/night patterns, frequent cell towers, and call bursts.
+  * **💳 Financial Flows**: Total money transferred, transaction frequencies, structured micro-transactions, and lump sums.
+  * **📄 Police FIRs & Cases**: Shared FIR records, co-accused status, IPC sections, and jurisdiction stations.
+  * **👁️ Surveillance & Intel**: Field co-observations, meeting spots, and intelligence mentions.
+  * **🤝 Mutual Associates**: Common network contacts linking the pair in the criminal hierarchy.
+* **Plain-English Story Synthesizer**: Generates a natural, human-readable narrative synopsis (*"Person A called Person B 47 times and transferred ₹4,50,000, and both are co-accused in FIR #2024-113"*).
+* **New Endpoints**:
+  * `GET /connections/explain?src={src}&dst={dst}`: Global multi-modal connection analysis.
+  * `GET /investigations/{iid}/explain-connection?src={src}&dst={dst}`: Investigation-scoped connection explanation.
+* **Interactive 3D UI**:
+  * Clicking on any link in the 3D ForceGraph (`.onLinkClick`) opens the **"AI Connection Explainer"** modal.
+  * "🤖 Explain Connection" button added in suspect dossier relationship tables.
+
+#### B. Case Recommendation Engine ("Who Else to Check Out") (`backend/analytics/case_recommender.py`)
+* **Proactive Candidate Discovery**:
+  * **Unflagged High-Impact Associates**: 1-hop and 2-hop contacts who serve as financial couriers or communication bridges.
+  * **Cross-Case Linkages**: Suspects and FIR cases sharing phone numbers, bank accounts, or hideout locations across other investigations.
+  * **High-Volume Financial Mules**: Unidentified accounts involved in structuring beneath reporting thresholds.
+* **New Endpoints**:
+  * `GET /recommendations?limit={limit}`: Proactive network-wide recommendations.
+  * `GET /investigations/{iid}/recommendations`: Case-specific recommendations.
+  * `GET /people/{pid}/recommendations`: Suspect-focused next leads.
+* **UI Widgets**:
+  * **"💡 Case Recommendation Engine"** section on the Investigation Overview dashboard with prioritized cards and action buttons (*"👤 Inspect Suspect"*, *"🔍 View Subgraph"*, *"📄 Open Case"*).
+  * **"💡 Suggested Next Leads & Associates"** section on the Person dossier view.
+
+---
+
 ## 4. Master Implementation Checklist
 
-1. [x] **Facial Recognition & Mugshots**:
+1. [x] **Facial Recognition & Mugshots (Pillar 1)**:
    - [x] Add suspect mugshot images to `data/mugshots/`.
    - [x] Update `data/people_directory.json` with photo references.
    - [x] Implement `backend/analytics/face_search.py` and `POST /people/search-image`.
    - [x] Build the "📷 Search by Photo / CCTV" modal and side-by-side comparison in `frontend/index.html`.
-2. [x] **Dataset Formats & Templates Viewer**:
+2. [x] **Dataset Formats & Templates Viewer (Pillar 2)**:
    - [x] Build the modal displaying all 8 dataset schemas and sample tables.
    - [x] Add one-click CSV starter template downloads.
-3. [x] **Ingestion Engine & Parsers**:
+3. [x] **Ingestion Engine & Parsers (Pillar 3)**:
    - [x] Add multi-encoding reader (`utf-8`, `latin-1`, `cp1252`).
    - [x] Add `.txt`, `.tsv`, `.pdf`, `.docx`, and multi-sheet `.xlsx` handlers in `backend/ingestion/detector.py`.
    - [x] Add 100+ aliases and header cleaner in `backend/ingestion/mapper.py`.
    - [x] Add currency and date cleanser in `backend/ingestion/normalizer.py`.
-4. [x] **Verification & Validation**:
-   - [x] Run full pytest suite (`python3 -m pytest tests/`).
-   - [x] Test image search with matching and non-matching faces.
-   - [x] Test uploading custom messy files with missing non-critical columns.
+4. [x] **Case Recommendation & Connection Explainer (Pillar 4)**:
+   - [x] Build `backend/analytics/connection_explainer.py` and `GET /connections/explain`.
+   - [x] Build `backend/analytics/case_recommender.py` and `GET /recommendations`.
+   - [x] Add 3D ForceGraph `.onLinkClick` handler and "AI Connection Explainer" modal in `frontend/index.html`.
+   - [x] Add "💡 Proactive Case Recommendations" card and "Suggested Next Leads" widget in `frontend/index.html`.
+5. [x] **Verification & Validation**:
+   - [x] Run full pytest suite with 76 passing tests (`python3 -m pytest tests/`).
+   - [x] Test live HTTP endpoints on port 8000.
+   - [x] Verified 3D graph connection clicks and proactive recommendation feeds.

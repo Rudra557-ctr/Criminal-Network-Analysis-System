@@ -6,131 +6,283 @@
 <title>Criminal Network Intelligence System</title>
 <style>
 :root{
-  --bg:#F0F4F8; /* Soft ice-blue tinted slate background */
-  --panel:#F8FAFC; /* Crisp ice-tinted off-white panel */
-  --panel-border:#CBD5E1; /* Clean slate-blue border */
-  --accent:#1E40AF; /* Deep Police Royal Navy Blue */
-  --accent-hover:#1E3A8A; /* Deep Navy Hover */
-  --accent-dark:#1E3A8A;
-  --accent-light:#E0F2FE; /* Soft Sky Blue tint */
-  --accent-cyan:#0284C7; /* Sky Blue accent */
-  --text:#0F172A; /* High-contrast deep dark slate text */
-  --muted:#475569; /* Slate gray secondary text */
-  --border:#CBD5E1;
-  --card-shadow:0 4px 20px rgba(15,23,42,.06);
+  --bg:#F0F9FF; /* Crystalline Watery Light Blue */
+  --panel:rgba(255,255,255,0.94); /* Aqueous Glass Panel */
+  --panel-border:rgba(186,230,253,0.85); /* Soft Ice Edge */
+  --accent:#0284C7; /* Vibrant Ocean Cerulean Blue */
+  --accent-hover:#0369A1; /* Deep Marine Hover */
+  --accent-dark:#075985;
+  --accent-light:rgba(14,165,233,0.12); /* Soft Aqua Glow */
+  --accent-cyan:#06B6D4; /* Shimmering Cyan */
+  --text:#082F49; /* Deep Ocean Abyss Text */
+  --muted:#475569; /* Slate Gray */
+  --border:rgba(186,230,253,0.85);
+  --card-shadow:0 10px 30px -4px rgba(2,132,199,0.08), 0 4px 12px -2px rgba(2,132,199,0.04), inset 0 1px 0 rgba(255,255,255,0.95);
 }
 #view-login{display:none}
-#view-login.active{position:fixed !important;top:0 !important;left:0 !important;right:0 !important;bottom:0 !important;width:100vw !important;height:100vh !important;max-width:100vw !important;display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:center !important;background:var(--bg) !important;z-index:99999 !important;padding:20px !important;margin:0 !important;box-sizing:border-box !important}
+#view-login.active{position:fixed !important;top:0 !important;left:0 !important;right:0 !important;bottom:0 !important;width:100vw !important;height:100vh !important;max-width:100vw !important;display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:center !important;background:transparent !important;z-index:99999 !important;padding:20px !important;margin:0 !important;box-sizing:border-box !important}
 #view-login.active .card{width:100% !important;max-width:440px !important;margin:0 auto !important}
 #view-login h2,#view-login p.sub{text-align:center}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;display:flex;min-height:100vh;margin:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Inter",sans-serif;background:radial-gradient(at 0% 0%,rgba(186,230,253,0.45) 0px,transparent 50%),radial-gradient(at 100% 0%,rgba(207,250,254,0.55) 0px,transparent 50%),radial-gradient(at 50% 100%,rgba(224,242,254,0.65) 0px,transparent 50%),radial-gradient(at 85% 50%,rgba(6,182,212,0.09) 0px,transparent 50%),#F0F9FF;background-attachment:fixed;color:var(--text);line-height:1.6;display:flex;min-height:100vh;margin:0}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(186,230,253,0.85);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:rgba(14,165,233,0.7)}
 body.logged-out .sidebar{display:none !important}
-.sidebar{width:250px;min-width:250px;height:100vh;position:sticky;top:0;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 16px;box-sizing:border-box;z-index:100}
-.sidebar h1{font-size:13px;font-weight:700;letter-spacing:.06em;line-height:1.5}
-.sidebar h1 .sih{color:var(--accent);font-weight:700}
-.sidebar nav{display:flex;flex-direction:column;gap:4px;margin-top:16px}
-.sidebar nav button{background:none;border:none;font-size:13px;color:var(--muted);padding:9px 12px;border-radius:6px;cursor:pointer;text-align:left;width:100%;border-left:3px solid transparent}
-.sidebar nav button.active,.sidebar nav button:hover{color:var(--text);background:var(--accent-light)}
-.sidebar nav button.active{color:var(--accent);font-weight:600;border-left-color:var(--accent)}
-.sidebar-footer{margin-top:auto;display:flex;flex-direction:column;gap:8px;padding-top:16px;border-top:1px solid var(--border)}
+.sidebar{width:250px;min-width:250px;height:100vh;position:sticky;top:0;background:linear-gradient(180deg,rgba(255,255,255,0.88) 0%,rgba(240,249,255,0.96) 100%);border-right:1px solid rgba(186,230,253,0.85);box-shadow:4px 0 24px rgba(2,132,199,0.06),inset -1px 0 0 rgba(255,255,255,0.8);display:flex;flex-direction:column;padding:20px 16px;box-sizing:border-box;z-index:100;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.sidebar h1{font-size:13px;font-weight:800;letter-spacing:.06em;line-height:1.5;color:#082F49}
+.sidebar h1 .sih{color:#0284C7;font-weight:800;text-shadow:0 0 12px rgba(2,132,199,0.25)}
+.sidebar nav{display:flex;flex-direction:column;gap:5px;margin-top:16px}
+.sidebar nav button{background:none;border:none;font-size:13px;font-weight:500;color:#334155;padding:9px 12px;border-radius:8px;cursor:pointer;text-align:left;width:100%;border-left:3px solid transparent;transition:all .18s cubic-bezier(.16,1,.3,1)}
+.sidebar nav button:hover{color:#0284C7;background:rgba(14,165,233,0.1);transform:translateX(3px)}
+.sidebar nav button.active{color:#FFFFFF;background:linear-gradient(135deg,#0284C7 0%,#0EA5E9 100%);font-weight:700;border-left-color:#38BDF8;box-shadow:0 4px 14px rgba(2,132,199,0.32),inset 0 1px 0 rgba(255,255,255,0.35);transform:none}
+.sidebar-footer{margin-top:auto;display:flex;flex-direction:column;gap:8px;padding-top:16px;border-top:1px solid rgba(186,230,253,0.85)}
 body.logged-out .sidebar{display:none}
 .main-content{flex:1;padding:24px 32px;overflow-y:auto;min-width:0}
 .main-content .view{max-width:900px}
 .view{display:none}
 .view.active{display:block}
-.card{background:var(--panel);border:1px solid var(--panel-border);border-radius:10px;padding:20px;margin-bottom:16px;box-shadow:var(--card-shadow)}
-h2{font-size:20px;font-weight:600;margin-bottom:8px}
-h3{font-size:15px;font-weight:600;margin-bottom:8px}
+.card{background:linear-gradient(180deg,rgba(255,255,255,0.95) 0%,rgba(240,249,255,0.88) 100%);border:1px solid rgba(186,230,253,0.85);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:var(--card-shadow);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);transition:border-color .15s ease,box-shadow .15s ease}
+h2{font-size:21px;font-weight:800;letter-spacing:-.01em;margin-bottom:8px;color:var(--text)}
+h3{font-size:15px;font-weight:700;letter-spacing:-.01em;margin-bottom:8px;color:var(--text)}
 p.sub{color:var(--muted);font-size:13px;margin-bottom:16px}
-.btn{display:inline-block;padding:9px 16px;border-radius:6px;border:1px solid var(--border);background:var(--panel);color:var(--text);font-size:13px;cursor:pointer;text-decoration:none}
-.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
-.btn-primary:hover{background:var(--accent-dark)}
-.btn:disabled{opacity:.5;cursor:default}
-input[type=text],input[type=password],textarea,select{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;margin-bottom:12px;background:var(--bg);color:var(--text)}
-input[type=text]:focus,input[type=password]:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent-cyan);box-shadow:0 0 0 3px rgba(2,132,199,.22)}
-label{font-size:12px;font-weight:600;display:block;margin-bottom:4px}
+.btn{display:inline-block;padding:9px 16px;border-radius:8px;border:1px solid rgba(186,230,253,0.95);background:linear-gradient(180deg,#FFFFFF 0%,#F0F9FF 100%);color:#0369A1;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;box-shadow:0 2px 6px rgba(2,132,199,0.05),inset 0 1px 0 #FFFFFF;transition:all .16s cubic-bezier(.16,1,.3,1)}
+.btn:hover{background:#FFFFFF;border-color:#0284C7;color:#0284C7;box-shadow:0 4px 14px rgba(2,132,199,0.16);transform:translateY(-1px)}
+.btn-primary{background:linear-gradient(135deg,#0284C7 0%,#06B6D4 100%);border:1px solid #0284C7;color:#FFFFFF;font-weight:700;box-shadow:0 4px 16px rgba(2,132,199,0.32),inset 0 1px 0 rgba(255,255,255,0.35);text-shadow:0 1px 2px rgba(0,0,0,0.15)}
+.btn-primary:hover{background:linear-gradient(135deg,#0369A1 0%,#0891B2 100%);color:#FFFFFF;box-shadow:0 6px 20px rgba(2,132,199,0.42);transform:translateY(-1px)}
+.btn:disabled{opacity:.5;cursor:default;transform:none !important}
+input[type=text],input[type=password],input[type=range],textarea,select{width:100%;padding:9px 13px;border:1px solid rgba(186,230,253,0.95);border-radius:8px;font-size:13px;margin-bottom:12px;background:rgba(255,255,255,0.92);color:var(--text);box-shadow:inset 0 1px 3px rgba(2,132,199,0.04);transition:all .16s ease}
+input[type=text]:focus,input[type=password]:focus,textarea:focus,select:focus{outline:none;background:#FFFFFF;border-color:#0EA5E9;box-shadow:0 0 0 3.5px rgba(14,165,233,0.22),inset 0 1px 2px rgba(2,132,199,0.04)}
+label{font-size:12px;font-weight:700;display:block;margin-bottom:4px;color:var(--text)}
 table{width:100%;border-collapse:collapse;font-size:13px}
-th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);padding:8px;border-bottom:1px solid var(--border)}
-td{padding:10px 8px;border-bottom:1px solid var(--border);vertical-align:top}
-tbody tr:hover td{background:var(--accent-light)}
+th{text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#0369A1;padding:10px 10px;background:rgba(224,242,254,0.65);border-bottom:2px solid rgba(186,230,253,0.9)}
+th:first-child{border-top-left-radius:6px}
+th:last-child{border-top-right-radius:6px}
+td{padding:10px 10px;border-bottom:1px solid rgba(186,230,253,0.6);vertical-align:top}
+tbody tr:hover td{background:rgba(224,242,254,0.45)}
 .muted{color:var(--muted);font-size:12px}
 .mono{font-family:ui-monospace,Menlo,monospace;font-size:12px}
 ul.findings{margin-left:18px;font-size:14px}
 ul.findings li{margin-bottom:6px}
 .steps{list-style:none;font-size:14px}
-.steps li{padding:8px 0;border-bottom:1px solid var(--border)}
+.steps li{padding:8px 0;border-bottom:1px solid rgba(186,230,253,0.7)}
 .steps li:last-child{border-bottom:none}
 .demo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0}
-.demo-card{border:1px solid var(--border);border-radius:8px;padding:16px;background:var(--panel);cursor:pointer;text-align:left;width:100%;font-size:13px;color:var(--text)}
-.demo-card:hover{border-color:var(--accent)}
-.demo-card b{display:block;font-size:14px;margin-bottom:4px}
-.tag{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.04em;background:var(--accent-light);color:var(--accent-dark);border-radius:4px;padding:2px 6px;margin-top:6px}
+.demo-card{border:1px solid rgba(186,230,253,0.9);border-radius:12px;padding:16px;background:linear-gradient(180deg,#FFFFFF 0%,#F0F9FF 100%);cursor:pointer;text-align:left;width:100%;font-size:13px;color:var(--text);box-shadow:0 4px 14px rgba(2,132,199,0.06),inset 0 1px 0 #FFFFFF;transition:all .18s cubic-bezier(.16,1,.3,1)}
+.demo-card:hover{border-color:#0284C7;box-shadow:0 8px 22px rgba(2,132,199,0.16);transform:translateY(-1px)}
+.demo-card b{display:block;font-size:14px;margin-bottom:4px;color:#082F49}
+.tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.04em;background:rgba(14,165,233,0.12);color:#0369A1;border:1px solid rgba(186,230,253,0.85);border-radius:5px;padding:2px 7px;margin-top:4px}
 .req{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.04em;background:#FEF2F2;color:#B91C1C;border:1px solid #FECACA;border-radius:4px;padding:1px 6px;margin-left:8px}
-.opt{display:inline-block;font-size:10px;letter-spacing:.04em;background:var(--accent-light);color:var(--muted);border-radius:4px;padding:1px 6px;margin-left:8px}
+.opt{display:inline-block;font-size:10px;letter-spacing:.04em;background:rgba(14,165,233,0.1);color:var(--muted);border:1px solid rgba(186,230,253,0.7);border-radius:4px;padding:1px 6px;margin-left:8px}
 .map-missing{outline:2px solid #EF4444;border-radius:6px}
-html[data-theme="dark"]{--bg:#0A0E14;--panel:#1E2638;--border:#2A364F;--text:#F1F5F9;--muted:#94A3B8;--accent:#3B82F6;--accent-dark:#2563EB;--accent-light:rgba(59,130,246,.14)}
-html[data-theme="dark"] .sidebar{background:#141B29}
-html[data-theme="dark"] .card{background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0) 40%),var(--panel);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+
+/* --- SHINY JET-BLACK OBSIDIAN DARK THEME --- */
+html[data-theme="dark"]{
+  --bg:#030407;
+  --panel:#0A0D14;
+  --panel-border:rgba(255,255,255,.14);
+  --border:rgba(255,255,255,.12);
+  --text:#F8FAFC;
+  --muted:#94A3B8;
+  --accent:#38BDF8;
+  --accent-hover:#0284C7;
+  --accent-dark:#0284C7;
+  --accent-light:rgba(56,189,248,.14);
+  --accent-cyan:#38BDF8;
+  --card-shadow:0 12px 36px rgba(0,0,0,.85), inset 0 1px 0 rgba(255,255,255,.16);
+}
+html[data-theme="dark"] body{
+  background:radial-gradient(circle at 50% 0%,#0E131E 0%,#05060A 55%,#010204 100%);
+  background-attachment:fixed;
+}
+html[data-theme="dark"] .sidebar{
+  background:linear-gradient(180deg,#0A0D14 0%,#030407 100%);
+  border-right:1px solid rgba(255,255,255,.12);
+  box-shadow:4px 0 24px rgba(0,0,0,.9);
+}
+html[data-theme="dark"] .sidebar nav button{color:#94A3B8}
+html[data-theme="dark"] .sidebar nav button:hover{color:#38BDF8;background:rgba(56,189,248,.12);transform:translateX(3px)}
+html[data-theme="dark"] .sidebar nav button.active{
+  color:#030712;
+  background:linear-gradient(180deg,#38BDF8 0%,#0284C7 100%);
+  font-weight:800;
+  box-shadow:0 0 18px rgba(56,189,248,.45), inset 0 1px 0 rgba(255,255,255,.4);
+  border-left-color:#38BDF8;
+  transform:none;
+}
+html[data-theme="dark"] .card{
+  background:linear-gradient(180deg,rgba(255,255,255,.08) 0%,rgba(18,23,33,.85) 25%,rgba(9,12,18,.98) 100%);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 12px 36px rgba(0,0,0,.85), inset 0 1px 0 rgba(255,255,255,.16), inset 0 0 20px rgba(56,189,248,.02);
+  backdrop-filter:blur(16px);
+}
+html[data-theme="dark"] .btn{
+  background:linear-gradient(180deg,rgba(255,255,255,.09) 0%,rgba(20,24,34,.9) 100%);
+  border:1px solid rgba(255,255,255,.16);
+  color:#F8FAFC;
+  box-shadow:0 4px 12px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.15);
+}
+html[data-theme="dark"] .btn:hover{
+  background:linear-gradient(180deg,rgba(255,255,255,.16) 0%,rgba(30,36,50,.95) 100%);
+  border-color:rgba(56,189,248,.5);
+  color:#38BDF8;
+}
+html[data-theme="dark"] .btn-primary{
+  background:linear-gradient(180deg,#38BDF8 0%,#0284C7 100%);
+  border-color:#38BDF8;
+  color:#030712;
+  font-weight:700;
+  box-shadow:0 0 18px rgba(56,189,248,.45), inset 0 1px 0 rgba(255,255,255,.4);
+}
+html[data-theme="dark"] .btn-primary:hover{
+  background:linear-gradient(180deg,#7DD3FC 0%,#0369A1 100%);
+  color:#030712;
+}
+html[data-theme="dark"] input[type=text],html[data-theme="dark"] input[type=password],html[data-theme="dark"] textarea,html[data-theme="dark"] select{
+  background:#06080D;
+  border:1px solid rgba(255,255,255,.14);
+  color:#F8FAFC;
+  box-shadow:inset 0 2px 4px rgba(0,0,0,.6);
+}
 html[data-theme="dark"] .threat-HIGH{color:#FCA5A5;background:rgba(239,68,68,.14);border-color:#EF4444}
 html[data-theme="dark"] .threat-MEDIUM{color:#FCD34D;background:rgba(245,158,11,.13);border-color:#F59E0B}
 html[data-theme="dark"] .threat-LOW{color:#93C5FD;background:rgba(59,130,246,.13);border-color:#3B82F6}
 html[data-theme="dark"] .burst-banner{color:#FCD34D;background:rgba(245,158,11,.12)}
 html[data-theme="dark"] .profilepill .avatar{color:#fff}
 html[data-theme="dark"] .btn-logout{color:#FCA5A5;border-color:#7F2D2D}
-html[data-theme="dark"] .drawer{box-shadow:-16px 0 40px rgba(0,0,0,.5)}
-html[data-theme="dark"] .tag{background:rgba(59,130,246,.14);color:var(--accent)}
-html[data-theme="dark"] .opt{background:#222C3B}
+html[data-theme="dark"] .drawer{box-shadow:-16px 0 40px rgba(0,0,0,.8);background:linear-gradient(180deg,#0A0D14 0%,#030407 100%);border-left:1px solid rgba(255,255,255,.14)}
+html[data-theme="dark"] .tag{background:rgba(56,189,248,.14);color:#38BDF8;border-color:rgba(56,189,248,.3)}
+html[data-theme="dark"] .opt{background:#161B26;border-color:rgba(255,255,255,.1)}
 html[data-theme="dark"] .error{background:#3A1D1D;border-color:#7F2D2D;color:#FCA5A5}
-.error{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;border-radius:6px;padding:12px;font-size:13px;margin-bottom:12px}
-.lead{border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px;background:var(--panel);cursor:pointer;transition:border-color .15s}
-.lead:hover{border-color:var(--accent)}
+html[data-theme="dark"] .modal-backdrop{background:rgba(0,0,0,.85);backdrop-filter:blur(16px)}
+html[data-theme="dark"] .modal-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.08) 0%,#0D111A 30%,#06080D 100%);
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow:0 24px 64px rgba(0,0,0,.95), inset 0 1px 0 rgba(255,255,255,.2);
+}
+.error{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B;border-radius:8px;padding:12px;font-size:13px;margin-bottom:12px}
+.lead{border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;background:var(--panel);cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.lead:hover{border-color:var(--accent);box-shadow:0 4px 14px rgba(2,132,199,.1)}
 .lead b{font-size:14px}
-.lead .score{float:right;font-weight:600}
+.lead .score{float:right;font-weight:700}
 .threat{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;border-radius:999px;padding:2px 10px;border:1px solid}
-.threat-HIGH{color:#B91C1C;background:#FEF2F2;border-color:#FECACA}
-.threat-MEDIUM{color:#92400E;background:#FFFBEB;border-color:#FDE68A}
-.threat-LOW{color:#1D4ED8;background:#EFF6FF;border-color:#BFDBFE}
+.threat-HIGH{color:#DC2626;background:rgba(254,226,226,0.9);border-color:#FCA5A5}
+.threat-MEDIUM{color:#D97706;background:rgba(254,243,199,0.9);border-color:#FDE68A}
+.threat-LOW{color:#0284C7;background:rgba(224,242,254,0.9);border-color:#BAE6FD}
 .scorebar{height:8px;border-radius:999px;background:rgba(148,163,184,.2);overflow:hidden;margin:8px 0 4px}
-.scorebar > div{height:100%;border-radius:999px;background:linear-gradient(90deg,#3B82F6,#EF4444)}
+.scorebar > div{height:100%;border-radius:999px;background:linear-gradient(90deg,#0284C7,#EF4444)}
 .riskbar{display:flex;height:14px;border-radius:999px;overflow:hidden;border:1px solid var(--border);margin:8px 0 4px}
 .burst-banner{display:none;margin-top:10px;padding:12px 16px;border-radius:8px;font-weight:700;text-align:center;
   background:#FFFBEB;border:1px solid #F59E0B;color:#92400E;
   box-shadow:0 0 18px rgba(245,158,11,.45);animation:pulseGlow 1.2s ease-in-out infinite}
 @keyframes pulseGlow{0%,100%{box-shadow:0 0 8px rgba(245,158,11,.3)}50%{box-shadow:0 0 26px rgba(245,158,11,.7)}}
-.drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,94vw);background:var(--panel);border-left:1px solid var(--border);
-  box-shadow:-16px 0 40px rgba(0,0,0,.5);z-index:50;transform:translateX(105%);transition:transform .28s ease;
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,94vw);background:linear-gradient(180deg,#FFFFFF 0%,#F0F9FF 100%);border-left:1px solid rgba(186,230,253,0.95);
+  box-shadow:-16px 0 40px rgba(2,132,199,.15);z-index:50;transform:translateX(105%);transition:transform .28s ease;
   display:flex;flex-direction:column}
 .drawer.open{transform:translateX(0)}
 .drawer-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:16px 18px;border-bottom:1px solid var(--border)}
 .drawer-body{padding:16px 18px;overflow-y:auto}
-.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40;display:none}
+.drawer-overlay{position:fixed;inset:0;background:rgba(8,47,73,.45);backdrop-filter:blur(4px);z-index:40;display:none}
 .drawer-overlay.open{display:block}
-.evidence{font-family:ui-monospace,Menlo,monospace;font-size:11px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;white-space:pre-wrap;word-break:break-all}
-.casepill{font-family:ui-monospace,Menlo,monospace;font-size:11px;background:rgba(59,130,246,.12);color:var(--accent);border:1px solid var(--border);padding:4px 10px;border-radius:999px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
-.profilepill{display:flex;align-items:center;gap:8px;font-size:12px;background:rgba(59,130,246,.1);border:1px solid var(--border);padding:5px 6px 5px 12px;border-radius:999px;white-space:nowrap}
-.profilepill .avatar{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
-.btn-logout{border-color:#7F2D2D;color:#FCA5A5}
-.btn-logout:hover{background:rgba(239,68,68,.12);border-color:#EF4444}
-.modal-backdrop{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,.75);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:9999;padding:16px}
+.evidence{font-family:ui-monospace,Menlo,monospace;font-size:11px;background:rgba(240,249,255,0.8);border:1px solid var(--border);border-radius:8px;padding:10px;white-space:pre-wrap;word-break:break-all}
+.casepill{font-family:ui-monospace,Menlo,monospace;font-size:11px;background:rgba(2,132,199,.12);color:#0369A1;border:1px solid rgba(186,230,253,0.9);padding:4px 10px;border-radius:999px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px;font-weight:600}
+.profilepill{display:flex;align-items:center;gap:8px;font-size:12px;background:rgba(2,132,199,.1);border:1px solid rgba(186,230,253,0.9);padding:5px 6px 5px 12px;border-radius:999px;white-space:nowrap;font-weight:600}
+.profilepill .avatar{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#0284C7 0%,#06B6D4 100%);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.btn-logout{border-color:#FECACA;color:#DC2626}
+.btn-logout:hover{background:#FEF2F2;border-color:#EF4444}
+.modal-backdrop{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(8,47,73,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:9999;padding:16px}
 .modal-backdrop.active{display:flex}
-.modal-card{background:var(--panel);border:1px solid var(--panel-border);border-radius:12px;padding:20px;box-shadow:0 16px 48px rgba(0,0,0,.4);color:var(--text)}
+.modal-card{background:linear-gradient(180deg,#FFFFFF 0%,#F0F9FF 100%);border:1px solid rgba(186,230,253,0.95);border-radius:14px;padding:22px;box-shadow:0 24px 64px rgba(2,132,199,.22),inset 0 1px 0 #FFFFFF;color:var(--text)}
 .tmpl-tab{background:none;border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;color:var(--muted);white-space:nowrap;transition:all .15s}
 .tmpl-tab.active,.tmpl-tab:hover{background:var(--accent-light);color:var(--accent);border-color:var(--accent);font-weight:600}
 .tag-req{background:#FEF2F2;color:#B91C1C;border:1px solid #FECACA;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;display:inline-block}
 .tag-opt{background:var(--accent-light);color:var(--muted);font-size:10px;padding:2px 6px;border-radius:4px;display:inline-block}
 .match-meter{height:8px;border-radius:4px;background:rgba(148,163,184,.25);overflow:hidden;margin:6px 0}
 .match-meter-fill{height:100%;border-radius:4px;transition:width .5s ease}
-.suspect-match-card{border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;background:var(--panel);transition:border-color .15s;box-shadow:0 2px 10px rgba(0,0,0,.04)}
-.suspect-match-card:hover{border-color:var(--accent-cyan)}
+.suspect-match-card{border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;background:var(--panel);transition:border-color .15s,box-shadow .15s;box-shadow:0 4px 14px rgba(2,132,199,.06)}
+.suspect-match-card:hover{border-color:var(--accent-cyan);box-shadow:0 6px 20px rgba(6,182,212,.15)}
+
+/* --- TACTICAL TAKEDOWN SIMULATOR STYLES --- */
+.td-grid-4{display:grid;grid-template-columns:repeat(4, 1fr);gap:12px}
+@media (max-width:1150px){.td-grid-4{grid-template-columns:repeat(2, 1fr)}}
+@media (max-width:650px){.td-grid-4{grid-template-columns:1fr}}
+
+.td-strat-card{position:relative;background:linear-gradient(180deg,#FFFFFF 0%,#F0F9FF 100%);border:1px solid rgba(186,230,253,0.9);border-radius:12px;padding:14px 16px;cursor:pointer;display:flex;flex-direction:column;justify-content:space-between;transition:all .2s cubic-bezier(.16,1,.3,1);box-shadow:0 6px 20px rgba(2,132,199,.08),inset 0 1px 0 #FFFFFF;min-height:165px}
+.td-strat-card:hover{transform:translateY(-2px);border-color:#0284C7;box-shadow:0 10px 28px rgba(2,132,199,.18),inset 0 1px 0 #FFFFFF}
+.td-strat-card.active{border-color:#0284C7;background:linear-gradient(180deg,rgba(224,242,254,0.95) 0%,rgba(207,250,254,0.85) 100%);box-shadow:0 0 0 1.5px #0284C7,0 10px 28px rgba(2,132,199,.22),inset 0 1px 0 #FFFFFF}
+
+.td-active-tag{display:none;position:absolute;top:-8px;right:12px;background:linear-gradient(135deg,#0284C7 0%,#06B6D4 100%);color:#fff;font-size:9px;font-weight:800;letter-spacing:.6px;padding:2px 8px;border-radius:999px;box-shadow:0 2px 8px rgba(2,132,199,.5);text-transform:uppercase}
+.td-strat-card.active .td-active-tag{display:inline-block}
+
+.td-pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:.4px;padding:3px 8px;border-radius:6px;text-transform:uppercase}
+.td-pill-green{background:rgba(16,185,129,.15);color:#059669;border:1px solid rgba(16,185,129,.3)}
+.td-pill-blue{background:rgba(2,132,199,.15);color:#0284C7;border:1px solid rgba(2,132,199,.3)}
+.td-pill-yellow{background:rgba(245,158,11,.15);color:#D97706;border:1px solid rgba(245,158,11,.3)}
+.td-pill-purple{background:rgba(147,51,234,.15);color:#7E22CE;border:1px solid rgba(147,51,234,.3)}
+
+.td-kpi-card{background:linear-gradient(180deg,#FFFFFF 0%,#F0F9FF 100%);border:1px solid rgba(186,230,253,0.9);border-radius:12px;padding:14px;display:flex;flex-direction:column;justify-content:space-between;transition:all .16s ease;position:relative;overflow:hidden;box-shadow:0 4px 16px rgba(2,132,199,.06),inset 0 1px 0 #FFFFFF}
+.td-kpi-card:hover{border-color:#0284C7;box-shadow:0 6px 22px rgba(2,132,199,.14),inset 0 1px 0 #FFFFFF}
+
+.td-suspect-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border-radius:8px;margin-bottom:4px;background:#F8FAFC;border:1px solid #E0F2FE;cursor:pointer;transition:all .15s}
+.td-suspect-item:hover{background:#F0F9FF;border-color:#BAE6FD}
+.td-suspect-item.selected{background:#E0F2FE;border-color:#0284C7}
+
+/* Dark theme specific overrides for tactical & interactive elements */
+html[data-theme="dark"] .td-strat-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.08) 0%,rgba(18,23,33,.9) 25%,rgba(9,12,18,.98) 100%);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 10px 30px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.15);
+}
+html[data-theme="dark"] .td-strat-card:hover{
+  border-color:rgba(56,189,248,.6);
+  box-shadow:0 12px 36px rgba(0,0,0,.9), 0 0 16px rgba(56,189,248,.2);
+}
+html[data-theme="dark"] .td-strat-card.active{
+  border-color:#38BDF8;
+  background:linear-gradient(180deg,rgba(56,189,248,.18) 0%,rgba(10,14,22,.98) 100%);
+  box-shadow:0 0 0 1px #38BDF8, 0 12px 36px rgba(56,189,248,.35);
+}
+html[data-theme="dark"] .td-active-tag{
+  background:#38BDF8;
+  color:#030712;
+  box-shadow:0 0 12px rgba(56,189,248,.6);
+}
+html[data-theme="dark"] .td-pill-green{background:rgba(34,197,94,.15);color:#4ADE80;border-color:rgba(34,197,94,.3)}
+html[data-theme="dark"] .td-pill-blue{background:rgba(56,189,248,.15);color:#38BDF8;border-color:rgba(56,189,248,.3)}
+html[data-theme="dark"] .td-pill-yellow{background:rgba(245,158,11,.15);color:#FBBF24;border-color:rgba(245,158,11,.3)}
+html[data-theme="dark"] .td-pill-purple{background:rgba(168,85,247,.15);color:#C084FC;border-color:rgba(168,85,247,.3)}
+
+html[data-theme="dark"] .td-kpi-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.06) 0%,rgba(16,20,29,.95) 100%);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 8px 24px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.12);
+}
+html[data-theme="dark"] .td-kpi-card:hover{border-color:rgba(56,189,248,.4)}
+
+html[data-theme="dark"] .td-suspect-item{
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.08);
+}
+html[data-theme="dark"] .td-suspect-item:hover{
+  background:rgba(255,255,255,.08);
+  border-color:rgba(56,189,248,.4);
+}
+html[data-theme="dark"] .td-suspect-item.selected{
+  background:rgba(56,189,248,.16);
+  border-color:rgba(56,189,248,.55);
+}
+
 @media(max-width:800px){.demo-grid{grid-template-columns:1fr}body{flex-direction:column}.sidebar{width:100%;min-width:0;height:auto;position:static;flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px}.sidebar nav{flex-direction:row;flex-wrap:wrap;margin-top:0}.sidebar nav button{width:auto}.sidebar-footer{flex-direction:row;margin-top:0;padding-top:0;border-top:none;margin-left:auto}}
 </style>
 <script src="https://unpkg.com/3d-force-graph"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 </head>
 <body>
 <aside class="sidebar" id="sidebar" style="display:none">
-  <h1>CRIMINAL NETWORK ANALYSIS SYSTEM <span class="sih">| SIH 2026</span></h1>
+  <h1>CRIMINAL NETWORK ANALYSIS SYSTEM</h1>
   <span class="profilepill" id="roleBadge" style="display:none;margin-top:12px"><span class="avatar" id="roleAvatar">?</span><span id="roleText"></span></span>
   <nav id="mainNav">
     <button data-view="dashboard" onclick="navigate('dashboard')">Dashboard</button>
@@ -139,19 +291,22 @@ html[data-theme="dark"] .error{background:#3A1D1D;border-color:#7F2D2D;color:#FC
     <button data-view="intelligence" onclick="navigate('intelligence')">Timeline</button>
     <button data-view="financial" onclick="navigate('financial')">Financial</button>
     <button data-view="communications" onclick="navigate('communications')">Communications</button>
+    <button data-view="geospatial" onclick="navigate('geospatial')">📍 Geospatial Map</button>
     <button data-view="evidence" onclick="navigate('evidence')">Evidence</button>
+    <button data-view="blockchain" onclick="navigate('blockchain')">⛓️ Blockchain Ledger</button>
+    <button data-view="takedown" onclick="navigate('takedown')">🎯 Tactical Simulator</button>
     <button data-view="reports" onclick="navigate('reports')">Reports</button>
-  </nav>
   </nav>
   <span class="casepill" id="casePill" style="display:none;margin-top:12px" title="Active investigation"></span>
   <div class="sidebar-footer">
-    <button class="btn" id="themeBtn" onclick="toggleTheme()" title="Toggle dark / light theme" style="white-space:nowrap">◐ Dark</button>
+    <button class="btn" id="themeBtn" onclick="toggleTheme()" title="Toggle dark / light theme" style="white-space:nowrap">✦ Shiny Dark</button>
     <button class="btn btn-logout" id="logoutBtn" onclick="logout()" style="display:none;white-space:nowrap">⏻ Logout</button>
   </div>
 </aside>
 <main class="main-content">
 
 <section id="view-login" class="view active">
+  <button class="btn" id="loginThemeBtn" onclick="toggleTheme()" title="Toggle dark / light theme" style="position:fixed;top:18px;right:20px;z-index:100000;font-size:12px;padding:6px 12px;white-space:nowrap">✦ Shiny Dark</button>
   <h2>Criminal Network Intelligence System</h2>
   <p class="sub">Access is restricted to authorized roles. All actions are audit-logged.</p>
   <div class="card" id="signinCard">
@@ -191,7 +346,7 @@ html[data-theme="dark"] .error{background:#3A1D1D;border-color:#7F2D2D;color:#FC
     <button class="btn" onclick="openTemplatesModal()">📋 View Expected Formats &amp; Templates</button>
   </div>
   <div class="card" style="margin-top:16px">
-    <h3>Investigations</h3>
+    <h3>Recent Investigations (Active Cases)</h3>
     <div id="invList"><p class="muted">Loading…</p></div>
   </div>
   <div class="card" id="dash-createCaseCard">
@@ -201,13 +356,17 @@ html[data-theme="dark"] .error{background:#3A1D1D;border-color:#7F2D2D;color:#FC
     <label for="dash-unifiedCaseDesc">Description (optional)</label>
     <input type="text" id="dash-unifiedCaseDesc" placeholder="e.g. Bulk CDR and Banking records drop">
     <label>Data source</label>
-    <label style="font-weight:normal">Upload Custom Evidence Files (.zip, .csv, .xlsx, .json)</label>
+    <label style="font-weight:normal">Upload Custom Evidence Files (.zip, .csv, .xlsx, .json, .txt, .tsv, .pdf, .docx)</label>
     <div id="dash-unifiedUploadWrap">
-      <input type="file" id="dash-unifiedFileInput" multiple accept=".csv,.xlsx,.xls,.json,.zip" onchange="handleUnifiedFiles(this.files,'dash-')">
+      <input type="file" id="dash-unifiedFileInput" multiple accept=".csv,.xlsx,.xls,.json,.zip,.txt,.tsv,.log,.pdf,.docx" onchange="handleUnifiedFiles(this.files,'dash-')">
       <div id="dash-unifiedSelectedFiles" class="muted"></div>
     </div>
     <div id="dash-unifiedError"></div>
     <button class="btn btn-primary" id="dash-submitCaseBtn" onclick="submitUnifiedInvestigation('dash-')" style="width:100%;margin-top:12px">⚡ Create Case &amp; Upload Data</button>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+      <button class="btn" onclick="openTemplatesModal()" style="flex:1">📋 View Expected Formats &amp; Templates</button>
+      <span class="muted" style="font-size:11px;align-self:center">Supports multi-encoding, mixed delimiters &amp; multi-sheet Excel</span>
+    </div>
     <div class="muted" style="text-align:center;margin:10px 0">— or —</div>
     <button class="btn" id="dash-demoBtn" onclick="submitDemoCase('dash-')" style="width:100%">▶ Run on Demo Data</button>
     <p class="muted" style="margin-top:6px">Uses the full synthetic dataset from the data folder (CDRs, transactions, FIRs, social, history, intel, surveillance).</p>
@@ -229,19 +388,26 @@ html[data-theme="dark"] .error{background:#3A1D1D;border-color:#7F2D2D;color:#FC
     <label for="unifiedCaseDesc">Description (optional)</label>
     <input type="text" id="unifiedCaseDesc" placeholder="e.g. Bulk CDR and Banking records drop">
     <label>Data source</label>
-    <label style="font-weight:normal">Upload Custom Evidence Files (.zip, .csv, .xlsx, .json)</label>
+    <label style="font-weight:normal">Upload Custom Evidence Files (.zip, .csv, .xlsx, .json, .txt, .tsv, .pdf, .docx)</label>
     <div id="unifiedUploadWrap">
-      <input type="file" id="unifiedFileInput" multiple accept=".csv,.xlsx,.xls,.json,.zip" onchange="handleUnifiedFiles(this.files,'')">
+      <input type="file" id="unifiedFileInput" multiple accept=".csv,.xlsx,.xls,.json,.zip,.txt,.tsv,.log,.pdf,.docx" onchange="handleUnifiedFiles(this.files,'')">
       <div id="unifiedSelectedFiles" class="muted"></div>
     </div>
     <div id="unifiedError"></div>
     <button class="btn btn-primary" id="submitCaseBtn" onclick="submitUnifiedInvestigation('')" style="width:100%;margin-top:12px">⚡ Create Case &amp; Upload Data</button>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+      <button class="btn" onclick="openTemplatesModal()" style="flex:1">📋 View Expected Formats &amp; Templates</button>
+      <span class="muted" style="font-size:11px;align-self:center">Auto-detects encoding / delimiters — raw dumps accepted</span>
+    </div>
     <div class="muted" style="text-align:center;margin:10px 0">— or —</div>
     <button class="btn" id="demoBtn" onclick="submitDemoCase('')" style="width:100%">▶ Run on Demo Data</button>
     <p class="muted" style="margin-top:6px">Uses the full synthetic dataset from the data folder (CDRs, transactions, FIRs, social, history, intel, surveillance).</p>
   </div>
   <div class="card">
-    <h3>Previous investigations</h3>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <h3 style="margin:0">Recent Investigations</h3>
+      <span class="muted" style="font-size:11px">Auto-retains latest 5–8 cases</span>
+    </div>
     <div id="prevInvs"><p class="muted">Loading…</p></div>
   </div>
 </section>
@@ -258,9 +424,12 @@ html[data-theme="dark"] .error{background:#3A1D1D;border-color:#7F2D2D;color:#FC
     <div id="demoFiles" class="muted"></div>
   </div>
   <div class="card" id="uploadCard">
-    <h3>2. Or upload case data</h3>
-    <p class="sub">Supported: CSV, XLSX, JSON, ZIP — the files the current pipeline can reliably process. Multiple files allowed.</p>
-    <input type="file" id="fileInput" multiple accept=".csv,.xlsx,.xls,.json,.zip" onchange="handleFiles(this.files)">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <h3 style="margin:0">2. Or upload case data</h3>
+      <button class="btn" onclick="openTemplatesModal()">📋 View Expected Formats &amp; Templates</button>
+    </div>
+    <p class="sub">Supported: CSV, XLSX, JSON, TXT/TSV, PDF, DOCX, ZIP — universal ingestion with multi-encoding &amp; 100+ alias matching. Multiple files allowed.</p>
+    <input type="file" id="fileInput" multiple accept=".csv,.xlsx,.xls,.json,.zip,.txt,.tsv,.log,.pdf,.docx" onchange="handleFiles(this.files)">
     <div id="selectedFiles" class="muted" style="margin:8px 0"></div>
     <button class="btn" onclick="uploadFiles()">Upload files</button>
     <div id="uploadResult" class="muted" style="margin-top:8px"></div>
@@ -304,6 +473,19 @@ html[data-theme="dark"] .error{background:#3A1D1D;border-color:#7F2D2D;color:#FC
   <div class="card">
     <h3>Important people</h3>
     <div id="ovLeads"></div>
+  </div>
+  <div class="card" id="ovRecommendationsCard">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <div>
+        <h3 style="margin:0;display:flex;align-items:center;gap:8px"><span>💡</span> Case Recommendation Engine ("Who Else to Check Out")</h3>
+        <p class="sub" style="margin:2px 0 0">Proactively identifies unflagged high-impact associates, financial mules, and linked cross-case FIRs.</p>
+      </div>
+      <span id="recSummaryBadge" class="tag" style="font-weight:600">AI PROACTIVE</span>
+    </div>
+    <div id="ovRecommendationsSummary" style="margin:12px 0;padding:10px 14px;background:rgba(2,132,199,0.08);border-left:3px solid var(--accent-cyan);border-radius:4px;font-size:13px"></div>
+    <div id="ovRecommendationsList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:12px">
+      <p class="muted">Loading proactive recommendations…</p>
+    </div>
   </div>
   <div class="card">
     <h3>Case network — 3D explorer</h3>
@@ -376,6 +558,18 @@ html[data-theme="dark"] .error{background:#3A1D1D;border-color:#7F2D2D;color:#FC
     <div id="personCanvasContainer" style="height:400px; width:100%; border:1px solid var(--border); border-radius:8px; overflow:hidden; background-color:#0A0E14;"></div>
     <div id="personConns" style="margin-top:12px"></div>
   </div>
+  <div class="card" id="personRecommendationsCard">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <div>
+        <h3 style="margin:0">💡 Suggested Next Leads &amp; Associates</h3>
+        <p class="sub" style="margin:2px 0 0">Who else to check out based on this suspect's network ties, money trails, and cross-case records.</p>
+      </div>
+      <span class="tag">PROACTIVE LEADS</span>
+    </div>
+    <div id="personRecommendationsList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:12px">
+      <p class="muted">Loading suggested leads…</p>
+    </div>
+  </div>
   <div class="card">
     <h3>Activity over time</h3>
     <div id="personTimeline"><p class="muted">Loading…</p></div>
@@ -446,6 +640,89 @@ html[data-theme="dark"] .error{background:#3A1D1D;border-color:#7F2D2D;color:#FC
   </div>
 </section>
 
+<section id="view-geospatial" class="view">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+    <div>
+      <h2 style="margin:0">📍 Geospatial &amp; Cell Tower Intelligence</h2>
+      <p class="sub" style="margin:4px 0 0">Interactive GIS mapping suspect movement trajectories, cell tower call density, and multi-suspect meeting hotspots.</p>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" onclick="loadGeospatialView()">🔄 Refresh Map Data</button>
+    </div>
+  </div>
+
+  <!-- Map Control Bar -->
+  <div class="card" style="padding:14px;margin-bottom:14px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <!-- Suspect Selector -->
+      <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:220px">
+        <label for="geoSuspectSelect" style="white-space:nowrap;margin-bottom:0">🎯 Track Suspect:</label>
+        <select id="geoSuspectSelect" onchange="onGeospatialSuspectChange()" style="margin-bottom:0">
+          <option value="ALL">All Suspects (Network Map)</option>
+        </select>
+      </div>
+
+      <!-- Layer Checkboxes -->
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;margin-bottom:0">
+          <input type="checkbox" id="geoLayerTowers" checked onchange="renderGeospatialLayers()"> 🗼 Cell Towers &amp; Density
+        </label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;margin-bottom:0">
+          <input type="checkbox" id="geoLayerTrajectories" checked onchange="renderGeospatialLayers()"> 🚶 Suspect Trajectories
+        </label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;margin-bottom:0">
+          <input type="checkbox" id="geoLayerHotspots" checked onchange="renderGeospatialLayers()"> 🔥 Meeting Hotspots
+        </label>
+      </div>
+
+      <!-- Day Filter / Scrub Slider -->
+      <div style="display:flex;align-items:center;gap:8px;min-width:220px">
+        <label for="geoDaySlider" style="white-space:nowrap;margin-bottom:0;font-size:12px">📅 Timeline Scrub:</label>
+        <input type="range" id="geoDaySlider" min="0" max="30" value="0" oninput="onGeospatialDayChange(this.value)" style="flex:1;cursor:pointer;margin-bottom:0">
+        <span id="geoDayDisplay" style="font-weight:700;font-size:12px;min-width:60px">All Days</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet Map Box -->
+  <div class="card" style="padding:0;overflow:hidden;margin-bottom:16px">
+    <div id="leafletMap" style="height:540px;width:100%;position:relative;z-index:1;background:#e5e7eb"></div>
+  </div>
+
+  <!-- Bottom Analytics Grid -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));gap:14px">
+    <div class="card" style="margin-bottom:0">
+      <h3 style="display:flex;align-items:center;justify-content:space-between">
+        <span>🗼 Active Cell Towers (<span id="geoTowerCount">0</span>)</span>
+        <span class="tag">CDR Triangulation</span>
+      </h3>
+      <div id="geoTowersList" style="max-height:260px;overflow-y:auto;font-size:12px">
+        <p class="muted">Loading cell towers…</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:0">
+      <h3 style="display:flex;align-items:center;justify-content:space-between">
+        <span>🔥 Multi-Suspect Hotspots (<span id="geoHotspotCount">0</span>)</span>
+        <span class="tag" style="background:#FEE2E2;color:#991B1B">Co-location</span>
+      </h3>
+      <div id="geoHotspotsList" style="max-height:260px;overflow-y:auto;font-size:12px">
+        <p class="muted">Scanning for meeting points…</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:0">
+      <h3 style="display:flex;align-items:center;justify-content:space-between">
+        <span>🚶 Trajectory Waypoints (<span id="geoWaypointCount">0</span>)</span>
+        <span class="tag">Temporal Sequence</span>
+      </h3>
+      <div id="geoWaypointsList" style="max-height:260px;overflow-y:auto;font-size:12px">
+        <p class="muted">Loading movement logs…</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="view-evidence" class="view">
   <h2>Evidence Locker & Chain of Custody</h2>
   <p class="sub">Primary evidentiary records, telecom CDRs, financial transfers, and intelligence intercepts supporting this case.</p>
@@ -479,6 +756,265 @@ html[data-theme="dark"] .error{background:#3A1D1D;border-color:#7F2D2D;color:#FC
       </div>
     </div>
     <div id="evidenceTableBox"><p class="muted">Loading case evidence…</p></div>
+  </div>
+</section>
+
+<section id="view-blockchain" class="view">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+    <div>
+      <h2 style="margin:0">⛓️ Cryptographic Evidence Ledger &amp; Chain of Custody</h2>
+      <p class="sub" style="margin:4px 0 0">Court-admissible tamper-proof SHA-256 Merkle blockchain adhering to Section 63 Bharatiya Sakshya Adhiniyam (BSA) 2023 / Section 65B Indian Evidence Act (IEA).</p>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" onclick="loadBlockchainView()">🔄 Refresh Ledger</button>
+      <button class="btn btn-primary" onclick="downloadChainOfCustodyCertificate()">📄 Export Court Admissibility Certificate (.json)</button>
+    </div>
+  </div>
+
+  <!-- Metrics Header -->
+  <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+    <div class="card" style="flex:1;min-width:180px;padding:14px;margin:0">
+      <div class="muted" style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px">Total Chained Blocks</div>
+      <div id="bcTotalBlocks" style="font-size:24px;font-weight:700;color:var(--text);margin-top:4px">—</div>
+    </div>
+    <div class="card" style="flex:1;min-width:180px;padding:14px;margin:0">
+      <div class="muted" style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px">Verified Evidence Records</div>
+      <div id="bcTotalRecords" style="font-size:24px;font-weight:700;color:#10B981;margin-top:4px">—</div>
+    </div>
+    <div class="card" style="flex:2;min-width:260px;padding:14px;margin:0">
+      <div class="muted" style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px">Master Merkle Root (SHA-256)</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+        <code id="bcMasterMerkle" class="mono" style="font-size:11px;word-break:break-all;color:var(--accent);font-weight:700">—</code>
+        <button class="btn" style="padding:2px 8px;font-size:11px" onclick="copyMerkleRoot()" title="Copy Merkle Hash">📋</button>
+      </div>
+    </div>
+    <div class="card" style="flex:1;min-width:180px;padding:14px;margin:0">
+      <div class="muted" style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px">Cryptographic Integrity</div>
+      <div id="bcIntegrityBadge" style="margin-top:4px;font-size:13px;font-weight:700;color:#059669">
+        <span style="display:inline-block;padding:3px 8px;background:#D1FAE5;color:#065F46;border-radius:6px">🛡️ 100% Tamper-Proof</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:14px;margin-bottom:16px">
+    <!-- Live Evidence Hash & Tamper Verifier Tool -->
+    <div class="card" style="margin:0">
+      <h3>🔍 Live Evidence Hash &amp; Authenticity Verifier</h3>
+      <p class="muted" style="margin-bottom:10px">Paste any raw evidence record string, document payload, or 64-character SHA-256 hash to cryptographically verify if it exists unmodified in the chain.</p>
+      
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <input type="text" id="bcVerifyInput" placeholder="Paste SHA-256 hash or evidence text..." style="margin-bottom:0">
+        <button class="btn btn-primary" onclick="executeEvidenceHashVerification()" style="white-space:nowrap">Verify Hash</button>
+      </div>
+      
+      <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+        <span class="muted" style="font-size:11px;align-self:center">Try sample:</span>
+        <button class="btn" style="padding:2px 8px;font-size:10px" onclick="setSampleVerifyHash('valid')">Valid Ledger Block Hash</button>
+        <button class="btn" style="padding:2px 8px;font-size:10px" onclick="setSampleVerifyHash('tampered')">Tampered/Altered Hash</button>
+      </div>
+
+      <div id="bcVerifyResultBox" style="display:none;padding:10px;border-radius:6px;font-size:12px"></div>
+    </div>
+
+    <!-- Section 63 BSA / 65B IEA Legal Admissibility Block -->
+    <div class="card" style="margin:0;background:linear-gradient(180deg,var(--panel),rgba(30,64,175,0.03))">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <h3 style="margin:0">📜 Court-Admissible Electronic Certificate</h3>
+        <span class="tag" style="background:#DBEAFE;color:#1E40AF;font-weight:700">Sec 63 BSA 2023 / 65B IEA</span>
+      </div>
+      <p class="muted" style="font-size:11px;margin-bottom:10px">Statutory Certificate of Electronic Evidence Integrity generated under Indian criminal jurisprudence.</p>
+      
+      <div id="bcCertPreviewBox" style="font-size:11px;line-height:1.5;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;max-height:160px;overflow-y:auto">
+        <p class="muted">Loading statutory certificate…</p>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px">
+        <button class="btn btn-primary" style="font-size:11px" onclick="downloadChainOfCustodyCertificate()">⬇️ Download .JSON Certificate</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chained Blocks Visual Explorer -->
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <h3 style="margin:0">📦 Chained Blocks &amp; Merkle Trees</h3>
+      <span class="muted" style="font-size:12px">Blocks are sequentially linked via cryptographic predecessor hashes.</span>
+    </div>
+    <div id="bcBlocksContainer">
+      <p class="muted">Loading blockchain blocks…</p>
+    </div>
+  </div>
+</section>
+
+<section id="view-takedown" class="view">
+  <!-- Header Bar -->
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px 20px">
+    <div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span class="td-pill td-pill-blue">TACTICAL HUD // MHA-NCRB STRIKE OPTIMIZER</span>
+        <span class="muted" style="font-size:11px">|</span>
+        <span class="muted" style="font-size:11px">Graph Percolation &amp; Statutory Force Planner</span>
+      </div>
+      <h2 style="margin:0;font-size:22px;display:flex;align-items:center;gap:8px">
+        <span>🎯 Tactical Takedown &amp; Raid Optimization Simulator</span>
+      </h2>
+      <p class="sub" style="margin:4px 0 0;font-size:13px">Command-level multi-target arrest simulation, network percolation collapse modeling, and statutory SWAT/Asset seizure planning.</p>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <button class="btn" onclick="loadTakedownView()" style="display:flex;align-items:center;gap:6px">
+        <span>🔄</span> <span>Refresh Intelligence</span>
+      </button>
+      <button class="btn btn-primary" onclick="openOperationOrderModal()" style="display:flex;align-items:center;gap:6px;font-weight:700;box-shadow:0 0 16px rgba(59,130,246,0.35)">
+        <span>📋</span> <span>Generate Tactical OP-ORDER</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Pre-Engineered Strategy Cards (Symmetrical 4-Column Grid) -->
+  <div style="margin-bottom:20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <h3 style="margin:0;font-size:15px">⚡ Pre-Engineered Strike Strategies</h3>
+        <span class="muted" style="font-size:12px">— Select a tactical package to evaluate automated raid impact</span>
+      </div>
+      <span class="muted" style="font-size:11px">4 Strategy Models Available</span>
+    </div>
+    
+    <div class="td-grid-4" id="takedownStrategyCards">
+      <p class="muted">Loading tactical strike strategies…</p>
+    </div>
+  </div>
+
+  <!-- Main Simulator Layout: Left (Target Manifest), Right (Impact & Force Dashboard) -->
+  <div style="display:grid;grid-template-columns:380px 1fr;gap:18px;align-items:start" class="demo-grid">
+    
+    <!-- Target Selection Panel -->
+    <div class="card" style="margin:0;display:flex;flex-direction:column;gap:12px" id="takedownTargetManifestCard">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <h3 style="margin:0;font-size:15px">🎯 Suspect Target Manifest</h3>
+          <div class="muted" style="font-size:11px;margin-top:2px">Select suspects to customize raid scope</div>
+        </div>
+        <span class="tag" style="background:var(--accent);color:#fff;font-weight:700" id="selectedTargetCountTag">0 Targets Selected</span>
+      </div>
+      
+      <!-- Quick Filter Pills -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn" style="padding:4px 9px;font-size:11px;border-radius:6px" onclick="selectTargetsByRole('Leader')">👑 Leaders</button>
+        <button class="btn" style="padding:4px 9px;font-size:11px;border-radius:6px" onclick="selectTargetsByRole('Bridge')">🌉 Bridges</button>
+        <button class="btn" style="padding:4px 9px;font-size:11px;border-radius:6px" onclick="selectTargetsByRole('Mule')">💳 Mules</button>
+        <button class="btn" style="padding:4px 9px;font-size:11px;border-radius:6px" onclick="selectTargetsByRole('ALL')">All</button>
+        <button class="btn" style="padding:4px 9px;font-size:11px;border-radius:6px" onclick="clearSelectedTargets()">Clear</button>
+      </div>
+
+      <!-- Quick Search Filter -->
+      <div>
+        <input type="text" id="tdSuspectSearch" placeholder="🔍 Filter suspects by name, cell, role..." 
+               class="input" style="width:100%;box-sizing:border-box;padding:7px 10px;font-size:12px;background:var(--bg);border-radius:6px" 
+               oninput="filterTakedownSuspects()">
+      </div>
+
+      <!-- Suspects Scrollable List -->
+      <div id="takedownSuspectsList" style="max-height:360px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:6px;background:var(--bg)">
+        <p class="muted" style="font-size:12px;padding:12px;text-align:center">Loading suspect manifest…</p>
+      </div>
+
+      <!-- Simulation Execution Controls -->
+      <div style="padding-top:10px;border-top:1px solid var(--border)">
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;margin-bottom:12px">
+          <input type="checkbox" id="freezeAccountsCheck" checked>
+          <span>Concurrently freeze linked bank accounts (Sec 91 CrPC)</span>
+        </label>
+        <button class="btn btn-primary" style="width:100%;padding:10px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px" onclick="runCustomTakedownSimulation()">
+          <span>⚡</span> <span>Execute Simulation Model</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Impact & Resource Dashboard -->
+    <div style="display:flex;flex-direction:column;gap:14px">
+      
+      <!-- Key Metric KPI Cards (2x2 Grid) -->
+      <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:12px" class="demo-grid">
+        <div class="td-kpi-card" style="border-left:3px solid #DC2626">
+          <div class="muted" style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px">Syndicate Collapse</div>
+          <div id="tdCollapseScore" style="font-size:28px;font-weight:800;color:#EF4444;margin:4px 0">0%</div>
+          <div style="font-size:11px;color:var(--muted)">Global Graph Disruption</div>
+        </div>
+        <div class="td-kpi-card" style="border-left:3px solid #3B82F6">
+          <div class="muted" style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px">Isolated Fragments</div>
+          <div id="tdFragmentsCount" style="font-size:28px;font-weight:800;color:var(--text);margin:4px 0">1</div>
+          <div style="font-size:11px;color:var(--muted)">Broken Sub-gang Cells</div>
+        </div>
+        <div class="td-kpi-card" style="border-left:3px solid #10B981">
+          <div class="muted" style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px">Seizable Capital</div>
+          <div id="tdSeizedAssets" style="font-size:22px;font-weight:800;color:#10B981;margin:4px 0;word-break:break-all">₹0</div>
+          <div style="font-size:11px;color:var(--muted)">Frozen Hawala / Wire Assets</div>
+        </div>
+        <div class="td-kpi-card" style="border-left:3px solid #F59E0B">
+          <div class="muted" style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px">Severed Channels</div>
+          <div id="tdSeveredCount" style="font-size:28px;font-weight:800;color:#F59E0B;margin:4px 0">0</div>
+          <div style="font-size:11px;color:var(--muted)">Telecom / Financial Edges Cut</div>
+        </div>
+      </div>
+
+      <!-- Tactical SWAT & Squad Allocation Box -->
+      <div class="card" style="margin:0;padding:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div>
+            <h3 style="margin:0;font-size:15px">🛡️ Tactical SWAT &amp; Special Unit Requirements</h3>
+            <div class="muted" style="font-size:11px;margin-top:2px">Dynamic officer requisition matrix based on target FIR weapon priors</div>
+          </div>
+          <span class="tag" style="background:rgba(59,130,246,0.15);color:#60A5FA;font-weight:700;border:1px solid rgba(59,130,246,0.3)" id="tdPersonnelTotalTag">0 Total Officers Required</span>
+        </div>
+        
+        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:12px" class="demo-grid">
+          <div style="padding:12px;background:rgba(239,68,68,0.06);border-radius:8px;border:1px solid rgba(239,68,68,0.2)">
+            <div style="font-weight:700;color:#EF4444;display:flex;align-items:center;gap:6px;font-size:12px">
+              <span>🚨 Armed Tactical SWAT:</span>
+            </div>
+            <div id="tdSwatCount" style="font-size:20px;font-weight:800;margin:6px 0;color:var(--text)">0 Squads</div>
+            <div class="muted" style="font-size:11px;line-height:1.4">Assault breach teams for armed targets with Sec 302/307 priors</div>
+          </div>
+
+          <div style="padding:12px;background:rgba(59,130,246,0.06);border-radius:8px;border:1px solid rgba(59,130,246,0.2)">
+            <div style="font-weight:700;color:#60A5FA;display:flex;align-items:center;gap:6px;font-size:12px">
+              <span>💻 Cyber Forensics:</span>
+            </div>
+            <div id="tdCyberCount" style="font-size:20px;font-weight:800;margin:6px 0;color:var(--text)">0 Specialists</div>
+            <div class="muted" style="font-size:11px;line-height:1.4">Faraday triage &amp; Sec 63 BSA digital write-blocking</div>
+          </div>
+
+          <div style="padding:12px;background:rgba(245,158,11,0.06);border-radius:8px;border:1px solid rgba(245,158,11,0.2)">
+            <div style="font-weight:700;color:#FBBF24;display:flex;align-items:center;gap:6px;font-size:12px">
+              <span>🚧 Perimeter Containment:</span>
+            </div>
+            <div id="tdPerimeterCount" style="font-size:20px;font-weight:800;margin:6px 0;color:var(--text)">0 Squads</div>
+            <div class="muted" style="font-size:11px;line-height:1.4">Outer cordon security, vehicle intercept &amp; escape route lockdown</div>
+          </div>
+        </div>
+
+        <!-- Strike Window & Succession Strip -->
+        <div style="margin-top:14px;padding:12px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div>
+            <b style="font-size:12px;color:var(--text)">⚡ Optimal Execution Window:</b>
+            <span id="tdStrikeWindow" style="font-size:12px;color:var(--accent);font-weight:700;margin-left:6px">03:30 - 05:00 hrs IST (Pre-Dawn Sweep)</span>
+          </div>
+          <div>
+            <span class="muted" style="font-size:11px">Succession Threat:</span>
+            <b id="tdSuccessionRisk" style="font-size:11px;margin-left:4px;color:var(--text)">Undetermined</b>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Button: Open Official Operation Order -->
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-primary" style="flex:1;padding:12px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 18px rgba(59,130,246,0.3)" onclick="openOperationOrderModal()">
+          <span>📋</span> <span>Generate Formal Police OP-ORDER Dossier</span>
+        </button>
+      </div>
+
+    </div>
   </div>
 </section>
 
@@ -591,12 +1127,65 @@ html[data-theme="dark"] .error{background:#3A1D1D;border-color:#7F2D2D;color:#FC
     </div>
   </div>
 </div>
+
+<!-- Modal: AI "Explain This Connection" & Multi-Modal Intelligence Story -->
+<div id="explainConnectionModal" class="modal-backdrop" onclick="if(event.target===this)closeExplainConnectionModal()">
+  <div class="modal-card" style="max-width:960px;width:95%;max-height:90vh;display:flex;flex-direction:column">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="font-size:24px">🤖</div>
+        <div>
+          <h3 style="font-size:17px;margin:0">AI Connection Explainer — Intelligence Story</h3>
+          <p class="muted" style="margin:2px 0 0">Multi-source correlation explaining why these two entities are linked.</p>
+        </div>
+      </div>
+      <button class="btn" onclick="closeExplainConnectionModal()" style="font-weight:700">✕</button>
+    </div>
+
+    <div id="explainModalContent" style="flex:1;overflow-y:auto;padding:14px 0"></div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap;gap:8px">
+      <div id="explainModalFooterActions" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+      <button class="btn" onclick="closeExplainConnectionModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Police Tactical Operation Order (OP-ORDER) -->
+<div id="opOrderModal" class="modal-backdrop" onclick="if(event.target===this)closeOperationOrderModal()">
+  <div class="modal-card" style="max-width:920px;width:95%;max-height:90vh;display:flex;flex-direction:column">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="font-size:24px">🏛️</div>
+        <div>
+          <h3 style="font-size:17px;margin:0">CONFIDENTIAL TACTICAL OPERATION ORDER (OP-ORDER)</h3>
+          <p class="muted" style="margin:2px 0 0">Ministry of Home Affairs / NCRB Special Operations Command Dossier</p>
+        </div>
+      </div>
+      <button class="btn" onclick="closeOperationOrderModal()" style="font-weight:700">✕</button>
+    </div>
+
+    <div id="opOrderModalContent" style="flex:1;overflow-y:auto;padding:14px 0;font-size:12px">
+      <p class="muted">Generating operation order…</p>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap;gap:8px">
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" onclick="downloadOperationOrderJSON()">⬇️ Download OP-ORDER (.json)</button>
+        <button class="btn" onclick="window.print()">🖨️ Print Briefing Sheet</button>
+      </div>
+      <button class="btn" onclick="closeOperationOrderModal()">Close</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? `http://${location.hostname}:8000` : 'http://127.0.0.1:8000';
 let _currentInv = null, _selectedFiles = [], _useDemo = null;
 
 function getToken() { try { return localStorage.getItem('cn_token'); } catch (e) { return null; } }
 function getSession() { try { return JSON.parse(localStorage.getItem('cn_user') || 'null'); } catch (e) { return null; } }
+function getUser() { return getSession(); }
 // Last-wins fetch guard (P1 slider AbortController): a new GET on an already
 // in-flight path aborts the previous one, so rapid interactions (search,
 // scrubbing, view switches) can never render stale results out of order.
@@ -648,7 +1237,10 @@ async function doLogin() {
     updateNav();
     navigate('dashboard'); // Redirect directly to the main workplace
   } catch (e) {
-    box.innerHTML = `<div class="error">${e.message}</div>`;
+    const msg = (e.message === 'Failed to fetch') 
+      ? 'Backend API server is currently unreachable at http://127.0.0.1:8000. Please make sure the backend process is running.'
+      : e.message;
+    box.innerHTML = `<div class="error">${msg}</div>`;
   } finally {
     btn.disabled = false; btn.textContent = 'Sign in';
   }
@@ -688,7 +1280,10 @@ async function doRegister() {
     updateNav();
     navigate('dashboard'); // Redirect directly to the main workplace
   } catch (e) {
-    box.innerHTML = `<div class="error">${e.message}</div>`;
+    const msg = (e.message === 'Failed to fetch') 
+      ? 'Backend API server is currently unreachable at http://127.0.0.1:8000. Please make sure the backend process is running.'
+      : e.message;
+    box.innerHTML = `<div class="error">${msg}</div>`;
   } finally {
     btn.disabled = false; btn.textContent = 'Create account & sign in';
   }
@@ -746,7 +1341,10 @@ function navigate(view) {
   if (view === 'intelligence') loadTimeline();
   if (view === 'financial') loadFinancial();
   if (view === 'communications') loadCommunications();
+  if (view === 'geospatial') loadGeospatialView();
   if (view === 'evidence') loadEvidenceWorkspace();
+  if (view === 'blockchain') loadBlockchainView();
+  if (view === 'takedown') loadTakedownView();
   if (view === 'reports') loadReportPreview();
 }
 function showError(boxId, msg) {
@@ -756,12 +1354,12 @@ function showError(boxId, msg) {
 async function loadDashboard() {
   try {
     const data = await api('/investigations');
-    const list = data.investigations.slice(0, 8);
-    const del = canDelete() ? (v) => ` <button class="btn btn-logout" onclick="deleteInvestigation('${v.id}','${(v.name || '').replace(/'/g, "\\'")}')">Delete</button>` : (v) => '';
+    const list = (data.investigations || []).slice(0, 8);
+    const del = canDelete() ? (v) => ` <button class="btn btn-logout" style="padding:4px 10px;font-size:11px" onclick="deleteInvestigation('${v.id}','${(v.name || '').replace(/'/g, "\\'")}')">Delete</button>` : (v) => '';
     document.getElementById('invList').innerHTML = list.length
-      ? `<table><thead><tr><th>Case</th><th>Status</th><th></th></tr></thead><tbody>` +
-        list.map(v => `<tr><td><b>${v.name}</b><br><span class="muted">${v.description || ''}</span></td><td>${v.status}</td><td><button class="btn" onclick="openOverview('${v.id}')">Open</button>${del(v)}</td></tr>`).join('') + `</tbody></table>`
-      : `<p class="muted">No investigations yet. Create one to begin.</p>`;
+      ? `<table><thead><tr><th>Case Name</th><th>Status</th><th>Action</th></tr></thead><tbody>` +
+        list.map(v => `<tr><td><b>${v.name}</b><br><span class="muted" style="font-size:11px">${v.description || 'Case dossier'}</span></td><td><span class="tag" style="font-size:9px;padding:2px 6px">${v.status}</span></td><td style="white-space:nowrap"><button class="btn btn-primary" style="padding:4px 12px;font-size:11px" onclick="openOverview('${v.id}')">Open</button>${del(v)}</td></tr>`).join('') + `</tbody></table>`
+      : `<p class="muted">No recent investigations. Create one below to begin.</p>`;
   } catch (e) {
     document.getElementById('invList').innerHTML = `<div class="error">Backend unavailable: ${e.message}. Start the API on port 8000.</div>`;
   }
@@ -785,10 +1383,23 @@ async function deleteInvestigation(iid, name) {
 async function loadInvestigations() {
   try {
     const data = await api('/investigations');
-    const del = canDelete() ? (id, name) => ` <button class="btn btn-logout" onclick="deleteInvestigation('${id}','${(name || '').replace(/'/g, "\\'")}')">Delete</button>` : () => '';
-    document.getElementById('prevInvs').innerHTML = data.investigations.map(v =>
-      `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)"><div><b>${v.name}</b><br><span class="muted">${v.status}</span></div><div><button class="btn" onclick="openOverview('${v.id}')">Open</button>${del(v.id, v.name)}</div></div>`
-    ).join('') || `<p class="muted">None yet.</p>`;
+    const invs = (data.investigations || []).slice(0, 8);
+    const del = canDelete() ? (id, name) => ` <button class="btn btn-logout" style="padding:4px 10px;font-size:11px" onclick="deleteInvestigation('${id}','${(name || '').replace(/'/g, "\\'")}')">Delete</button>` : () => '';
+    document.getElementById('prevInvs').innerHTML = invs.length ? invs.map(v => {
+      const createdStr = v.created ? new Date(v.created).toLocaleDateString() : '';
+      return `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+          <div>
+            <div style="font-weight:700;font-size:13px;color:var(--text)">${v.name}</div>
+            <div class="muted" style="font-size:11px">${v.description || 'Active case files'} · <span class="tag" style="font-size:9px;padding:1px 5px">${v.status || 'created'}</span> ${createdStr ? `· <span class="mono">${createdStr}</span>` : ''}</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <button class="btn btn-primary" style="padding:4px 12px;font-size:11px" onclick="openOverview('${v.id}')">Open Case</button>
+            ${del(v.id, v.name)}
+          </div>
+        </div>
+      `;
+    }).join('') : `<p class="muted">No recent investigations. Create one above to begin.</p>`;
   } catch (e) {
     document.getElementById('prevInvs').innerHTML = `<div class="error">${e.message}</div>`;
   }
@@ -850,6 +1461,12 @@ async function submitUnifiedInvestigation(prefix) {
   const description = gid('unifiedCaseDesc').value.trim();
   const btn = gid('submitCaseBtn');
   const errBox = gid('unifiedError');
+  if (errBox) errBox.innerHTML = '';
+
+  if (!_selectedFiles.length) {
+    alert('Please select at least one evidence file (.zip, .csv, .xlsx, .json, .txt) to upload.');
+    return;
+  }
 
   btn.disabled = true; btn.textContent = 'Creating case…';
   try {
@@ -857,7 +1474,6 @@ async function submitUnifiedInvestigation(prefix) {
     const meta = await api('/investigations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, description }) });
     _currentInv = meta.id;
 
-    if (!_selectedFiles.length) { alert('Please select at least one .zip, .csv, .xlsx, or .txt file to upload.'); return; }
     // 2. Upload Files directly
     const fd = new FormData();
     _selectedFiles.forEach(f => fd.append('files', f));
@@ -867,7 +1483,11 @@ async function submitUnifiedInvestigation(prefix) {
     // 3. Automatically run analysis and proceed directly to Dashboard
     await runAnalysis();
   } catch(e) {
-    alert('Failed to create case: ' + e.message);
+    const msg = (e.message === 'Failed to fetch') 
+      ? 'Backend API server is currently unreachable at http://127.0.0.1:8000. Please ensure the backend process is running.' 
+      : e.message;
+    if (errBox) errBox.innerHTML = `<div class="error">${msg}</div>`;
+    else alert('Failed to create case: ' + msg);
   } finally {
     btn.disabled = false; btn.textContent = '⚡ Create Case & Upload Data';
   }
@@ -964,18 +1584,28 @@ async function confirmMapping() {
     btn.disabled = false; btn.textContent = 'Confirm & Run Analysis';
   }
 }
+function updateThemeButtons(theme) {
+  const text = theme === 'dark' ? '🌊 Watery Light' : '✦ Shiny Dark';
+  const btn = document.getElementById('themeBtn');
+  if (btn) btn.textContent = text;
+  const loginBtn = document.getElementById('loginThemeBtn');
+  if (loginBtn) loginBtn.textContent = text;
+}
 function toggleTheme() {
   const h = document.documentElement;
   const isBright = h.dataset.theme !== 'dark';
   const next = isBright ? 'dark' : 'bright';
   if (next === 'dark') h.dataset.theme = 'dark'; else h.removeAttribute('data-theme');
   try { localStorage.setItem('cnThemeV2', next); } catch (e) {}
-  document.getElementById('themeBtn').textContent = next === 'dark' ? '☀ Light' : '◐ Dark';
+  updateThemeButtons(next);
 }
 try {
-  if (localStorage.getItem('cnThemeV2') === 'dark') {
+  const saved = localStorage.getItem('cnThemeV2');
+  if (saved === 'dark') {
     document.documentElement.dataset.theme = 'dark';
-    document.getElementById('themeBtn').textContent = '☀ Light';
+    updateThemeButtons('dark');
+  } else {
+    updateThemeButtons('bright');
   }
 } catch (e) {}
 
@@ -1162,6 +1792,7 @@ async function openOverview(iid) {
     ).join('');
     renderRiskBar(iid);
     loadOverviewGraph(iid);
+    loadCaseRecommendations(iid);
   } catch (e) {
     document.getElementById('ovSub').innerHTML = `<div class="error">Could not load results: ${e.message}</div>`;
   }
@@ -1297,6 +1928,13 @@ function renderMainGraph3D() {
     .linkDirectionalParticleWidth(l => l.__bridge ? 1.5 + Math.abs(Math.sin(Date.now() / 350)) * 2 : 0)
     .linkDirectionalParticleSpeed(0.006)
     .onNodeClick(ovNodeClick)
+    .onLinkClick(ovLinkClick)
+    .onLinkHover(l => { container.style.cursor = l ? 'pointer' : 'default'; })
+    .linkLabel(l => {
+      const s = typeof l.source === 'object' ? l.source.id : l.source;
+      const d = typeof l.target === 'object' ? l.target.id : l.target;
+      return `🔗 ${s} ↔ ${d} · Click to explain connection`;
+    })
     .onBackgroundClick(closeOvPopover)
     .backgroundColor('#0A0E14');
   setTimeout(() => { try { _ovGraph3D.width(container.clientWidth).height(container.clientHeight); } catch (e) {} }, 100);
@@ -1435,6 +2073,7 @@ async function openPerson(id) {
     const g = await api(_currentInv ? `/investigations/${_currentInv}/graph` : '/graph');
     _personGraph = g;
     drawPerson();
+    loadPersonRecommendations(id);
   } catch (e) {
     document.getElementById('personSub').innerHTML = `<div class="error">Could not load person: ${e.message}</div>`;
   }
@@ -1883,6 +2522,283 @@ function jumpToPersonGraph(personId) {
     }
   }, 250);
 }
+
+// ---------------------------------------------------------------------------
+// Features: AI Connection Explainer & Case Recommendation Engine
+// ---------------------------------------------------------------------------
+
+function ovLinkClick(link) {
+  const s = typeof link.source === 'object' ? link.source.id : link.source;
+  const d = typeof link.target === 'object' ? link.target.id : link.target;
+  openExplainConnectionModal(s, d);
+}
+
+async function openExplainConnectionModal(srcId, dstId) {
+  const modal = document.getElementById('explainConnectionModal');
+  const content = document.getElementById('explainModalContent');
+  const footer = document.getElementById('explainModalFooterActions');
+  if (!modal || !content) return;
+  modal.style.display = 'flex';
+  
+  content.innerHTML = `
+    <div style="text-align:center;padding:36px 16px">
+      <div style="font-size:32px">🤖</div>
+      <b style="font-size:15px">Analyzing Multi-Modal Evidence for ${srcId} ↔ ${dstId}…</b>
+      <p class="muted" style="margin-top:6px">Correlating call frequencies, financial transfers, shared FIRs, surveillance sightings, and graph pathways.</p>
+    </div>
+  `;
+  if (footer) footer.innerHTML = '';
+
+  try {
+    const iidQuery = _currentInv ? `&iid=${encodeURIComponent(_currentInv)}` : '';
+    const data = await api(`/connections/explain?src=${encodeURIComponent(srcId)}&dst=${encodeURIComponent(dstId)}${iidQuery}`);
+    renderExplainConnection(data);
+  } catch (err) {
+    content.innerHTML = `<div class="error">Failed to explain connection: ${err.message}</div>`;
+  }
+}
+
+function closeExplainConnectionModal() {
+  const modal = document.getElementById('explainConnectionModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function renderExplainConnection(data) {
+  const content = document.getElementById('explainModalContent');
+  const footer = document.getElementById('explainModalFooterActions');
+  if (!content || !data) return;
+
+  const src = data.source_person || {};
+  const dst = data.target_person || {};
+  const badgeStyle = data.strength_badge === 'red'
+    ? 'background:#FEF2F2;color:#991B1B;border:1px solid #FECACA'
+    : data.strength_badge === 'orange'
+    ? 'background:#FFFBEB;color:#92400E;border:1px solid #FDE68A'
+    : 'background:#EFF6FF;color:#1E40AF;border:1px solid #BFDBFE';
+
+  const formattedStory = (data.story_synopsis || '')
+    .split('\n\n')
+    .map(p => {
+      const bolded = p.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+      return `<p style="margin:0 0 10px;line-height:1.6">${bolded}</p>`;
+    })
+    .join('');
+
+  const tel = data.telephony || {};
+  const fin = data.financials || {};
+  const firs = data.police_cases || [];
+  const surv = (data.surveillance || []).concat(data.intelligence || []);
+  const mutuals = data.mutual_associates || [];
+
+  let html = `
+    <!-- Suspect Dossier Side-by-Side Comparison Cards -->
+    <div style="display:flex;gap:12px;align-items:stretch;flex-wrap:wrap;margin-bottom:14px">
+      <!-- Source Suspect -->
+      <div style="flex:1;min-width:240px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;gap:12px;align-items:center">
+        <img src="${src.photo || API + '/mugshots/' + src.id + '.jpg'}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(src.name)}&background=1E40AF&color=fff'" style="width:54px;height:54px;border-radius:8px;object-fit:cover;border:1px solid var(--border)">
+        <div>
+          <b style="font-size:14px">${src.name}</b>
+          <div class="muted mono" style="font-size:11px">${src.id} · ${src.role} (Cell ${src.cell})</div>
+          ${src.phone ? `<div class="muted" style="font-size:11px">📞 ${src.phone}</div>` : ''}
+          <button class="btn" style="padding:2px 8px;font-size:10px;margin-top:4px" onclick="closeExplainConnectionModal();openPerson('${src.id}')">View Dossier</button>
+        </div>
+      </div>
+
+      <!-- Arrow & Relationship badge -->
+      <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0 4px">
+        <div style="font-size:18px;font-weight:700;color:var(--muted)">⟷</div>
+        <span class="threat" style="${badgeStyle};font-size:10px;margin-top:4px;white-space:nowrap">${data.relationship_strength}</span>
+      </div>
+
+      <!-- Target Suspect -->
+      <div style="flex:1;min-width:240px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;gap:12px;align-items:center">
+        <img src="${dst.photo || API + '/mugshots/' + dst.id + '.jpg'}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(dst.name)}&background=1E40AF&color=fff'" style="width:54px;height:54px;border-radius:8px;object-fit:cover;border:1px solid var(--border)">
+        <div>
+          <b style="font-size:14px">${dst.name}</b>
+          <div class="muted mono" style="font-size:11px">${dst.id} · ${dst.role} (Cell ${dst.cell})</div>
+          ${dst.phone ? `<div class="muted" style="font-size:11px">📞 ${dst.phone}</div>` : ''}
+          <button class="btn" style="padding:2px 8px;font-size:10px;margin-top:4px" onclick="closeExplainConnectionModal();openPerson('${dst.id}')">View Dossier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Story Synopsis Panel -->
+    <div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.25);border-left:4px solid var(--accent);border-radius:8px;padding:14px;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+        <span style="font-size:16px">📖</span>
+        <b style="font-size:13px;color:var(--text);text-transform:uppercase;letter-spacing:0.04em">AI Relationship Narrative ("Story Behind The Line")</b>
+      </div>
+      <div style="font-size:13px;color:var(--text)">${formattedStory}</div>
+    </div>
+
+    <!-- Evidence Metrics Grid -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px">
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px">
+        <div class="muted" style="font-size:11px">📞 CALLS LOGGED</div>
+        <b style="font-size:16px">${tel.total_calls || 0} calls</b>
+        <div class="muted" style="font-size:11px">${tel.total_duration_minutes || 0} mins total</div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px">
+        <div class="muted" style="font-size:11px">💳 MONEY TRANSFERRED</div>
+        <b style="font-size:16px">₹${(fin.total_amount_inr || 0).toLocaleString()}</b>
+        <div class="muted" style="font-size:11px">${fin.total_transactions || 0} transaction(s)</div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px">
+        <div class="muted" style="font-size:11px">📄 SHARED FIR CASES</div>
+        <b style="font-size:16px">${firs.length} case(s)</b>
+        <div class="muted" style="font-size:11px">Co-accused / mentioned</div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px">
+        <div class="muted" style="font-size:11px">👁️ SURVEILLANCE / INTEL</div>
+        <b style="font-size:16px">${surv.length} sighting(s)</b>
+        <div class="muted" style="font-size:11px">Field observations</div>
+      </div>
+    </div>
+  `;
+
+  if (firs.length > 0) {
+    html += `
+      <div style="margin-bottom:12px;border:1px solid var(--border);border-radius:8px;padding:12px;background:var(--panel)">
+        <b style="font-size:13px;display:block;margin-bottom:8px">📄 Linked Police FIR Records:</b>
+        ${firs.map(f => `
+          <div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:12px">
+            <div style="display:flex;justify-content:space-between">
+              <b>${f.fir_id} (${f.date})</b>
+              <span class="tag">${f.ipc_sections}</span>
+            </div>
+            <div class="muted" style="margin-top:2px">${f.station} · ${f.location}</div>
+            <p style="margin:4px 0 0;font-size:12px">${f.narrative_excerpt}</p>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  if (mutuals.length > 0) {
+    html += `
+      <div style="margin-bottom:12px;border:1px solid var(--border);border-radius:8px;padding:12px;background:var(--panel)">
+        <b style="font-size:13px;display:block;margin-bottom:8px">🤝 Mutual Network Contacts (${mutuals.length}):</b>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${mutuals.map(m => `
+            <div style="display:flex;align-items:center;gap:6px;padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg)">
+              <img src="${m.photo || API + '/mugshots/' + m.id + '.jpg'}" onerror="this.style.display='none'" style="width:24px;height:24px;border-radius:4px;object-fit:cover">
+              <span style="font-size:12px"><b>${m.name}</b> (${m.id})</span>
+              <button class="btn" style="padding:2px 6px;font-size:10px" onclick="closeExplainConnectionModal();openPerson('${m.id}')">Inspect</button>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  content.innerHTML = html;
+
+  if (footer) {
+    footer.innerHTML = `
+      <button class="btn btn-primary" onclick="closeExplainConnectionModal();ovInspect('${src.id}', 1)">🔍 Focus ${src.id} in 3D Graph</button>
+      <button class="btn" onclick="closeExplainConnectionModal();ovInspect('${dst.id}', 1)">🔍 Focus ${dst.id} in 3D Graph</button>
+    `;
+  }
+}
+
+async function loadCaseRecommendations(iid) {
+  const container = document.getElementById('ovRecommendationsList');
+  const summaryEl = document.getElementById('ovRecommendationsSummary');
+  if (!container) return;
+
+  container.innerHTML = '<p class="muted">Analyzing network and fetching proactive recommendations…</p>';
+  try {
+    const iidQuery = iid ? `?iid=${encodeURIComponent(iid)}` : '';
+    const res = await api(`/recommendations${iidQuery}&limit=8`);
+    const recs = res.recommendations || [];
+
+    if (summaryEl && res.proactive_summary) {
+      summaryEl.innerHTML = `<b>AI Proactive Analysis:</b> ` + res.proactive_summary.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+    }
+
+    if (!recs.length) {
+      container.innerHTML = '<p class="muted">No proactive recommendations flagged for this network.</p>';
+      return;
+    }
+
+    container.innerHTML = recs.map(r => {
+      const threatClass = r.badge_color === 'red' ? 'threat-HIGH' : r.badge_color === 'orange' ? 'threat-MEDIUM' : 'threat-LOW';
+
+      const photoHtml = r.photo
+        ? `<img src="${r.photo}" onerror="this.style.display='none'" style="width:36px;height:36px;border-radius:6px;object-fit:cover;border:1px solid var(--border);flex-shrink:0">`
+        : `<div style="width:36px;height:36px;border-radius:6px;background:rgba(59,130,246,0.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${r.type === 'CASE' ? '📄' : r.type === 'LOCATION' ? '📍' : r.type === 'FINANCIAL_ASSET' ? '💳' : '👤'}</div>`;
+
+      let actionButton = '';
+      if (r.action_type === 'INSPECT_PERSON') {
+        actionButton = `<button class="btn btn-primary" style="padding:4px 10px;font-size:11px" onclick="openPerson('${r.target_id}')">👤 Inspect Dossier</button>`;
+      } else if (r.action_type === 'VIEW_CROSS_CASE') {
+        actionButton = `<button class="btn btn-primary" style="padding:4px 10px;font-size:11px" onclick="navigate('intelligence')">📍 View Intelligence</button>`;
+      } else {
+        actionButton = `<button class="btn" style="padding:4px 10px;font-size:11px" onclick="alert('Case Reference: ${r.target_id}\\n\\nDetails: ${r.reason.replace(/'/g, "\\'")}')">📄 Case Details</button>`;
+      }
+
+      return `
+        <div style="border:1px solid var(--border);border-radius:8px;padding:12px;background:var(--panel);display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 2px 6px rgba(0,0,0,0.04)">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:8px">
+              <div style="display:flex;gap:8px;align-items:center">
+                ${photoHtml}
+                <div>
+                  <b style="font-size:13px;line-height:1.2;display:block">${r.title}</b>
+                  <span class="muted mono" style="font-size:10px">${r.type}</span>
+                </div>
+              </div>
+              <span class="threat ${threatClass}" style="font-size:10px">${r.priority}</span>
+            </div>
+            <p style="font-size:12px;margin:6px 0 8px;color:var(--text);line-height:1.4">${r.reason}</p>
+            ${r.supporting_signals && r.supporting_signals.length ? `
+              <ul style="margin:4px 0 8px 16px;padding:0;font-size:11px;color:var(--muted)">
+                ${r.supporting_signals.slice(0, 2).map(s => `<li>${s}</li>`).join('')}
+              </ul>
+            ` : ''}
+          </div>
+          <div style="display:flex;gap:6px;margin-top:6px;justify-content:flex-end">
+            ${actionButton}
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch (err) {
+    container.innerHTML = `<div class="error">Could not load recommendations: ${err.message}</div>`;
+  }
+}
+
+async function loadPersonRecommendations(pid) {
+  const container = document.getElementById('personRecommendationsList');
+  if (!container) return;
+  container.innerHTML = '<p class="muted">Loading suggested next leads…</p>';
+  try {
+    const iidQuery = _currentInv ? `?iid=${encodeURIComponent(_currentInv)}` : '';
+    const res = await api(`/people/${encodeURIComponent(pid)}/recommendations${iidQuery}&limit=4`);
+    const recs = (res.recommendations || []).filter(r => r.target_id !== pid);
+    if (!recs.length) {
+      container.innerHTML = '<p class="muted">No additional leads suggested for this person.</p>';
+      return;
+    }
+    container.innerHTML = recs.map(r => `
+      <div style="border:1px solid var(--border);border-radius:8px;padding:10px;background:var(--panel);display:flex;flex-direction:column;justify-content:space-between">
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <b style="font-size:12px">${r.title}</b>
+            <span class="tag">${r.priority}</span>
+          </div>
+          <p class="muted" style="font-size:11px;margin:0 0 6px">${r.reason}</p>
+        </div>
+        <div style="display:flex;gap:6px;justify-content:flex-end;margin-top:6px">
+          <button class="btn btn-primary" style="padding:2px 8px;font-size:10px" onclick="openPerson('${r.target_id}')">Inspect</button>
+          <button class="btn" style="padding:2px 8px;font-size:10px" onclick="openExplainConnectionModal('${pid}', '${r.target_id}')">Explain Link</button>
+        </div>
+      </div>
+    `).join('');
+  } catch (e) {
+    container.innerHTML = `<span class="muted">Suggestions unavailable: ${e.message}</span>`;
+  }
+}
 function setHops(n) {
   _personHops = n;
   document.getElementById('hop1Btn').className = n === 1 ? 'btn btn-primary' : 'btn';
@@ -1936,6 +2852,17 @@ function drawPerson() {
     .linkDirectionalParticles(2)
     .linkDirectionalParticleWidth(1.5)
     .onNodeClick(node => openPerson(node.id))
+    .onLinkClick(link => {
+      const s = typeof link.source === 'object' ? link.source.id : link.source;
+      const d = typeof link.target === 'object' ? link.target.id : link.target;
+      openExplainConnectionModal(s, d);
+    })
+    .onLinkHover(link => { container.style.cursor = link ? 'pointer' : 'default'; })
+    .linkLabel(link => {
+      const s = typeof link.source === 'object' ? link.source.id : link.source;
+      const d = typeof link.target === 'object' ? link.target.id : link.target;
+      return `🔗 ${s} ↔ ${d} · Click to explain connection`;
+    })
     .backgroundColor('#0A0E14'); // Dark mode background for graph area
 
   // Fix container dimensions
@@ -1944,14 +2871,19 @@ function drawPerson() {
   }, 100);
   const rel = edges.filter(e => e.src === _personId || e.dst === _personId).slice(0, 20);
   document.getElementById('personConns').innerHTML = rel.length
-    ? `<table><thead><tr><th>Connected Person</th><th>Relationship</th><th>Source Record</th></tr></thead><tbody>` +
+    ? `<table><thead><tr><th>Connected Person</th><th>Relationship</th><th>Source Record</th><th>Action</th></tr></thead><tbody>` +
       rel.map(e => {
         const other = e.src === _personId ? e.dst : e.src;
         const nodeObj = _personGraph && _personGraph.nodes ? _personGraph.nodes.find(n => n.id === other) : null;
         const displayName = (nodeObj && (nodeObj.label || nodeObj.name) && (nodeObj.label || nodeObj.name) !== other)
           ? `${nodeObj.label || nodeObj.name} (${other})`
           : (nodeObj?.label || other);
-        return `<tr><td><button class="btn" onclick="openPerson('${other}')">👤 ${displayName}</button></td><td><span class="chip">${e.kind}</span></td><td class="mono">${e.source || '—'}</td></tr>`;
+        return `<tr>` +
+          `<td><button class="btn" onclick="openPerson('${other}')">👤 ${displayName}</button></td>` +
+          `<td><span class="chip">${e.kind}</span></td>` +
+          `<td class="mono">${e.source || '—'}</td>` +
+          `<td><button class="btn btn-primary" style="padding:3px 8px;font-size:11px" onclick="openExplainConnectionModal('${_personId}','${other}')">🤖 Explain Connection</button></td>` +
+          `</tr>`;
       }).join('') + `</tbody></table>`
     : '<p class="muted">No direct relationships in the current graph.</p>';
 }
@@ -2335,6 +3267,1046 @@ function renderEvidenceTable() {
     (list.length > 60 ? `<div class="muted" style="margin-top:10px;font-size:12px">Showing top 60 of ${list.length} evidence items. Use search box above to filter.</div>` : '');
 }
 
+/* =========================================================================
+   GEOSPATIAL INTELLIGENCE & CELL TOWER MOVEMENT CONTROLLER (PILLAR 3)
+   ========================================================================= */
+let _leafletMap = null;
+let _geoTowersLayer = null;
+let _geoTrajectoriesLayer = null;
+let _geoHotspotsLayer = null;
+let _geoTowersData = [];
+let _geoTrajectoriesData = [];
+let _geoHotspotsData = [];
+let _geoNameMap = {};
+let _selectedGeoSuspect = 'ALL';
+let _selectedGeoDay = 0; // 0 = all days
+
+const SUSPECT_COLORS = [
+  '#2563EB', '#DC2626', '#16A34A', '#9333EA',
+  '#EA580C', '#0891B2', '#4F46E5', '#D97706'
+];
+
+async function loadGeospatialView() {
+  const towersUrl = _currentInv ? `/investigations/${_currentInv}/geospatial/towers` : '/geospatial/towers';
+  const trajUrl = _currentInv ? `/investigations/${_currentInv}/geospatial/trajectories` : '/geospatial/trajectories';
+  const hotspotsUrl = _currentInv ? `/investigations/${_currentInv}/geospatial/hotspots` : '/geospatial/hotspots';
+  const leadsUrl = _currentInv ? `/investigations/${_currentInv}/leads?limit=100` : '/leads?limit=100';
+
+  try {
+    const [towersRes, trajRes, hotspotsRes, leadsRes] = await Promise.all([
+      api(towersUrl).catch(() => ({ status: 'success', towers: [] })),
+      api(trajUrl).catch(() => ({ status: 'success', suspects: [], days_range: [1, 30] })),
+      api(hotspotsUrl).catch(() => ({ status: 'success', hotspots: [] })),
+      api(leadsUrl).catch(() => ({ leads: [] }))
+    ]);
+
+    _geoTowersData = towersRes.towers || [];
+    _geoTrajectoriesData = trajRes.trajectories || trajRes.suspects || [];
+    _geoHotspotsData = hotspotsRes.hotspots || [];
+
+    // Build Name Map
+    _geoNameMap = {};
+    (leadsRes.leads || []).forEach(l => {
+      if (l.label && l.label !== l.entity_id) _geoNameMap[l.entity_id] = l.label;
+    });
+
+    // Populate Suspect Selector
+    const suspectSelect = document.getElementById('geoSuspectSelect');
+    if (suspectSelect) {
+      const currentVal = suspectSelect.value || 'ALL';
+      let optionsHtml = '<option value="ALL">All Suspects (Network Map)</option>';
+      _geoTrajectoriesData.forEach(s => {
+        const pid = s.person_id || s.suspect_id;
+        const name = _geoNameMap[pid] || s.person_name || s.suspect_name || pid;
+        optionsHtml += `<option value="${pid}">👤 ${name} (${s.waypoints_count || (s.timeline_events||s.waypoints||[]).length} waypoints)</option>`;
+      });
+      suspectSelect.innerHTML = optionsHtml;
+      suspectSelect.value = currentVal;
+      _selectedGeoSuspect = suspectSelect.value;
+    }
+
+    // Configure Slider
+    const slider = document.getElementById('geoDaySlider');
+    const dayDisplay = document.getElementById('geoDayDisplay');
+    if (slider && trajRes.days_range) {
+      const [minD, maxD] = trajRes.days_range;
+      slider.min = 0;
+      slider.max = maxD || 30;
+      if (slider.value > slider.max) slider.value = 0;
+      if (dayDisplay) dayDisplay.textContent = slider.value == 0 ? 'All Days' : `Day ${slider.value}`;
+      _selectedGeoDay = parseInt(slider.value) || 0;
+    }
+
+    // Init Map
+    const center = towersRes.center || trajRes.center || { lat: 19.0450, lng: 72.8550, zoom: 12 };
+    initLeafletMap(center);
+
+    // Render Layers
+    renderGeospatialLayers();
+
+    // Render summary panels
+    renderGeospatialSummaryPanels();
+
+  } catch (err) {
+    console.error("Failed to load geospatial data:", err);
+  }
+}
+
+function initLeafletMap(center) {
+  if (typeof L === 'undefined') return;
+  const container = document.getElementById('leafletMap');
+  if (!container) return;
+
+  if (!_leafletMap) {
+    _leafletMap = L.map('leafletMap').setView([center.lat || 19.0450, center.lng || 72.8550], center.zoom || 12);
+    
+    // Add OpenStreetMap tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '&copy; OpenStreetMap contributors | Criminal Network Intelligence GIS'
+    }).addTo(_leafletMap);
+
+    _geoTowersLayer = L.layerGroup().addTo(_leafletMap);
+    _geoTrajectoriesLayer = L.layerGroup().addTo(_leafletMap);
+    _geoHotspotsLayer = L.layerGroup().addTo(_leafletMap);
+  } else {
+    setTimeout(() => {
+      _leafletMap.invalidateSize();
+    }, 200);
+  }
+}
+
+function onGeospatialSuspectChange() {
+  const sel = document.getElementById('geoSuspectSelect');
+  if (sel) _selectedGeoSuspect = sel.value;
+  renderGeospatialLayers();
+  renderGeospatialSummaryPanels();
+}
+
+function onGeospatialDayChange(val) {
+  _selectedGeoDay = parseInt(val) || 0;
+  const disp = document.getElementById('geoDayDisplay');
+  if (disp) disp.textContent = _selectedGeoDay === 0 ? 'All Days' : `Day ${_selectedGeoDay}`;
+  renderGeospatialLayers();
+  renderGeospatialSummaryPanels();
+}
+
+function renderGeospatialLayers() {
+  if (!_leafletMap) return;
+
+  const showTowers = document.getElementById('geoLayerTowers')?.checked ?? true;
+  const showTrajectories = document.getElementById('geoLayerTrajectories')?.checked ?? true;
+  const showHotspots = document.getElementById('geoLayerHotspots')?.checked ?? true;
+
+  // 1. Clear existing layers
+  if (_geoTowersLayer) _geoTowersLayer.clearLayers();
+  if (_geoTrajectoriesLayer) _geoTrajectoriesLayer.clearLayers();
+  if (_geoHotspotsLayer) _geoHotspotsLayer.clearLayers();
+
+  // 2. Render Cell Towers
+  if (showTowers && _geoTowersLayer) {
+    _geoTowersData.forEach(t => {
+      const radius = Math.min(30, Math.max(12, 10 + (t.call_count || 0) * 0.8));
+      const isHighTraffic = (t.call_count || 0) >= 8;
+      const color = isHighTraffic ? '#DC2626' : '#2563EB';
+      const fillColor = isHighTraffic ? '#EF4444' : '#60A5FA';
+
+      const circle = L.circleMarker([t.lat, t.lng], {
+        radius: radius,
+        color: color,
+        weight: 2,
+        fillColor: fillColor,
+        fillOpacity: 0.4
+      });
+
+      const suspectsList = (t.unique_suspects || []).map(s => {
+        const name = _geoNameMap[s] || s;
+        return `• <b>${name}</b>`;
+      }).join('<br>');
+
+      circle.bindPopup(`
+        <div style="font-family:sans-serif;font-size:12px;min-width:200px">
+          <div style="font-weight:700;font-size:14px;color:${color}">🗼 ${t.tower_name || t.name || t.tower_id}</div>
+          <div class="muted" style="font-size:11px;margin-bottom:6px">ID: <b>${t.tower_id}</b> | Sector: ${t.zone || 'Metropolitan'}</div>
+          <div style="margin-bottom:6px"><b>Call Activity:</b> <span style="font-weight:700;color:${color}">${t.call_count} CDR pings</span></div>
+          <div style="border-top:1px solid #CBD5E1;padding-top:4px">
+            <div style="font-weight:600;font-size:11px;margin-bottom:2px">Tracked Suspects (${(t.unique_suspects || []).length}):</div>
+            <div style="font-size:11px;max-height:80px;overflow-y:auto">${suspectsList || 'None'}</div>
+          </div>
+        </div>
+      `);
+      _geoTowersLayer.addLayer(circle);
+    });
+  }
+
+  // 3. Render Suspect Trajectories
+  if (showTrajectories && _geoTrajectoriesLayer) {
+    let suspectsToDraw = _geoTrajectoriesData;
+    if (_selectedGeoSuspect !== 'ALL') {
+      suspectsToDraw = _geoTrajectoriesData.filter(s => (s.person_id || s.suspect_id) === _selectedGeoSuspect);
+    }
+
+    suspectsToDraw.forEach((suspect, idx) => {
+      const color = SUSPECT_COLORS[idx % SUSPECT_COLORS.length];
+      const pid = suspect.person_id || suspect.suspect_id;
+      const sName = _geoNameMap[pid] || suspect.person_name || suspect.suspect_name || pid;
+
+      // Filter waypoints by scrub day
+      let waypoints = suspect.timeline_events || suspect.waypoints || [];
+      if (_selectedGeoDay > 0) {
+        waypoints = waypoints.filter(w => w.day === _selectedGeoDay);
+      }
+
+      if (waypoints.length >= 1) {
+        const latlngs = waypoints.map(w => [w.lat, w.lng]);
+
+        // Draw Polyline if more than 1 waypoint
+        if (latlngs.length > 1) {
+          const polyline = L.polyline(latlngs, {
+            color: color,
+            weight: 3.5,
+            opacity: 0.85,
+            dashArray: '6, 6'
+          });
+          polyline.bindPopup(`<b>🚶 Movement Trail</b><br>Suspect: <b>${sName}</b><br>Points: ${waypoints.length}`);
+          _geoTrajectoriesLayer.addLayer(polyline);
+        }
+
+        // Draw Waypoint Markers
+        waypoints.forEach((w, wIdx) => {
+          const wMarker = L.circleMarker([w.lat, w.lng], {
+            radius: 6,
+            color: '#FFFFFF',
+            weight: 1.5,
+            fillColor: color,
+            fillOpacity: 0.95
+          });
+
+          wMarker.bindPopup(`
+            <div style="font-family:sans-serif;font-size:12px;min-width:180px">
+              <div style="font-weight:700;color:${color}">👤 ${sName}</div>
+              <div style="font-size:11px;margin:2px 0"><b>Location:</b> ${w.location_name}</div>
+              <div style="font-size:11px"><b>Time:</b> Day ${w.day || '—'} (${w.timestamp || '—'})</div>
+              <div style="font-size:11px"><b>Activity:</b> ${w.event_type || 'Surveillance Ping'}</div>
+              ${w.details ? `<div class="muted" style="font-size:10px;margin-top:4px">${w.details}</div>` : ''}
+            </div>
+          `);
+          _geoTrajectoriesLayer.addLayer(wMarker);
+        });
+      }
+    });
+  }
+
+  // 4. Render Multi-Suspect Meeting Hotspots
+  if (showHotspots && _geoHotspotsLayer) {
+    _geoHotspotsData.forEach(h => {
+      if (_selectedGeoDay > 0 && h.day && h.day !== _selectedGeoDay) return;
+
+      const hotspotMarker = L.circleMarker([h.lat, h.lng], {
+        radius: 14,
+        color: '#B91C1C',
+        weight: 3,
+        fillColor: '#F87171',
+        fillOpacity: 0.6
+      });
+
+      const sList = h.suspects_list || h.suspects || [];
+      const suspectsFormatted = sList.map(s => {
+        const name = _geoNameMap[s] || s;
+        return `• <b>${name}</b>`;
+      }).join('<br>');
+
+      hotspotMarker.bindPopup(`
+        <div style="font-family:sans-serif;font-size:12px;min-width:210px">
+          <div style="font-weight:700;font-size:14px;color:#B91C1C">🔥 Meeting Hotspot Detected</div>
+          <div style="font-size:12px;margin:3px 0"><b>Location:</b> ${h.location_name}</div>
+          <div style="font-size:11px;color:#475569"><b>Timeline:</b> ${h.day ? `Day ${h.day}` : 'Multiple days'} (${h.time_window || 'Simultaneous Co-location'})</div>
+          <div style="border-top:1px solid #FECACA;margin-top:6px;padding-top:4px">
+            <div style="font-weight:600;font-size:11px;color:#991B1B">Suspects Present (${sList.length}):</div>
+            <div style="font-size:11px">${suspectsFormatted}</div>
+          </div>
+        </div>
+      `);
+      _geoHotspotsLayer.addLayer(hotspotMarker);
+    });
+  }
+}
+
+function renderGeospatialSummaryPanels() {
+  // 1. Towers Summary Panel
+  const towersBox = document.getElementById('geoTowersList');
+  const towerCountEl = document.getElementById('geoTowerCount');
+  if (towerCountEl) towerCountEl.textContent = _geoTowersData.length;
+  if (towersBox) {
+    if (!_geoTowersData.length) {
+      towersBox.innerHTML = '<p class="muted">No cell tower CDR locations detected.</p>';
+    } else {
+      towersBox.innerHTML = _geoTowersData.map(t => {
+        const isHigh = (t.call_count || 0) >= 8;
+        return `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
+            <div>
+              <b style="cursor:pointer;color:var(--accent)" onclick="focusGeospatialLocation(${t.lat}, ${t.lng}, 15)">🗼 ${t.tower_name || t.name || t.tower_id}</b>
+              <div class="muted" style="font-size:11px">${t.tower_id} · ${t.zone || 'Metro'}</div>
+            </div>
+            <div style="text-align:right">
+              <span class="threat ${isHigh ? 'threat-HIGH' : 'threat-LOW'}" style="font-size:10px">${t.call_count} calls</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  // 2. Hotspots Summary Panel
+  const hotspotsBox = document.getElementById('geoHotspotsList');
+  const hotspotCountEl = document.getElementById('geoHotspotCount');
+  if (hotspotCountEl) hotspotCountEl.textContent = _geoHotspotsData.length;
+  if (hotspotsBox) {
+    if (!_geoHotspotsData.length) {
+      hotspotsBox.innerHTML = '<p class="muted">No simultaneous multi-suspect meetings detected.</p>';
+    } else {
+      hotspotsBox.innerHTML = _geoHotspotsData.map(h => {
+        const sList = h.suspects_list || h.suspects || [];
+        const sNames = sList.map(s => _geoNameMap[s] || s).join(', ');
+        return `
+          <div style="padding:6px 0;border-bottom:1px solid var(--border)">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <b style="cursor:pointer;color:#B91C1C" onclick="focusGeospatialLocation(${h.lat}, ${h.lng}, 15)">📍 ${h.location_name}</b>
+              <span class="threat threat-HIGH" style="font-size:10px">${h.day ? 'Day ' + h.day : (h.risk_tier || 'HOTSPOT')}</span>
+            </div>
+            <div class="muted" style="font-size:11px;margin-top:2px">Suspects: <b>${sNames}</b></div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  // 3. Waypoints Log Panel
+  const waypointsBox = document.getElementById('geoWaypointsList');
+  const wpCountEl = document.getElementById('geoWaypointCount');
+  
+  let allWps = [];
+  _geoTrajectoriesData.forEach(s => {
+    const pid = s.person_id || s.suspect_id;
+    const sName = _geoNameMap[pid] || s.person_name || s.suspect_name || pid;
+    (s.timeline_events || s.waypoints || []).forEach(w => {
+      if (_selectedGeoSuspect === 'ALL' || pid === _selectedGeoSuspect) {
+        if (_selectedGeoDay === 0 || w.day === _selectedGeoDay) {
+          allWps.push({ ...w, suspectName: sName, suspectId: pid });
+        }
+      }
+    });
+  });
+
+  if (wpCountEl) wpCountEl.textContent = allWps.length;
+  if (waypointsBox) {
+    if (!allWps.length) {
+      waypointsBox.innerHTML = '<p class="muted">No movement logs matching current filters.</p>';
+    } else {
+      waypointsBox.innerHTML = allWps.slice(0, 40).map(w => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)">
+          <div>
+            <span style="font-weight:600;cursor:pointer;color:var(--text)" onclick="focusGeospatialLocation(${w.lat}, ${w.lng}, 16)">🚶 ${w.location_name}</span>
+            <div class="muted" style="font-size:10px">👤 ${w.suspectName} · ${w.event_type || 'Ping'}</div>
+          </div>
+          <div style="text-align:right">
+            <span class="mono muted" style="font-size:10px">Day ${w.day || '—'}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+}
+
+function focusGeospatialLocation(lat, lng, zoom) {
+  if (_leafletMap) {
+    _leafletMap.flyTo([lat, lng], zoom || 15, { duration: 1.2 });
+  }
+}
+
+/* =========================================================================
+   BLOCKCHAIN EVIDENCE LEDGER & SECTION 63 BSA CERTIFICATE CONTROLLER (PILLAR 2)
+   ========================================================================= */
+let _blockchainData = null;
+let _custodyCertData = null;
+
+async function loadBlockchainView() {
+  const ledgerUrl = _currentInv ? `/investigations/${_currentInv}/blockchain-ledger` : '/blockchain-ledger';
+  const certUrl = _currentInv ? `/investigations/${_currentInv}/chain-of-custody-certificate` : '/chain-of-custody-certificate';
+
+  try {
+    const [ledger, cert] = await Promise.all([
+      api(ledgerUrl),
+      api(certUrl)
+    ]);
+
+    _blockchainData = ledger;
+    _custodyCertData = cert;
+
+    // Header metrics
+    if (document.getElementById('bcTotalBlocks')) document.getElementById('bcTotalBlocks').textContent = ledger.total_blocks || (ledger.blocks || []).length;
+    if (document.getElementById('bcTotalRecords')) document.getElementById('bcTotalRecords').textContent = Number(ledger.total_evidence_records || 0).toLocaleString();
+    if (document.getElementById('bcMasterMerkle')) document.getElementById('bcMasterMerkle').textContent = ledger.master_merkle_root || '—';
+
+    // Section 63 BSA certificate preview
+    renderCertificatePreview(cert);
+
+    // Chained visual blocks
+    renderBlockchainBlocks(ledger.blocks || []);
+
+  } catch (err) {
+    console.error("Failed to load blockchain ledger:", err);
+  }
+}
+
+function renderCertificatePreview(cert) {
+  const box = document.getElementById('bcCertPreviewBox');
+  if (!box) return;
+
+  box.innerHTML = `
+    <div style="font-family:ui-monospace,Menlo,monospace;font-size:11px">
+      <div style="color:var(--accent);font-weight:700;margin-bottom:4px">🏛️ STATUTORY EVIDENCE CERTIFICATE // SEC 63 BSA 2023</div>
+      <div><b>Certificate ID:</b> <span class="mono">${cert.certificate_id}</span></div>
+      <div><b>Investigation Case:</b> ${cert.case_name || 'Active Case'}</div>
+      <div><b>Certifying Authority:</b> ${cert.certifying_officer || 'Authorized Officer'} (${cert.police_station || 'Cyber Division'})</div>
+      <div><b>Master Merkle Hash:</b> <span class="mono" style="color:#059669">${cert.master_merkle_root}</span></div>
+      <div><b>Verification Token:</b> <span class="mono">${cert.verification_token}</span></div>
+      <div style="margin-top:6px;padding:6px;background:rgba(30,64,175,0.06);border-left:2px solid var(--accent);color:var(--text);font-size:10px">
+        "${cert.legal_declaration}"
+      </div>
+    </div>
+  `;
+}
+
+function renderBlockchainBlocks(blocks) {
+  const container = document.getElementById('bcBlocksContainer');
+  if (!container) return;
+
+  if (!blocks.length) {
+    container.innerHTML = '<p class="muted">No blocks in the current evidence ledger.</p>';
+    return;
+  }
+
+  container.innerHTML = blocks.map((b, idx) => {
+    const isGenesis = b.index === 0;
+    const catColors = {
+      SYSTEM: '#475569',
+      TELEPHONY: '#2563EB',
+      FINANCIAL: '#059669',
+      LEGAL: '#DC2626',
+      SURVEILLANCE: '#D97706',
+      OSINT: '#7C3AED',
+      GRAPH: '#0891B2'
+    };
+    const color = catColors[b.category] || '#2563EB';
+
+    return `
+      <div style="display:flex;flex-direction:column;align-items:stretch;margin-bottom:12px">
+        <!-- Chaining link indicator between blocks -->
+        ${idx > 0 ? `
+          <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin:-6px 0 6px;color:var(--muted);font-size:11px">
+            <span>⬇️</span> <span class="mono muted" style="font-size:10px">SHA-256 Link: Prev Block Hash Matched</span>
+          </div>
+        ` : ''}
+
+        <!-- Block Card -->
+        <div class="card" style="margin:0;border-left:4px solid ${color};padding:16px;background:var(--panel)">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-weight:700;font-size:14px">Block #${b.index}: ${b.block_name}</span>
+              <span class="tag" style="background:${color}1A;color:${color}">${b.category}</span>
+            </div>
+            <span class="muted mono" style="font-size:11px">${b.timestamp}</span>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));gap:10px;font-size:12px;margin-bottom:10px">
+            <div>
+              <span class="muted" style="display:block;font-size:10px;text-transform:uppercase">Block Hash (SHA-256):</span>
+              <code class="mono" style="font-size:11px;color:var(--text);word-break:break-all">${b.block_hash}</code>
+            </div>
+            <div>
+              <span class="muted" style="display:block;font-size:10px;text-transform:uppercase">Previous Block Hash:</span>
+              <code class="mono" style="font-size:11px;color:var(--muted);word-break:break-all">${b.previous_hash}</code>
+            </div>
+            <div>
+              <span class="muted" style="display:block;font-size:10px;text-transform:uppercase">Merkle Subtree Root:</span>
+              <code class="mono" style="font-size:11px;color:var(--accent);word-break:break-all">${b.merkle_root}</code>
+            </div>
+            <div>
+              <span class="muted" style="display:block;font-size:10px;text-transform:uppercase">Verified Records Contained:</span>
+              <span style="font-weight:700;color:#10B981">${b.records_count} records</span>
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <button class="btn" style="font-size:11px;padding:3px 8px" onclick="toggleBlockRecords(${b.index})">
+              🔍 Inspect Cryptographic Leaf Hashes (${(b.sample_leaf_hashes || []).length} shown)
+            </button>
+            <span class="muted" style="font-size:11px">Custodian: ${b.officer || 'Investigating Officer'}</span>
+          </div>
+
+          <!-- Collapsible Leaf Hashes Panel -->
+          <div id="blockLeafs_${b.index}" style="display:none;margin-top:10px;padding:10px;background:var(--bg);border-radius:6px;border:1px solid var(--border)">
+            <div class="muted" style="font-size:11px;margin-bottom:4px">Sample Merkle Leaf Hashes (SHA-256):</div>
+            ${(b.sample_leaf_hashes || []).map(h => `<div class="mono" style="font-size:10px;color:var(--text);padding:2px 0">• ${h}</div>`).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleBlockRecords(idx) {
+  const el = document.getElementById(`blockLeafs_${idx}`);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function copyMerkleRoot() {
+  if (!_blockchainData || !_blockchainData.master_merkle_root) return;
+  navigator.clipboard.writeText(_blockchainData.master_merkle_root).then(() => {
+    alert('Master Merkle Root copied to clipboard:\n' + _blockchainData.master_merkle_root);
+  }).catch(() => {
+    prompt('Copy Master Merkle Root:', _blockchainData.master_merkle_root);
+  });
+}
+
+function setSampleVerifyHash(mode) {
+  const inp = document.getElementById('bcVerifyInput');
+  if (!inp) return;
+  if (mode === 'valid') {
+    if (_blockchainData && _blockchainData.blocks && _blockchainData.blocks.length > 1) {
+      inp.value = _blockchainData.blocks[1].block_hash;
+    } else {
+      inp.value = _blockchainData?.master_merkle_root || 'c8b21f92e2195f3242ba4de389945df84b2382e705b76685bb3ea8a6cb57f7fa';
+    }
+  } else {
+    inp.value = 'deadbeef0000111122223333444455556666777788889999aaaabbbbccccdddd';
+  }
+}
+
+async function executeEvidenceHashVerification() {
+  const inp = document.getElementById('bcVerifyInput');
+  const resBox = document.getElementById('bcVerifyResultBox');
+  if (!inp || !resBox) return;
+
+  const q = inp.value.trim();
+  if (!q) {
+    resBox.style.display = 'block';
+    resBox.innerHTML = '<span style="color:#B91C1C">Please enter a hash or text payload to verify.</span>';
+    return;
+  }
+
+  resBox.style.display = 'block';
+  resBox.innerHTML = '<span class="muted">Querying cryptographic Merkle tree...</span>';
+
+  try {
+    const verifyUrl = _currentInv ? `/investigations/${_currentInv}/verify-evidence-hash` : '/verify-evidence-hash';
+    const res = await api(verifyUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: q, hash: q })
+    });
+
+    if (res.verified) {
+      resBox.style.background = '#ECFDF5';
+      resBox.style.border = '1px solid #A7F3D0';
+      resBox.innerHTML = `
+        <div style="color:#065F46;font-weight:700;font-size:13px">✓ CRYPTOGRAPHICALLY VERIFIED &amp; TAMPER-PROOF</div>
+        <div style="color:#047857;font-size:11px;margin-top:4px">
+          <b>Match Type:</b> ${res.match_type || 'Block / Leaf Hash Match'}<br>
+          <b>Location:</b> ${res.block_name ? `Block #${res.block_index}: ${res.block_name}` : 'Master Merkle Chain'}<br>
+          <b>Computed Hash:</b> <code class="mono">${res.target_hash}</code><br>
+          <b>Audit Verdict:</b> Record is authentic, unaltered, and preserved in the official chain of custody.
+        </div>
+      `;
+    } else {
+      resBox.style.background = '#FEF2F2';
+      resBox.style.border = '1px solid #FECACA';
+      resBox.innerHTML = `
+        <div style="color:#B91C1C;font-weight:700;font-size:13px">⚠️ INTEGRITY MISMATCH / RECORD NOT FOUND</div>
+        <div style="color:#991B1B;font-size:11px;margin-top:4px">
+          <b>Target Hash:</b> <code class="mono">${res.target_hash}</code><br>
+          <b>Audit Verdict:</b> This hash does not exist in the evidence ledger. Record may be fabricated, modified, or not ingested into this investigation.
+        </div>
+      `;
+    }
+  } catch (err) {
+    resBox.innerHTML = `<div class="error">Verification error: ${err.message}</div>`;
+  }
+}
+
+function downloadChainOfCustodyCertificate() {
+  if (!_custodyCertData) {
+    alert('Certificate data is still loading. Please try again.');
+    return;
+  }
+  const blob = new Blob([JSON.stringify(_custodyCertData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Section63_BSA_Certificate_${_custodyCertData.certificate_id || 'Case'}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* =========================================================================
+   TACTICAL TAKEDOWN & RAID OPTIMIZATION SIMULATOR CONTROLLER (PILLAR 5)
+   ========================================================================= */
+let _takedownStrategiesData = [];
+let _takedownSuspectsData = [];
+let _activeStrategyId = null;
+let _currentOpOrderData = null;
+let _lastSimulationResults = null;
+
+async function loadTakedownView() {
+  const stratUrl = _currentInv ? `/investigations/${_currentInv}/takedown/strategies` : '/takedown/strategies';
+
+  try {
+    const res = await api(stratUrl);
+    _takedownStrategiesData = res.strategies || [];
+    _takedownSuspectsData = res.available_suspects || [];
+
+    // Render strategy cards
+    renderStrategyCards();
+
+    // Render suspect checklist
+    renderTakedownSuspectsList();
+
+    // Default to first strategy (AI Optimal)
+    if (_takedownStrategiesData.length > 0) {
+      selectStrategyPreset(_takedownStrategiesData[0].id);
+    }
+  } catch (err) {
+    console.error("Failed to load takedown strategies:", err);
+  }
+}
+
+function renderStrategyCards() {
+  const box = document.getElementById('takedownStrategyCards');
+  if (!box) return;
+
+  if (!_takedownStrategiesData.length) {
+    box.innerHTML = '<p class="muted">Loading tactical strike strategies…</p>';
+    return;
+  }
+
+  box.innerHTML = _takedownStrategiesData.map(s => {
+    const isSelected = s.id === _activeStrategyId;
+    const pillClass = s.id === 'strategy_sync' ? 'td-pill-green' : s.id === 'strategy_bridge' ? 'td-pill-blue' : s.id === 'strategy_decap' ? 'td-pill-yellow' : 'td-pill-purple';
+    const shortBadge = s.id === 'strategy_sync' ? '⚡ AI OPTIMAL' : s.id === 'strategy_bridge' ? '🌉 INTERDICTION' : s.id === 'strategy_decap' ? '👑 DECAPITATION' : '💳 ASSET FREEZE';
+    const score = s.metrics?.dismantlement_score_pct || 0;
+    const targetCount = (s.target_ids || []).length;
+
+    return `
+      <div class="td-strat-card ${isSelected ? 'active' : ''}" id="stratCard_${s.id}" onclick="selectStrategyPreset('${s.id}')">
+        <span class="td-active-tag">ACTIVE STRATEGY ✓</span>
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span class="td-pill ${pillClass}">${shortBadge}</span>
+            <span class="mono muted" style="font-size:11px;font-weight:700">${targetCount} Targets</span>
+          </div>
+          <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;line-height:1.3">${s.name}</div>
+          <div class="muted" style="font-size:11px;line-height:1.45;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${s.description}</div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--border);margin-top:auto">
+          <div>
+            <div class="muted" style="font-size:10px;text-transform:uppercase">Collapse Score</div>
+            <div style="font-size:16px;font-weight:800;color:#EF4444">${score}%</div>
+          </div>
+          <button class="btn" style="padding:4px 10px;font-size:11px;border-radius:6px" onclick="event.stopPropagation();selectStrategyPreset('${s.id}')">
+            ${isSelected ? 'Selected' : 'Select'}
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function filterTakedownSuspects() {
+  const q = (document.getElementById('tdSuspectSearch')?.value || '').toLowerCase().trim();
+  renderTakedownSuspectsList(q);
+}
+
+function renderTakedownSuspectsList(filterQuery = '') {
+  const box = document.getElementById('takedownSuspectsList');
+  if (!box) return;
+
+  let suspects = _takedownSuspectsData;
+  if (filterQuery) {
+    suspects = suspects.filter(s => 
+      (s.name || '').toLowerCase().includes(filterQuery) ||
+      (s.id || '').toLowerCase().includes(filterQuery) ||
+      (s.role || '').toLowerCase().includes(filterQuery) ||
+      (s.cell || '').toLowerCase().includes(filterQuery)
+    );
+  }
+
+  if (!suspects.length) {
+    box.innerHTML = '<p class="muted" style="font-size:11px;text-align:center;padding:16px">No suspects matching search criteria.</p>';
+    return;
+  }
+
+  // Check which are currently selected
+  const currentlyChecked = new Set(Array.from(document.querySelectorAll('.td-suspect-check:checked')).map(cb => cb.value));
+
+  box.innerHTML = suspects.map(s => {
+    const isChecked = currentlyChecked.has(s.id);
+    const cellLetter = s.cell ? s.cell.charAt(0).toUpperCase() : '?';
+    const isHighThreat = ['Kingpin', 'Leader', 'Lieutenant', 'Boss'].includes(s.role);
+    const threatClass = isHighThreat ? 'threat-HIGH' : s.role === 'Bridge' ? 'threat-MEDIUM' : 'threat-LOW';
+    const threatLabel = isHighThreat ? 'CRITICAL' : s.role === 'Bridge' ? 'HIGH' : 'STANDARD';
+
+    return `
+      <div class="td-suspect-item ${isChecked ? 'selected' : ''}" id="suspectRow_${s.id}" onclick="toggleSuspectCheckbox('${s.id}')">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1">
+          <input type="checkbox" class="td-suspect-check" value="${s.id}" ${isChecked ? 'checked' : ''} 
+                 onclick="event.stopPropagation();onTargetCheckboxChanged()" style="cursor:pointer">
+          <div style="width:26px;height:26px;border-radius:50%;background:rgba(59,130,246,0.15);color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;flex-shrink:0">
+            ${cellLetter}
+          </div>
+          <div style="min-width:0;overflow:hidden">
+            <div style="font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+              ${s.name} <span class="mono muted" style="font-size:10px">(${s.id})</span>
+            </div>
+            <div class="muted" style="font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+              ${s.role} · Cell ${s.cell}
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+          <span class="threat ${threatClass}" style="font-size:9px">${threatLabel}</span>
+          <span class="tag" style="font-size:10px;padding:2px 5px">PR ${s.pagerank || 0}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleSuspectCheckbox(id) {
+  const cb = document.querySelector(`.td-suspect-check[value="${id}"]`);
+  if (cb) {
+    cb.checked = !cb.checked;
+    onTargetCheckboxChanged();
+  }
+}
+
+function selectStrategyPreset(strategyId) {
+  _activeStrategyId = strategyId;
+  const strat = _takedownStrategiesData.find(s => s.id === strategyId);
+  if (!strat) return;
+
+  // Update card active classes
+  document.querySelectorAll('#takedownStrategyCards .td-strat-card').forEach(c => c.classList.remove('active'));
+  const activeCard = document.getElementById(`stratCard_${strategyId}`);
+  if (activeCard) activeCard.classList.add('active');
+
+  // Check the corresponding boxes
+  const targetSet = new Set(strat.target_ids || []);
+  document.querySelectorAll('.td-suspect-check').forEach(cb => {
+    cb.checked = targetSet.has(cb.value);
+    const row = document.getElementById(`suspectRow_${cb.value}`);
+    if (row) {
+      if (cb.checked) row.classList.add('selected');
+      else row.classList.remove('selected');
+    }
+  });
+
+  updateSelectedCountTag(targetSet.size);
+
+  // Render metrics from strategy
+  if (strat.metrics) {
+    _lastSimulationResults = strat.metrics;
+    renderTakedownMetrics(strat.metrics);
+  } else {
+    runCustomTakedownSimulation();
+  }
+}
+
+function onTargetCheckboxChanged() {
+  const checked = Array.from(document.querySelectorAll('.td-suspect-check:checked')).map(cb => cb.value);
+  updateSelectedCountTag(checked.length);
+  
+  // Update row highlights
+  document.querySelectorAll('.td-suspect-check').forEach(cb => {
+    const row = document.getElementById(`suspectRow_${cb.value}`);
+    if (row) {
+      if (cb.checked) row.classList.add('selected');
+      else row.classList.remove('selected');
+    }
+  });
+
+  _activeStrategyId = null;
+  document.querySelectorAll('#takedownStrategyCards .td-strat-card').forEach(c => c.classList.remove('active'));
+}
+
+function updateSelectedCountTag(count) {
+  const tag = document.getElementById('selectedTargetCountTag');
+  if (tag) tag.textContent = `${count} Targets Selected`;
+}
+
+function selectTargetsByRole(role) {
+  document.querySelectorAll('.td-suspect-check').forEach(cb => {
+    const s = _takedownSuspectsData.find(x => x.id === cb.value);
+    if (!s) return;
+    if (role === 'ALL') {
+      cb.checked = true;
+    } else if (role === 'Leader') {
+      cb.checked = ['Kingpin', 'Leader', 'Lieutenant', 'Boss'].includes(s.role) || (s.pagerank > 0.05);
+    } else if (role === 'Bridge') {
+      cb.checked = ['Bridge', 'Coordinator', 'Courier', 'Facilitator'].includes(s.role) || (s.betweenness > 0.05);
+    } else if (role === 'Mule') {
+      cb.checked = ['Mule', 'Financier', 'Hawala', 'Transactor', 'Accountant'].includes(s.role) || (s.role.toLowerCase().includes('mule'));
+    }
+    const row = document.getElementById(`suspectRow_${cb.value}`);
+    if (row) {
+      if (cb.checked) row.classList.add('selected');
+      else row.classList.remove('selected');
+    }
+  });
+  
+  const checked = Array.from(document.querySelectorAll('.td-suspect-check:checked')).map(cb => cb.value);
+  updateSelectedCountTag(checked.length);
+  _activeStrategyId = null;
+  document.querySelectorAll('#takedownStrategyCards .td-strat-card').forEach(c => c.classList.remove('active'));
+  
+  runCustomTakedownSimulation();
+}
+
+function clearSelectedTargets() {
+  document.querySelectorAll('.td-suspect-check').forEach(cb => {
+    cb.checked = false;
+    const row = document.getElementById(`suspectRow_${cb.value}`);
+    if (row) row.classList.remove('selected');
+  });
+  updateSelectedCountTag(0);
+  _activeStrategyId = null;
+  document.querySelectorAll('#takedownStrategyCards .td-strat-card').forEach(c => c.classList.remove('active'));
+
+  _lastSimulationResults = {
+    dismantlement_score_pct: 0,
+    isolated_fragments_count: 1,
+    recoverable_assets_inr: 0,
+    severed_channels_count: 0,
+    tactical_resource_allocation: { armed_tactical_units: 0, cyber_forensics_officers: 0, perimeter_containment_squads: 0, total_personnel_required: 0 },
+    succession_risk: "No strike active",
+    optimal_strike_window: "Standby"
+  };
+  renderTakedownMetrics(_lastSimulationResults);
+}
+
+async function runCustomTakedownSimulation() {
+  const checked = Array.from(document.querySelectorAll('.td-suspect-check:checked')).map(cb => cb.value);
+  if (!checked.length) {
+    alert('Please select at least 1 suspect target to simulate raid impact.');
+    return;
+  }
+
+  const freezeAcc = document.getElementById('freezeAccountsCheck')?.checked ?? true;
+  const simUrl = _currentInv ? `/investigations/${_currentInv}/takedown/simulate` : '/takedown/simulate';
+
+  try {
+    const res = await api(simUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        target_ids: checked,
+        freeze_accounts: freezeAcc
+      })
+    });
+
+    _lastSimulationResults = res;
+    renderTakedownMetrics(res);
+  } catch (err) {
+    console.error("Simulation error:", err);
+  }
+}
+
+function renderTakedownMetrics(m) {
+  if (!m) return;
+
+  if (document.getElementById('tdCollapseScore')) document.getElementById('tdCollapseScore').textContent = `${m.dismantlement_score_pct || 0}%`;
+  if (document.getElementById('tdFragmentsCount')) document.getElementById('tdFragmentsCount').textContent = m.isolated_fragments_count || 1;
+  if (document.getElementById('tdSeizedAssets')) document.getElementById('tdSeizedAssets').textContent = `₹${Number(m.recoverable_assets_inr || 0).toLocaleString('en-IN')}`;
+  if (document.getElementById('tdSeveredCount')) document.getElementById('tdSeveredCount').textContent = m.severed_channels_count || 0;
+
+  const res = m.tactical_resource_allocation || {};
+  if (document.getElementById('tdSwatCount')) document.getElementById('tdSwatCount').textContent = `${res.armed_tactical_units || 0} Squads (${(res.armed_tactical_units || 0) * 4} Officers)`;
+  if (document.getElementById('tdCyberCount')) document.getElementById('tdCyberCount').textContent = `${res.cyber_forensics_officers || 0} Specialists`;
+  if (document.getElementById('tdPerimeterCount')) document.getElementById('tdPerimeterCount').textContent = `${res.perimeter_containment_squads || 0} Squads`;
+  if (document.getElementById('tdPersonnelTotalTag')) document.getElementById('tdPersonnelTotalTag').textContent = `${res.total_personnel_required || 0} Total Officers Required`;
+
+  if (document.getElementById('tdSuccessionRisk')) document.getElementById('tdSuccessionRisk').textContent = m.succession_risk || 'Undetermined';
+  if (document.getElementById('tdStrikeWindow')) document.getElementById('tdStrikeWindow').textContent = m.optimal_strike_window || '03:30 - 05:00 hrs IST';
+}
+
+async function openOperationOrderModal(strategyId) {
+  const modal = document.getElementById('opOrderModal');
+  const contentBox = document.getElementById('opOrderModalContent');
+  if (!modal || !contentBox) return;
+
+  modal.classList.add('active');
+  contentBox.innerHTML = `
+    <div style="text-align:center;padding:40px 20px">
+      <div style="font-size:32px;margin-bottom:12px">⚡</div>
+      <h3 style="margin:0 0 6px">Synthesizing Police Operation Order (OP-ORDER)…</h3>
+      <p class="muted" style="margin:0;font-size:12px">Computing tactical force requisitions and statutory directives under Sec 63 BSA 2023 &amp; Sec 91 CrPC.</p>
+    </div>
+  `;
+
+  // Determine targets:
+  const checked = Array.from(document.querySelectorAll('.td-suspect-check:checked')).map(cb => cb.value);
+  let targetIds = checked.length > 0 ? checked : null;
+  let stratId = strategyId || _activeStrategyId;
+
+  // Fallback if nothing selected at all
+  if (!targetIds && !stratId && _takedownStrategiesData.length > 0) {
+    stratId = _takedownStrategiesData[0].id;
+  }
+
+  const opUrl = _currentInv ? `/investigations/${_currentInv}/takedown/operation-order` : '/takedown/operation-order';
+  const user = getUser();
+  const commanderName = user?.name ? `Officer ${user.name} (${(user.role || 'Investigator').toUpperCase()})` : "Joint Commissioner of Police";
+
+  try {
+    const res = await api(opUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        target_ids: targetIds,
+        strategy_id: targetIds ? null : stratId,
+        commander_name: commanderName,
+        operation_codename: "OPERATION SYNTHETIC STORM"
+      })
+    });
+
+    _currentOpOrderData = res;
+    renderOperationOrderModalContent(res);
+  } catch (err) {
+    contentBox.innerHTML = `
+      <div style="background:rgba(239,68,68,0.1);border:1px solid #EF4444;border-radius:8px;padding:16px;color:#FCA5A5">
+        <b>Failed to generate Operation Order:</b>
+        <div style="margin-top:6px;font-size:12px">${err.message || err}</div>
+        <div style="margin-top:12px">
+          <button class="btn" onclick="openOperationOrderModal()">🔄 Retry</button>
+        </div>
+      </div>
+    `;
+  }
+}
+
+function renderOperationOrderModalContent(op) {
+  const contentBox = document.getElementById('opOrderModalContent');
+  if (!contentBox) return;
+
+  const res = op.tactical_resource_orders || {};
+  const targets = op.target_manifest || [];
+
+  contentBox.innerHTML = `
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:18px;margin-bottom:14px">
+      
+      <!-- Top Classification Banner -->
+      <div style="background:#450A0A;border:1px solid #DC2626;border-radius:6px;padding:6px 12px;text-align:center;margin-bottom:14px">
+        <span style="font-size:11px;font-weight:900;letter-spacing:1.5px;color:#FCA5A5">${op.security_classification || 'TOP SECRET // LAW ENFORCEMENT SENSITIVE'}</span>
+      </div>
+
+      <!-- Header Info -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;border-bottom:2px solid var(--accent);padding-bottom:12px;margin-bottom:14px">
+        <div>
+          <div class="muted" style="font-size:10px;text-transform:uppercase;letter-spacing:1px">TACTICAL RAID DOSSIER</div>
+          <h2 style="font-size:20px;margin:2px 0 4px;color:var(--text)">${op.operation_codename}</h2>
+          <div class="mono" style="font-size:12px;color:var(--accent);font-weight:700">${op.operation_order_id}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:12px"><b>COMMANDING OFFICER:</b> ${op.commanding_officer}</div>
+          <div class="muted" style="font-size:11px;margin-top:2px"><b>OPTIMAL H-HOUR:</b> ${op.execution_window}</div>
+        </div>
+      </div>
+
+      <!-- 1. Strategic Objective -->
+      <div style="margin-bottom:14px">
+        <div style="font-weight:800;font-size:12px;color:var(--text);margin-bottom:4px">1. STRATEGIC DISMANTLEMENT OBJECTIVE</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;background:rgba(255,255,255,0.02);padding:10px;border-radius:6px;border:1px solid var(--border)">
+          ${op.strategic_objective}
+        </div>
+      </div>
+
+      <!-- 2. Target Manifest -->
+      <div style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div style="font-weight:800;font-size:12px;color:var(--text)">2. PRIMARY SUSPECT TARGET MANIFEST (${targets.length} TARGETS)</div>
+          <span class="tag" style="font-size:10px">Simultaneous Cordon Sweep</span>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);text-align:left">
+              <th style="padding:6px 8px">Suspect Name &amp; ID</th>
+              <th style="padding:6px 8px">Role / Syndicate Cell</th>
+              <th style="padding:6px 8px">Threat &amp; Weapon Priors</th>
+              <th style="padding:6px 8px">Target Primary Coordinate</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${targets.map(t => `
+              <tr style="border-bottom:1px solid var(--border)">
+                <td style="padding:6px 8px">
+                  <b>${t.name}</b> <span class="mono muted">(${t.target_id})</span>
+                </td>
+                <td style="padding:6px 8px">${t.role} (Cell ${t.cell})</td>
+                <td style="padding:6px 8px">
+                  <span class="threat ${t.weapon_involved ? 'threat-HIGH' : 'threat-LOW'}" style="font-size:9px">${t.risk_level}</span>
+                </td>
+                <td style="padding:6px 8px;font-size:10px" class="muted">${t.known_address || 'Metropolitan Sector'}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 3. Force Requisition & Asset Recovery -->
+      <div style="margin-bottom:14px;background:rgba(59,130,246,0.04);padding:12px;border-radius:6px;border:1px solid rgba(59,130,246,0.2)">
+        <div style="font-weight:800;font-size:12px;color:var(--text);margin-bottom:8px">3. TACTICAL FORCE REQUISITION &amp; ASSET SEIZURE</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));gap:10px;font-size:11px">
+          <div>• <b>Armed SWAT Assault Units:</b> <span style="font-weight:700;color:#EF4444">${res.armed_tactical_units || 0} squads</span></div>
+          <div>• <b>Cyber Digital Forensics:</b> <span style="font-weight:700;color:#60A5FA">${res.cyber_forensics_officers || 0} specialists</span></div>
+          <div>• <b>Perimeter Lockdown Units:</b> <span style="font-weight:700;color:#FBBF24">${res.perimeter_containment_squads || 0} squads</span></div>
+          <div>• <b>Estimated Asset Seizures:</b> <span style="color:#10B981;font-weight:800">${op.estimated_asset_recovery_inr}</span></div>
+        </div>
+      </div>
+
+      <!-- 4. Statutory Directives -->
+      <div>
+        <div style="font-weight:800;font-size:12px;color:var(--text);margin-bottom:6px">4. STATUTORY EVIDENCE &amp; INVESTIGATION DIRECTIVES</div>
+        <div style="font-size:11px;line-height:1.6;color:var(--muted)">
+          ${(op.legal_and_procedural_directives || []).map(d => `<div style="margin-bottom:4px;padding-left:12px;text-indent:-12px">• ${d}</div>`).join('')}
+        </div>
+      </div>
+
+    </div>
+  `;
+}
+
+function closeOperationOrderModal() {
+  const modal = document.getElementById('opOrderModal');
+  if (modal) modal.classList.remove('active');
+}
+
+function downloadOperationOrderJSON() {
+  if (!_currentOpOrderData) return;
+  const blob = new Blob([JSON.stringify(_currentOpOrderData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${_currentOpOrderData.operation_order_id || 'Operation_Order'}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 let _reportData = null;
 
 async function loadReportPreview() {
@@ -2504,9 +4476,12 @@ async function loadReportPreview() {
                 <tr>
                   <td><b>#${i + 1}</b></td>
                   <td>
-                    <button class="btn" style="font-size:12px;font-weight:600;padding:2px 6px" onclick="openPerson('${l.entity_id}')">
-                      👤 ${getFullName(l.entity_id)}
-                    </button>
+                    <div style="display:flex;gap:8px;align-items:center">
+                      <img src="${API}/mugshots/${l.entity_id}.jpg" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(getPlainName(l.entity_id))}&background=1E40AF&color=fff'" style="width:36px;height:36px;border-radius:6px;object-fit:cover;border:1px solid var(--border)">
+                      <button class="btn" style="font-size:12px;font-weight:600;padding:2px 6px" onclick="openPerson('${l.entity_id}')">
+                        👤 ${getFullName(l.entity_id)}
+                      </button>
+                    </div>
                   </td>
                   <td><span class="chip">${l.role || 'Operative'}</span></td>
                   <td>
@@ -2545,7 +4520,7 @@ async function loadReportPreview() {
           <tbody>
             ${bridges.map((b, i) => `
               <tr>
-                <td><button class="btn" style="font-size:12px;padding:2px 6px" onclick="openPerson('${b.entity_id}')">👤 ${getFullName(b.entity_id)}</button></td>
+                <td><div style="display:flex;gap:6px;align-items:center"><img src="${API}/mugshots/${b.entity_id}.jpg" onerror="this.style.display='none'" style="width:28px;height:28px;border-radius:5px;object-fit:cover;border:1px solid var(--border)"><button class="btn" style="font-size:12px;padding:2px 6px" onclick="openPerson('${b.entity_id}')">👤 ${getFullName(b.entity_id)}</button></div></td>
                 <td><b>Rank #${i + 1}</b> (Score: ${((b.signals || {}).bridge_score ?? '—')})</td>
                 <td><span class="chip">Cell ${b.cell || 'Main'} ➔ Cross-Cell</span></td>
                 <td style="font-size:12px;color:var(--text)">High strategic interception value. Acts as communication courier bridging isolated network clusters.</td>

@@ -29,6 +29,23 @@ from backend.analytics.lead_scoring import compute_lead_scores, get_leads, lead_
 from backend.analytics.anomaly import get_unified_anomalies
 from backend.analytics.cross_case import detect_cross_case
 from backend.analytics.temporal import get_temporal_intelligence
+from backend.analytics.connection_explainer import explain_connection
+from backend.analytics.case_recommender import generate_case_recommendations
+from backend.analytics.blockchain_ledger import (
+    build_blockchain_ledger,
+    generate_chain_of_custody_certificate,
+    verify_evidence_hash_in_ledger
+)
+from backend.analytics.geospatial import (
+    get_cell_towers_geospatial,
+    get_suspect_trajectories,
+    get_co_location_hotspots
+)
+from backend.analytics.takedown_simulator import (
+    simulate_takedown,
+    get_takedown_strategies,
+    generate_operation_order
+)
 from backend.auth import CAN_UPLOAD, CAN_VIEW_GRAPH, REQUIRE_SUPERVISOR, authenticate, create_token, get_current_user
 from backend.loader import load_all
 from backend.config import DATA_DIR, PROJECT_ROOT
@@ -926,6 +943,199 @@ def get_temporal(iid: Optional[str] = Query(None), user: dict = Depends(get_curr
     audit_log("/temporal", [f"{g['span']}" for g in ti["correlated_groups"]])
     return ti
 
+@app.get("/connections/explain")
+def explain_connection_endpoint(
+    src: str = Query(..., description="Source entity ID"),
+    dst: str = Query(..., description="Target entity ID"),
+    iid: Optional[str] = Query(None, description="Optional Investigation ID"),
+    user: dict = Depends(get_current_user)
+):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
+    res = explain_connection(src_id=src, dst_id=dst, datasets=datasets, graph=serial)
+    audit_log(f"/connections/explain {src} <-> {dst}", [src, dst])
+    return res
+
+@app.get("/investigations/{iid}/explain-connection")
+def explain_inv_connection_endpoint(
+    iid: str,
+    src: str = Query(..., description="Source entity ID"),
+    dst: str = Query(..., description="Target entity ID"),
+    user: dict = Depends(get_current_user)
+):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
+    res = explain_connection(src_id=src, dst_id=dst, datasets=datasets, graph=serial)
+    audit_log(f"/investigations/{iid}/explain-connection {src} <-> {dst}", [src, dst])
+    return res
+
+@app.get("/recommendations")
+def get_recommendations_endpoint(
+    target_pid: Optional[str] = Query(None, description="Optional focal suspect ID"),
+    iid: Optional[str] = Query(None, description="Optional Investigation ID"),
+    limit: int = Query(10, ge=1, le=50),
+    user: dict = Depends(get_current_user)
+):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
+    res = generate_case_recommendations(datasets=datasets, graph=serial, target_pid=target_pid, limit=limit)
+    audit_log(f"/recommendations?iid={iid}&target_pid={target_pid}", [r["target_id"] for r in res.get("recommendations", [])])
+    return res
+
+@app.get("/investigations/{iid}/recommendations")
+def get_inv_recommendations_endpoint(
+    iid: str,
+    target_pid: Optional[str] = Query(None, description="Optional focal suspect ID"),
+    limit: int = Query(10, ge=1, le=50),
+    user: dict = Depends(get_current_user)
+):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
+    res = generate_case_recommendations(datasets=datasets, graph=serial, target_pid=target_pid, limit=limit)
+    audit_log(f"/investigations/{iid}/recommendations", [r["target_id"] for r in res.get("recommendations", [])])
+    return res
+
+@app.get("/people/{pid}/recommendations")
+def get_person_recommendations_endpoint(
+    pid: str,
+    iid: Optional[str] = Query(None),
+    limit: int = Query(6, ge=1, le=20),
+    user: dict = Depends(get_current_user)
+):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
+    res = generate_case_recommendations(datasets=datasets, graph=serial, target_pid=pid, limit=limit)
+    audit_log(f"/people/{pid}/recommendations", [r["target_id"] for r in res.get("recommendations", [])])
+    return res
+
+# -------------------------------------------------------------
+# Blockchain & Evidence Chain-of-Custody (Section 63 BSA / 65B IEA)
+# -------------------------------------------------------------
+@app.get("/blockchain-ledger")
+def get_blockchain_ledger_endpoint(iid: Optional[str] = Query(None), user: dict = Depends(get_current_user)):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
+    case_name = "Master Network Case"
+    if iid:
+        meta = get_meta(iid)
+        if meta: case_name = meta.get("name", case_name)
+    ledger = build_blockchain_ledger(datasets=datasets, graph=serial, case_name=case_name, officer=user.get("name") or user.get("username", "Investigator"))
+    audit_log(f"/blockchain-ledger (master_hash: {ledger['master_merkle_root'][:10]})", [b["block_hash"] for b in ledger["blocks"]])
+    return ledger
+
+@app.get("/investigations/{iid}/blockchain-ledger")
+def get_inv_blockchain_ledger_endpoint(iid: str, user: dict = Depends(get_current_user)):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
+    meta = get_meta(iid)
+    case_name = meta.get("name", f"Investigation {iid}") if meta else f"Investigation {iid}"
+    ledger = build_blockchain_ledger(datasets=datasets, graph=serial, case_name=case_name, officer=user.get("name") or user.get("username", "Investigator"))
+    audit_log(f"/investigations/{iid}/blockchain-ledger", [b["block_hash"] for b in ledger["blocks"]])
+    return ledger
+
+@app.get("/chain-of-custody-certificate")
+def get_chain_of_custody_cert_endpoint(iid: Optional[str] = Query(None), user: dict = Depends(get_current_user)):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
+    case_name = "Master Network Case"
+    if iid:
+        meta = get_meta(iid)
+        if meta: case_name = meta.get("name", case_name)
+    ledger = build_blockchain_ledger(datasets=datasets, graph=serial, case_name=case_name, officer=user.get("name") or user.get("username", "Investigator"))
+    cert = generate_chain_of_custody_certificate(ledger, officer_name=user.get("name") or user.get("username", "Investigator"))
+    audit_log(f"/chain-of-custody-certificate (cert: {cert['certificate_id']})", [cert["certificate_id"]])
+    return cert
+
+@app.get("/investigations/{iid}/chain-of-custody-certificate")
+def get_inv_chain_of_custody_cert_endpoint(iid: str, user: dict = Depends(get_current_user)):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
+    meta = get_meta(iid)
+    case_name = meta.get("name", f"Investigation {iid}") if meta else f"Investigation {iid}"
+    ledger = build_blockchain_ledger(datasets=datasets, graph=serial, case_name=case_name, officer=user.get("name") or user.get("username", "Investigator"))
+    cert = generate_chain_of_custody_certificate(ledger, officer_name=user.get("name") or user.get("username", "Investigator"))
+    audit_log(f"/investigations/{iid}/chain-of-custody-certificate", [cert["certificate_id"]])
+    return cert
+
+class VerifyHashRequest(BaseModel):
+    query: Optional[str] = None
+    hash: Optional[str] = None
+    iid: Optional[str] = None
+
+@app.post("/verify-evidence-hash")
+def verify_hash_endpoint(payload: VerifyHashRequest, user: dict = Depends(get_current_user)):
+    q = payload.query or payload.hash or ""
+    datasets, serial = _get_inv_datasets_and_serial(payload.iid)
+    case_name = "Master Network Case"
+    if payload.iid:
+        meta = get_meta(payload.iid)
+        if meta: case_name = meta.get("name", case_name)
+    officer = user.get("name") or user.get("username", "Authorized Law Enforcement Officer")
+    ledger = build_blockchain_ledger(datasets=datasets, graph=serial, case_name=case_name, officer=officer)
+    res = verify_evidence_hash_in_ledger(q, ledger)
+    audit_log(f"/verify-evidence-hash query='{q[:30]}'", [res.get("computed_hash", "")])
+    return res
+
+@app.post("/investigations/{iid}/verify-evidence-hash")
+def verify_inv_hash_endpoint(iid: str, payload: VerifyHashRequest, user: dict = Depends(get_current_user)):
+    q = payload.query or payload.hash or ""
+    datasets, serial = _get_inv_datasets_and_serial(iid)
+    meta = get_meta(iid)
+    case_name = meta.get("name", f"Investigation {iid}") if meta else f"Investigation {iid}"
+    officer = user.get("name") or user.get("username", "Authorized Law Enforcement Officer")
+    ledger = build_blockchain_ledger(datasets=datasets, graph=serial, case_name=case_name, officer=officer)
+    res = verify_evidence_hash_in_ledger(q, ledger)
+    audit_log(f"/investigations/{iid}/verify-evidence-hash query='{q[:30]}'", [res.get("computed_hash", "")])
+    return res
+
+# -------------------------------------------------------------
+# Geospatial Map & Cell-Tower Movement Engine
+# -------------------------------------------------------------
+@app.get("/geospatial/towers")
+def get_geo_towers_endpoint(iid: Optional[str] = Query(None), user: dict = Depends(get_current_user)):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
+    data = get_cell_towers_geospatial(datasets=datasets)
+    audit_log("/geospatial/towers", [t["tower_id"] for t in data.get("towers", [])[:10]])
+    return data
+
+@app.get("/investigations/{iid}/geospatial/towers")
+def get_inv_geo_towers_endpoint(iid: str, user: dict = Depends(get_current_user)):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
+    data = get_cell_towers_geospatial(datasets=datasets)
+    audit_log(f"/investigations/{iid}/geospatial/towers", [t["tower_id"] for t in data.get("towers", [])[:10]])
+    return data
+
+@app.get("/geospatial/trajectories")
+def get_geo_trajectories_endpoint(
+    pid: Optional[str] = Query(None),
+    day_start: Optional[int] = Query(None),
+    day_end: Optional[int] = Query(None),
+    iid: Optional[str] = Query(None),
+    user: dict = Depends(get_current_user)
+):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
+    data = get_suspect_trajectories(datasets=datasets, person_id=pid, day_start=day_start, day_end=day_end)
+    audit_log(f"/geospatial/trajectories pid={pid}", [t["person_id"] for t in data.get("trajectories", [])[:10]])
+    return data
+
+@app.get("/investigations/{iid}/geospatial/trajectories")
+def get_inv_geo_trajectories_endpoint(
+    iid: str,
+    pid: Optional[str] = Query(None),
+    day_start: Optional[int] = Query(None),
+    day_end: Optional[int] = Query(None),
+    user: dict = Depends(get_current_user)
+):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
+    data = get_suspect_trajectories(datasets=datasets, person_id=pid, day_start=day_start, day_end=day_end)
+    audit_log(f"/investigations/{iid}/geospatial/trajectories pid={pid}", [t["person_id"] for t in data.get("trajectories", [])[:10]])
+    return data
+
+@app.get("/geospatial/hotspots")
+def get_geo_hotspots_endpoint(iid: Optional[str] = Query(None), user: dict = Depends(get_current_user)):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
+    data = get_co_location_hotspots(datasets=datasets)
+    audit_log("/geospatial/hotspots", [h["location_name"] for h in data.get("hotspots", [])[:10]])
+    return data
+
+@app.get("/investigations/{iid}/geospatial/hotspots")
+def get_inv_geo_hotspots_endpoint(iid: str, user: dict = Depends(get_current_user)):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
+    data = get_co_location_hotspots(datasets=datasets)
+    audit_log(f"/investigations/{iid}/geospatial/hotspots", [h["location_name"] for h in data.get("hotspots", [])[:10]])
+    return data
+
 @app.get("/why/{entity_id}")
 def why_flagged(entity_id: str, iid: Optional[str] = Query(None), user: dict = Depends(get_current_user)):
     import json as js
@@ -1030,6 +1240,92 @@ def why_flagged(entity_id: str, iid: Optional[str] = Query(None), user: dict = D
         "sources": sources[:8],
         "disclaimer": "Potential investigative lead — not a guilt determination. Trace to source records above."
     }
+
+# -------------------------------------------------------------
+# Tactical Takedown & Arrest Optimization Simulator
+# -------------------------------------------------------------
+@app.get("/takedown/strategies")
+def get_takedown_strategies_endpoint(iid: Optional[str] = Query(None), user: dict = Depends(get_current_user)):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
+    data = get_takedown_strategies(datasets=datasets, graph=serial)
+    audit_log("/takedown/strategies", [s["id"] for s in data.get("strategies", [])])
+    return data
+
+@app.get("/investigations/{iid}/takedown/strategies")
+def get_inv_takedown_strategies_endpoint(iid: str, user: dict = Depends(get_current_user)):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
+    data = get_takedown_strategies(datasets=datasets, graph=serial)
+    audit_log(f"/investigations/{iid}/takedown/strategies", [s["id"] for s in data.get("strategies", [])])
+    return data
+
+class SimulateTakedownRequest(BaseModel):
+    target_ids: List[str]
+    freeze_accounts: bool = True
+    iid: Optional[str] = None
+
+@app.post("/takedown/simulate")
+def simulate_takedown_endpoint(payload: SimulateTakedownRequest, user: dict = Depends(get_current_user)):
+    datasets, serial = _get_inv_datasets_and_serial(payload.iid)
+    res = simulate_takedown(
+        target_ids=payload.target_ids,
+        datasets=datasets,
+        graph=serial,
+        freeze_financial_accounts=payload.freeze_accounts
+    )
+    audit_log(f"/takedown/simulate targets={len(payload.target_ids)}", payload.target_ids[:10])
+    return res
+
+@app.post("/investigations/{iid}/takedown/simulate")
+def simulate_inv_takedown_endpoint(iid: str, payload: SimulateTakedownRequest, user: dict = Depends(get_current_user)):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
+    res = simulate_takedown(
+        target_ids=payload.target_ids,
+        datasets=datasets,
+        graph=serial,
+        freeze_financial_accounts=payload.freeze_accounts
+    )
+    audit_log(f"/investigations/{iid}/takedown/simulate targets={len(payload.target_ids)}", payload.target_ids[:10])
+    return res
+
+class OperationOrderRequest(BaseModel):
+    strategy_id: Optional[str] = None
+    target_ids: Optional[List[str]] = None
+    operation_codename: Optional[str] = None
+    codename: Optional[str] = None
+    commander_name: Optional[str] = None
+    iid: Optional[str] = None
+
+@app.post("/takedown/operation-order")
+def create_operation_order_endpoint(payload: OperationOrderRequest, user: dict = Depends(get_current_user)):
+    datasets, serial = _get_inv_datasets_and_serial(payload.iid)
+    commander = payload.commander_name or user.get("name") or user.get("username", "Joint Commissioner of Police")
+    codename = payload.operation_codename or payload.codename or "OPERATION THUNDERCLAP"
+    targets_or_strat = payload.target_ids if payload.target_ids else (payload.strategy_id or "strategy_sync")
+    data = generate_operation_order(
+        strategy_id_or_targets=targets_or_strat,
+        datasets=datasets,
+        graph=serial,
+        commander_name=commander,
+        codename=codename
+    )
+    audit_log(f"/takedown/operation-order ({data['operation_order_id']})", [data["operation_order_id"]])
+    return data
+
+@app.post("/investigations/{iid}/takedown/operation-order")
+def create_inv_operation_order_endpoint(iid: str, payload: OperationOrderRequest, user: dict = Depends(get_current_user)):
+    datasets, serial = _get_inv_datasets_and_serial(iid)
+    commander = payload.commander_name or user.get("name") or user.get("username", "Joint Commissioner of Police")
+    codename = payload.operation_codename or payload.codename or "OPERATION THUNDERCLAP"
+    targets_or_strat = payload.target_ids if payload.target_ids else (payload.strategy_id or "strategy_sync")
+    data = generate_operation_order(
+        strategy_id_or_targets=targets_or_strat,
+        datasets=datasets,
+        graph=serial,
+        commander_name=commander,
+        codename=codename
+    )
+    audit_log(f"/investigations/{iid}/takedown/operation-order", [data["operation_order_id"]])
+    return data
 
 # --- /ask templates --- ordered by specificity (longer triggers first, per design 8 templates)
 ASK_TEMPLATES = [

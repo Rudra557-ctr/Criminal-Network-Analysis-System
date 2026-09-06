@@ -67,3 +67,15 @@ def compute_centrality_networkx(graph_serial: Dict = None, pkl_path: Path = None
 
 def compute_centrality(graph_serial: Dict = None, pkl_path: Path = None) -> List[Dict]:
     return compute_centrality_networkx(graph_serial, pkl_path)
+
+
+def compute_betweenness_centrality(graph_serial: Dict = None, pkl_path: Path = None) -> Dict[str, float]:
+    """Compatibility shim for takedown_simulator: returns {id: betweenness}."""
+    rows = compute_centrality_networkx(graph_serial, pkl_path)
+    return {r["id"]: r.get("betweenness", 0.0) for r in rows}
+
+
+def compute_pagerank(graph_serial: Dict = None, pkl_path: Path = None) -> Dict[str, float]:
+    """Compatibility shim: returns {id: pagerank}."""
+    rows = compute_centrality_networkx(graph_serial, pkl_path)
+    return {r["id"]: r.get("pagerank", 0.0) for r in rows}
