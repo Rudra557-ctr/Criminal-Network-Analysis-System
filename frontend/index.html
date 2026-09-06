@@ -188,20 +188,23 @@ html[data-theme="dark"] .modal-card{
 .burst-banner{display:none;margin-top:10px;padding:12px 16px;border-radius:6px;font-weight:700;text-align:center;
   background:#FFFBEB;border:1px solid #F59E0B;border-left:3px solid #F59E0B;color:#92400E}
 .drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,94vw);background:var(--panel);border-left:1px solid var(--border);
-  box-shadow:-8px 0 24px rgba(15,23,42,.12);z-index:50;transform:translateX(105%);transition:transform .28s ease;
+  box-shadow:-8px 0 24px rgba(15,23,42,.12);z-index:2000000;transform:translateX(105%);transition:transform .28s ease;
   display:flex;flex-direction:column}
 .drawer.open{transform:translateX(0)}
 .drawer-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:16px 18px;border-bottom:1px solid var(--border)}
 .drawer-body{padding:16px 18px;overflow-y:auto}
-.drawer-overlay{position:fixed;inset:0;background:rgba(8,47,73,.45);backdrop-filter:blur(4px);z-index:40;display:none}
+.drawer-overlay{position:fixed;inset:0;background:rgba(8,47,73,.45);backdrop-filter:blur(4px);z-index:1999990;display:none}
 .drawer-overlay.open{display:block}
 .evidence{font-family:ui-monospace,Menlo,monospace;font-size:11px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;white-space:pre-wrap;word-break:break-all}
 .casepill{font-family:ui-monospace,Menlo,monospace;font-size:11px;background:var(--accent-light);color:var(--accent-hover);border:1px solid var(--border);padding:4px 10px;border-radius:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px;font-weight:600}
-.profilepill{display:flex;align-items:center;gap:8px;font-size:12px;background:var(--accent-light);border:1px solid var(--border);padding:5px 6px 5px 12px;border-radius:6px;white-space:nowrap;font-weight:600}
-.profilepill .avatar{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.profilepill{display:flex;align-items:center;gap:8px;background:var(--accent-light);border:1px solid var(--border);padding:6px 10px;border-radius:6px;max-width:100%;box-sizing:border-box;overflow:hidden}
+.profilepill .avatar{width:26px;height:26px;min-width:26px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.profilepill .profile-details{min-width:0;flex:1;overflow:hidden;display:flex;flex-direction:column}
+.profilepill .profile-name{font-weight:700;font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.profilepill .profile-sub{font-size:10.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
 .btn-logout{border-color:#FECACA;color:#DC2626}
 .btn-logout:hover{background:#FEF2F2;border-color:#EF4444}
-.modal-backdrop{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(8,47,73,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:9999;padding:16px}
+.modal-backdrop{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(8,47,73,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:2000010;padding:16px}
 .modal-backdrop.active{display:flex}
 .modal-card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:22px;box-shadow:0 8px 32px rgba(15,23,42,.18);color:var(--text)}
 .tmpl-tab{background:none;border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;color:var(--muted);white-space:nowrap;transition:all .15s}
@@ -396,8 +399,15 @@ html[data-theme="dark"] .badge-success{background:rgba(16,185,129,.14);border-co
 <aside class="sidebar" id="sidebar" style="display:none">
   <h1>CRIMINAL NETWORK ANALYSIS SYSTEM</h1>
   <div class="masthead-sub mono" id="mastheadCase">No active case</div>
-  <span class="profilepill" id="roleBadge" style="display:none;margin-top:12px"><span class="avatar" id="roleAvatar">?</span><span id="roleText"></span></span>
+  <div class="profilepill" id="roleBadge" style="display:none;margin-top:10px">
+    <span class="avatar" id="roleAvatar">?</span>
+    <div class="profile-details">
+      <div class="profile-name" id="roleName"></div>
+      <div class="profile-sub" id="roleText"></div>
+    </div>
+  </div>
   <nav id="mainNav">
+    <button data-view="admin-dashboard" data-roles="supervisor" onclick="navigate('admin-dashboard')">Command</button>
     <button data-view="dashboard" onclick="navigate('dashboard')">Dashboard</button>
     <button data-view="investigations" onclick="navigate('investigations')">Investigations</button>
     <button data-view="people" onclick="navigate('people')">People</button>
@@ -429,23 +439,31 @@ html[data-theme="dark"] .badge-success{background:rgba(16,185,129,.14);border-co
     <label for="loginPass">Password</label>
     <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
     <button class="btn btn-primary" id="loginBtn" onclick="doLogin()" style="width:100%">Sign in</button>
-    <p style="margin-top:8px;font-size:13px">New here? <a href="#" onclick="showSignup(event)" style="color:var(--accent);font-weight:600">Create an account</a></p>
+    <p style="margin-top:8px;font-size:13px">Need an official account? <a href="#" onclick="showSignup(event)" style="color:var(--accent);font-weight:600">Submit Departmental Access Request</a></p>
   </div>
   <div class="card" id="signupCard" style="display:none">
-    <h3>Create account</h3>
+    <h3>Departmental Access Request</h3>
+    <p class="sub" style="text-align:left">Official use only. Your Department In-Charge will review and activate your credentials.</p>
     <div id="signupError"></div>
-    <label for="signupUser">Username</label>
-    <input type="text" id="signupUser" placeholder="3–32 letters, numbers, . _ -" autocomplete="username" onkeydown="if(event.key==='Enter')doRegister()">
-    <label for="signupName">Display name (optional)</label>
-    <input type="text" id="signupName" placeholder="e.g. Inspector Priya" autocomplete="name" onkeydown="if(event.key==='Enter')doRegister()">
-    <label for="signupRole">Role</label>
-    <select id="signupRole">
+    <div id="signupSuccess"></div>
+    <label for="reqName">Full Name</label>
+    <input type="text" id="reqName" placeholder="e.g. Inspector Priya Sharma" autocomplete="name">
+    <label for="reqBadge">Badge / Employee ID</label>
+    <input type="text" id="reqBadge" placeholder="e.g. DL-CYBER-8842">
+    <label for="reqDept">Department / Station Wing</label>
+    <input type="text" id="reqDept" placeholder="e.g. Cyber Crime Investigation Cell">
+    <label for="reqRole">Desired Role</label>
+    <select id="reqRole">
       <option value="investigator">Investigator — view graph &amp; run queries</option>
       <option value="analyst">Analyst — upload &amp; map data</option>
     </select>
-    <label for="signupPass">Password</label>
-    <input type="password" id="signupPass" placeholder="Minimum 6 characters" autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()">
-    <button class="btn btn-primary" id="signupBtn" onclick="doRegister()" style="width:100%">Create account &amp; sign in</button>
+    <label for="reqJust">Purpose / Justification</label>
+    <input type="text" id="reqJust" placeholder="e.g. Assigned to Case 04 financial trail">
+    <label for="reqUser">Desired Username</label>
+    <input type="text" id="reqUser" placeholder="3–32 letters, numbers, . _ -" autocomplete="username">
+    <label for="reqPass">Password</label>
+    <input type="password" id="reqPass" placeholder="Minimum 6 characters" autocomplete="new-password">
+    <button class="btn btn-primary" id="signupBtn" onclick="doRequestAccess()" style="width:100%">Submit Access Request</button>
     <p style="margin-top:8px;font-size:13px">Have an account? <a href="#" onclick="showSignin(event)" style="color:var(--accent);font-weight:600">Sign in</a></p>
   </div>
 </section>
@@ -474,7 +492,7 @@ html[data-theme="dark"] .badge-success{background:rgba(16,185,129,.14);border-co
       <div id="dash-unifiedSelectedFiles" class="muted"></div>
     </div>
     <div id="dash-unifiedError"></div>
-    <button class="btn btn-primary" id="dash-submitCaseBtn" onclick="submitUnifiedInvestigation('dash-')" style="width:100%;margin-top:12px"><svg class="ic" aria-hidden="true"><use href="#i-bolt"/></svg> Create Case &amp; Upload Data</button>
+    <button class="btn btn-primary" id="dash-submitCaseBtn" onclick="submitUnifiedInvestigation('dash-')" style="width:100%;margin-top:12px">Create Case &amp; Upload Data</button>
     <p class="muted" style="font-size:11px;margin-top:8px">Supports multi-encoding, mixed delimiters &amp; multi-sheet Excel</p>
     <div class="muted" style="text-align:center;margin:10px 0">— or —</div>
     <button class="btn" id="dash-demoBtn" onclick="submitDemoCase('dash-')" style="width:100%"><svg class="ic" aria-hidden="true"><use href="#i-play"/></svg> Run on Demo Data</button>
@@ -505,7 +523,7 @@ html[data-theme="dark"] .badge-success{background:rgba(16,185,129,.14);border-co
       <div id="unifiedSelectedFiles" class="muted"></div>
     </div>
     <div id="unifiedError"></div>
-    <button class="btn btn-primary" id="submitCaseBtn" onclick="submitUnifiedInvestigation('')" style="width:100%;margin-top:12px"><svg class="ic" aria-hidden="true"><use href="#i-bolt"/></svg> Create Case &amp; Upload Data</button>
+    <button class="btn btn-primary" id="submitCaseBtn" onclick="submitUnifiedInvestigation('')" style="width:100%;margin-top:12px">Create Case &amp; Upload Data</button>
     <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
       <button class="btn" onclick="openTemplatesModal()" style="flex:1"><svg class="ic" aria-hidden="true"><use href="#i-doc"/></svg> View Expected Formats &amp; Templates</button>
       <span class="muted" style="font-size:11px;align-self:center">Auto-detects encoding / delimiters — raw dumps accepted</span>
@@ -570,8 +588,15 @@ html[data-theme="dark"] .badge-success{background:rgba(16,185,129,.14);border-co
 </section>
 
 <section id="view-overview" class="view">
-  <h2 id="ovTitle">Investigation overview</h2>
-  <p class="sub" id="ovSub"></p>
+  <div class="view-head" style="margin-bottom:14px">
+    <div>
+      <h2 id="ovTitle">Investigation overview</h2>
+      <p class="sub" id="ovSub"></p>
+    </div>
+    <div class="view-actions">
+      <button class="btn" onclick="navigate('dashboard')"><svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg> Switch / New Case</button>
+    </div>
+  </div>
   <div class="card">
     <h3>Summary</h3>
     <table><tbody id="ovTable"></tbody></table>
@@ -1137,6 +1162,67 @@ html[data-theme="dark"] .badge-success{background:rgba(16,185,129,.14);border-co
   </div>
 </section>
 
+<section id="view-admin-dashboard" class="view">
+  <div class="view-head">
+    <div>
+      <h2>System Administrator Command Dashboard</h2>
+      <p class="sub">Access clearance, officer directory and security audit monitor.</p>
+    </div>
+    <div class="view-actions">
+      <button class="btn" onclick="loadAdminDashboard()"><svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg> Refresh</button>
+      <button class="btn btn-primary" onclick="toggleProvisionCard()">+ Provision Officer Account</button>
+    </div>
+  </div>
+  <div class="stat-strip" id="adminStats"><div class="stat"><div class="stat-value">…</div><div class="stat-label">Loading</div></div></div>
+  <div class="card" id="provisionCard" style="display:none">
+    <h3>Direct Account Provisioning</h3>
+    <p class="sub">Creates an immediately active officer account.</p>
+    <div id="provError"></div><div id="provSuccess"></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px">
+      <div><label for="provName">Full Name</label><input type="text" id="provName" placeholder="e.g. ACP Rohan Verma"></div>
+      <div><label for="provUser">Username</label><input type="text" id="provUser" placeholder="3–32 letters, numbers, . _ -"></div>
+      <div><label for="provPass">Initial Password</label><input type="text" id="provPass" placeholder="Minimum 6 characters"></div>
+      <div><label for="provRole">Role</label><select id="provRole"><option value="investigator">Investigator</option><option value="analyst">Analyst</option><option value="supervisor">Supervisor</option></select></div>
+      <div><label for="provBadge">Badge / Employee ID</label><input type="text" id="provBadge" placeholder="e.g. DL-CYBER-9100"></div>
+      <div><label for="provDept">Department</label><input type="text" id="provDept" placeholder="e.g. Special Crime Branch"></div>
+    </div>
+    <button class="btn btn-primary" style="margin-top:10px" onclick="provisionUser()">Provision Active Account</button>
+  </div>
+  <div class="card">
+    <h3>Pending Access Clearance Queue <span class="tag" id="pendingCount">0 PENDING</span></h3>
+    <div id="adminPending"><p class="muted">Loading…</p></div>
+  </div>
+  <div class="card">
+    <h3>Officer &amp; User Directory</h3>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+      <input type="text" id="userSearch" placeholder="Search name, username, badge, department…" style="flex:2;min-width:200px;margin-bottom:0" oninput="loadUserDirectory()">
+      <select id="userStatusFilter" onchange="loadUserDirectory()" style="flex:1;min-width:140px;margin-bottom:0">
+        <option value="">All statuses</option><option value="active">Active</option><option value="pending_approval">Pending</option><option value="suspended">Suspended</option><option value="rejected">Rejected</option>
+      </select>
+    </div>
+    <div id="userTable"><p class="muted">Loading…</p></div>
+  </div>
+  <div class="card" id="auditTrailCard">
+    <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none" onclick="toggleAuditLogs()">
+      <div style="display:flex;align-items:center;gap:10px">
+        <h3 style="margin:0">Security &amp; Audit Trail Monitor</h3>
+        <span class="tag" id="auditLogCount" style="font-size:10px;padding:2px 7px">0 Logged</span>
+      </div>
+      <button class="btn" id="auditToggleBtn" type="button" style="padding:4px 10px;font-size:12px;display:inline-flex;align-items:center;gap:6px" onclick="event.stopPropagation();toggleAuditLogs()">
+        <span id="auditToggleText">View Logs</span>
+        <span id="auditToggleArrow" style="font-size:9px;display:inline-block;transition:transform 0.2s ease">▼</span>
+      </button>
+    </div>
+    <div id="auditBody" style="display:none;margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
+      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+        <input type="text" id="auditSearch" placeholder="Filter logins, uploads, exports…" style="flex:1;min-width:200px;margin-bottom:0" onkeydown="if(event.key==='Enter')loadAuditTrail()">
+        <button class="btn" onclick="loadAuditTrail()">Filter</button>
+      </div>
+      <div id="auditList" style="max-height:360px;overflow-y:auto;border:1px solid var(--border);border-radius:6px"><p class="muted" style="padding:10px">Loading…</p></div>
+    </div>
+  </div>
+</section>
+
 <section id="view-reports" class="view">
   <div class="view-head">
     <div>
@@ -1145,7 +1231,6 @@ html[data-theme="dark"] .badge-success{background:rgba(16,185,129,.14);border-co
     </div>
     <div class="view-actions">
       <button class="btn" onclick="loadReportPreview()"><svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg> Refresh Data</button>
-      <button class="btn btn-primary" id="pdfBtn" onclick="exportBriefPDF()"><svg class="ic" aria-hidden="true"><use href="#i-doc"/></svg> Export Formal Intelligence Brief (PDF)</button>
     </div>
   </div>
   <div id="reportMsg" class="muted" style="margin-bottom:12px"></div>
@@ -1217,9 +1302,20 @@ html[data-theme="dark"] .badge-success{background:rgba(16,185,129,.14);border-co
 
       <!-- Webcam Tab Panel -->
       <div id="imgPanelWebcam" style="display:none;text-align:center">
-        <video id="webcamVideo" autoplay playsinline style="width:100%;max-width:440px;height:260px;background:#000;border-radius:8px;object-fit:cover;border:1px solid var(--border)"></video>
-        <canvas id="webcamCanvas" style="display:none"></canvas>
-        <div style="margin-top:10px;display:flex;justify-content:center;gap:8px">
+        <div style="position:relative;display:inline-block;width:100%;max-width:440px;height:280px;background:#050B14;border-radius:8px;overflow:hidden;border:1px solid var(--border)">
+          <video id="webcamVideo" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover"></video>
+          <img id="webcamSnapshotPreview" style="display:none;width:100%;height:100%;object-fit:cover" alt="Webcam Capture">
+          <canvas id="webcamCanvas" style="display:none"></canvas>
+          
+          <!-- Targeting Reticle Overlay -->
+          <div id="webcamReticle" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
+            <div style="width:180px;height:220px;border:2px dashed rgba(56,189,248,0.7);border-radius:50%;box-shadow:0 0 15px rgba(56,189,248,0.2)"></div>
+            <div style="position:absolute;bottom:10px;background:rgba(0,0,0,0.65);padding:4px 10px;border-radius:20px;font-size:11px;color:#38BDF8;border:1px solid rgba(56,189,248,0.3)">
+              Align face inside frame
+            </div>
+          </div>
+        </div>
+        <div id="webcamControls" style="margin-top:10px;display:flex;justify-content:center;gap:8px">
           <button class="btn btn-primary" onclick="captureWebcamFrame()"><svg class="ic" aria-hidden="true"><use href="#i-camera"/></svg> Capture Photo</button>
           <button class="btn" onclick="stopWebcam()">Stop Camera</button>
         </div>
@@ -1300,6 +1396,13 @@ html[data-theme="dark"] .badge-success{background:rgba(16,185,129,.14);border-co
 
 <script>
 const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? `http://${location.hostname}:8000` : 'http://127.0.0.1:8000';
+function getSuspectPhotoUrl(photo, id) {
+  if (!photo && !id) return '';
+  if (photo && photo.startsWith('data:')) return photo;
+  if (photo && (photo.startsWith('http://') || photo.startsWith('https://'))) return photo;
+  const filename = photo ? photo.replace(/^\/?(mugshots\/)?/, '') : `${id}.jpg`;
+  return `${API}/mugshots/${filename}`;
+}
 function icon(n, cls) { return '<svg class="ic' + (cls ? ' ' + cls : '') + '" aria-hidden="true"><use href="#i-' + n + '"></use></svg>'; }
 let _currentInv = null, _selectedFiles = [], _useDemo = null;
 
@@ -1338,6 +1441,23 @@ async function api(path, opts) {
   if (!r.ok) throw new Error((await r.text()).slice(0, 400));
   return r.json();
 }
+function roleHome(role) {
+  if (role === 'supervisor') return 'admin-dashboard';
+  return 'dashboard';
+}
+function saveSession(data) {
+  try {
+    localStorage.setItem('cn_token', data.access_token);
+    localStorage.setItem('cn_user', JSON.stringify({
+      username: data.username, role: data.role, name: data.name,
+      department: data.department || '', badge_id: data.badge_id || '',
+      status: data.status || 'active'
+    }));
+  } catch (e) {}
+}
+function extractDetail(text, fallback) {
+  try { const j = JSON.parse(text); return j.detail || j.message || fallback; } catch (e) { return text.slice(0, 300) || fallback; }
+}
 async function doLogin() {
   const username = document.getElementById('loginUser').value.trim();
   const password = document.getElementById('loginPass').value;
@@ -1347,17 +1467,17 @@ async function doLogin() {
   btn.disabled = true; btn.textContent = 'Signing in…';
   try {
     const r = await fetch(API + '/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
-    if (!r.ok) throw new Error(r.status === 401 ? 'Invalid username or password.' : (await r.text()).slice(0, 200));
+    if (!r.ok) {
+      const txt = await r.text();
+      throw new Error(r.status === 401 ? 'Invalid username or password.' : extractDetail(txt, 'Sign-in failed.'));
+    }
     const data = await r.json();
-    try {
-      localStorage.setItem('cn_token', data.access_token);
-      localStorage.setItem('cn_user', JSON.stringify({ username: data.username, role: data.role, name: data.name }));
-    } catch (e) {}
+    saveSession(data);
     document.getElementById('loginPass').value = '';
     updateNav();
-    navigate('dashboard'); // Redirect directly to the main workplace
+    navigate(roleHome(data.role)); // Route to the tailored role dashboard
   } catch (e) {
-    const msg = (e.message === 'Failed to fetch') 
+    const msg = (e.message === 'Failed to fetch')
       ? 'Backend API server is currently unreachable at http://127.0.0.1:8000. Please make sure the backend process is running.'
       : e.message;
     box.innerHTML = `<div class="error">${msg}</div>`;
@@ -1370,6 +1490,7 @@ function showSignup(e) {
   document.getElementById('signinCard').style.display = 'none';
   document.getElementById('signupCard').style.display = '';
   document.getElementById('signupError').innerHTML = '';
+  const ok = document.getElementById('signupSuccess'); if (ok) ok.innerHTML = '';
 }
 function showSignin(e) {
   if (e) e.preventDefault();
@@ -1377,35 +1498,34 @@ function showSignin(e) {
   document.getElementById('signinCard').style.display = '';
   document.getElementById('loginError').innerHTML = '';
 }
-async function doRegister() {
-  const username = document.getElementById('signupUser').value.trim();
-  const name = document.getElementById('signupName').value.trim();
-  const role = document.getElementById('signupRole').value;
-  const password = document.getElementById('signupPass').value;
+async function doRequestAccess() {
+  const payload = {
+    name: document.getElementById('reqName').value.trim(),
+    badge_id: document.getElementById('reqBadge').value.trim(),
+    department: document.getElementById('reqDept').value.trim(),
+    role: document.getElementById('reqRole').value,
+    justification: document.getElementById('reqJust').value.trim(),
+    username: document.getElementById('reqUser').value.trim(),
+    password: document.getElementById('reqPass').value
+  };
   const box = document.getElementById('signupError');
-  box.innerHTML = '';
-  if (!username || !password) { box.innerHTML = '<div class="error">Username and password are required.</div>'; return; }
+  const okBox = document.getElementById('signupSuccess');
+  box.innerHTML = ''; okBox.innerHTML = '';
+  if (!payload.username || !payload.password) { box.innerHTML = '<div class="error">Desired username and password are required.</div>'; return; }
   const btn = document.getElementById('signupBtn');
-  btn.disabled = true; btn.textContent = 'Creating account…';
+  btn.disabled = true; btn.textContent = 'Submitting…';
   try {
-    const r = await fetch(API + '/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password, role, name }) });
-    if (!r.ok) throw new Error((await r.text()).slice(0, 300));
-    const data = await r.json();
-    try {
-      localStorage.setItem('cn_token', data.access_token);
-      localStorage.setItem('cn_user', JSON.stringify({ username: data.username, role: data.role, name: data.name }));
-    } catch (e) {}
-    document.getElementById('signupPass').value = '';
-    showSignin();
-    updateNav();
-    navigate('dashboard'); // Redirect directly to the main workplace
+    const r = await fetch(API + '/auth/request-access', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    if (!r.ok) throw new Error(extractDetail(await r.text(), 'Request failed.'));
+    document.getElementById('reqPass').value = '';
+    okBox.innerHTML = '<div class="success" style="background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46;border-radius:6px;padding:12px;font-size:13px;margin-bottom:12px">Application Submitted. Your Department In-Charge will review and activate your credentials.</div>';
   } catch (e) {
-    const msg = (e.message === 'Failed to fetch') 
+    const msg = (e.message === 'Failed to fetch')
       ? 'Backend API server is currently unreachable at http://127.0.0.1:8000. Please make sure the backend process is running.'
       : e.message;
     box.innerHTML = `<div class="error">${msg}</div>`;
   } finally {
-    btn.disabled = false; btn.textContent = 'Create account & sign in';
+    btn.disabled = false; btn.textContent = 'Submit Access Request';
   }
 }
 function logout(silent) {
@@ -1434,12 +1554,27 @@ function enterApp() {
   const session = updateNav();
   if (!session) { logout(true); return; }
   const badge = document.getElementById('roleBadge');
-  badge.style.display = '';
+  badge.style.display = 'flex';
   const displayName = session.name || session.username;
   const displayRole = session.role ? session.role.charAt(0).toUpperCase() + session.role.slice(1) : '';
+  const extra = [session.badge_id, session.department].filter(Boolean).join(' · ');
   document.getElementById('roleAvatar').textContent = (displayName || '?').charAt(0).toUpperCase();
-  document.getElementById('roleText').textContent = `${displayName} (${displayRole})`;
-  navigate(location.hash.slice(1) || 'dashboard');
+  const nameEl = document.getElementById('roleName');
+  if (nameEl) nameEl.textContent = displayName;
+  document.getElementById('roleText').textContent = extra ? `${displayRole} · ${extra}` : displayRole;
+  badge.title = `${displayName} (${displayRole})${session.badge_id ? '\nBadge: ' + session.badge_id : ''}${session.department ? '\nDept: ' + session.department : ''}`;
+  const hashView = location.hash.slice(1);
+  navigate(hashView && canAccess(hashView, session.role) ? hashView : roleHome(session.role));
+}
+// Views gated by role. Role home dashboards are exclusive; shared
+// operational views stay open to signed-in officers (analysts keep the
+// people/financial/communications nav hidden via applyRoleUI).
+const ROLE_HOME = { supervisor: 'admin-dashboard' };
+function canAccess(view, role) {
+  if (!role) return view === 'login';
+  if (view === 'login') return true;
+  if (view === 'admin-dashboard') return role === 'supervisor';
+  return true;
 }
 function applyRoleUI(role) {
   // Investigators and Analysts have full upload and case creation permissions
@@ -1450,14 +1585,27 @@ function applyRoleUI(role) {
     const btn = document.querySelector(`#mainNav button[data-view="${v}"]`);
     if (btn) btn.style.display = (role === 'analyst') ? 'none' : '';
   });
+  // Admin dashboard button visible only to supervisors
+  document.querySelectorAll('#mainNav button[data-roles]').forEach(btn => {
+    const allowed = (btn.dataset.roles || '').split(/\s+/);
+    btn.style.display = (role === 'supervisor' || allowed.includes(role)) ? '' : 'none';
+  });
 }
 function navigate(view) {
+  const session = getSession();
+  const role = session ? session.role : null;
+  if (view !== 'login' && !session) { logout(true); return; }
+  if (!canAccess(view, role)) {
+    // Unauthorized manual navigation → back to the role dashboard
+    view = roleHome(role);
+  }
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   const el = document.getElementById('view-' + view);
   if (el) el.classList.add('active');
-  document.querySelectorAll('#mainNav button').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  document.querySelectorAll('#mainNav button').forEach(b => b.classList.toggle('active', b.dataset.view === view || (view === 'overview' && b.dataset.view === 'investigations')));
   location.hash = view;
   if (view === 'dashboard') loadDashboard();
+  if (view === 'admin-dashboard') loadAdminDashboard();
   if (view === 'investigations') loadInvestigations();
   if (view === 'intelligence') loadTimeline();
   if (view === 'financial') loadFinancial();
@@ -1467,6 +1615,162 @@ function navigate(view) {
   if (view === 'blockchain') loadBlockchainView();
   if (view === 'takedown') loadTakedownView();
   if (view === 'reports') loadReportPreview();
+}
+/* ---------- Role dashboards: admin clearance, investigator ops, analyst studio ---------- */
+function adminErr(e) { return extractDetail(e.message || String(e), 'Request failed.'); }
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+async function loadAdminDashboard() {
+  loadPendingQueue(); loadUserDirectory(); loadAdminStats(); loadAuditTrail();
+}
+async function loadAdminStats() {
+  try {
+    const data = await api('/admin/users');
+    const users = data.users || [];
+    const c = (s) => users.filter(u => u.status === s).length;
+    document.getElementById('adminStats').innerHTML =
+      `<div class="stat"><div class="stat-value">${c('pending_approval')}</div><div class="stat-label">Pending Requests</div></div>` +
+      `<div class="stat"><div class="stat-value">${c('active')}</div><div class="stat-label">Active Officers</div></div>` +
+      `<div class="stat"><div class="stat-value">${c('suspended')}</div><div class="stat-label">Suspended</div></div>` +
+      `<div class="stat"><div class="stat-value">${users.length}</div><div class="stat-label">Total Accounts</div></div>`;
+  } catch (e) { document.getElementById('adminStats').innerHTML = `<div class="error">${esc(adminErr(e))}</div>`; }
+}
+async function loadPendingQueue() {
+  const box = document.getElementById('adminPending');
+  try {
+    const data = await api('/admin/users?status=pending_approval');
+    const list = data.users || [];
+    document.getElementById('pendingCount').textContent = `${list.length} PENDING`;
+    box.innerHTML = list.length ? list.map(u => `
+      <div style="border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px">
+        <div style="font-weight:700">${esc(u.name)} <span class="muted mono" style="font-size:11px">@${esc(u.username)}</span></div>
+        <div class="muted" style="font-size:12px;margin:4px 0">Badge ${esc(u.badge_id || '—')} · ${esc(u.department || 'No department')} · Requested <b>${esc(u.role)}</b></div>
+        ${u.justification ? `<div style="font-size:12px;margin-bottom:8px">“${esc(u.justification)}”</div>` : ''}
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <select id="role-${esc(u.username)}" style="margin-bottom:0;max-width:160px">
+            <option value="investigator"${u.role === 'investigator' ? ' selected' : ''}>Investigator</option>
+            <option value="analyst"${u.role === 'analyst' ? ' selected' : ''}>Analyst</option>
+            <option value="supervisor"${u.role === 'supervisor' ? ' selected' : ''}>Supervisor</option>
+          </select>
+          <button class="btn btn-primary" style="padding:4px 12px;font-size:12px" onclick="approveUser('${esc(u.username)}')">Approve &amp; Activate</button>
+          <button class="btn btn-logout" style="padding:4px 12px;font-size:12px" onclick="rejectUser('${esc(u.username)}')">Reject</button>
+        </div>
+      </div>`).join('') : '<p class="muted">No pending requests. The clearance queue is empty.</p>';
+  } catch (e) { box.innerHTML = `<div class="error">${esc(adminErr(e))}</div>`; }
+}
+async function approveUser(username) {
+  const sel = document.getElementById('role-' + username);
+  const role = sel ? sel.value : null;
+  try {
+    await api(`/admin/users/${username}/approve`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ role }) });
+    loadPendingQueue(); loadUserDirectory(); loadAdminStats();
+  } catch (e) { alert('Approve failed: ' + adminErr(e)); }
+}
+async function rejectUser(username) {
+  const reason = prompt(`Reject access request for "${username}" — enter the administrative reason:`, '');
+  if (reason === null) return;
+  try {
+    await api(`/admin/users/${username}/reject`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reason }) });
+    loadPendingQueue(); loadUserDirectory(); loadAdminStats();
+  } catch (e) { alert('Reject failed: ' + adminErr(e)); }
+}
+async function loadUserDirectory() {
+  const box = document.getElementById('userTable');
+  const q = (document.getElementById('userSearch') || {}).value || '';
+  const st = (document.getElementById('userStatusFilter') || {}).value || '';
+  try {
+    const data = await api(`/admin/users?${st ? 'status=' + encodeURIComponent(st) + '&' : ''}q=${encodeURIComponent(q)}`);
+    const list = data.users || [];
+    box.innerHTML = list.length ? `<table><thead><tr><th>Officer</th><th>Department / Badge</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead><tbody>` +
+      list.map(u => `<tr><td><b>${esc(u.name)}</b><br><span class="muted mono" style="font-size:11px">@${esc(u.username)}</span></td>` +
+        `<td style="font-size:12px">${esc(u.department || '—')}<br><span class="muted mono" style="font-size:11px">${esc(u.badge_id || '')}</span></td>` +
+        `<td><span class="tag">${esc(u.role)}</span></td><td><span class="tag">${esc(u.status)}</span></td>` +
+        `<td style="white-space:nowrap;font-size:11px">${u.status === 'active'
+          ? `<button class="btn btn-logout" style="padding:3px 8px;font-size:11px" onclick="setUserStatus('${esc(u.username)}','suspended')">Suspend</button>`
+          : u.status === 'suspended' ? `<button class="btn" style="padding:3px 8px;font-size:11px" onclick="setUserStatus('${esc(u.username)}','active')">Reactivate</button>` : ''} ` +
+        `<button class="btn" style="padding:3px 8px;font-size:11px" onclick="resetUserPass('${esc(u.username)}')">Reset PW</button></td></tr>`).join('') + `</tbody></table>`
+      : '<p class="muted">No officers match this filter.</p>';
+  } catch (e) { box.innerHTML = `<div class="error">${esc(adminErr(e))}</div>`; }
+}
+async function setUserStatus(username, status) {
+  try {
+    await api(`/admin/users/${username}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) });
+    loadUserDirectory(); loadAdminStats();
+  } catch (e) { alert('Status update failed: ' + adminErr(e)); }
+}
+async function resetUserPass(username) {
+  const np = prompt(`Set a temporary password for "${username}" (leave blank to auto-generate):`, '');
+  if (np === null) return;
+  try {
+    const data = await api(`/admin/users/${username}/reset-password`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(np ? { new_password: np } : {}) });
+    alert(`Temporary password for ${username}: ${data.temporary_password}\nShare it with the officer over an official channel.`);
+  } catch (e) { alert('Password reset failed: ' + adminErr(e)); }
+}
+function toggleProvisionCard() {
+  const c = document.getElementById('provisionCard');
+  c.style.display = c.style.display === 'none' ? '' : 'none';
+}
+async function provisionUser() {
+  const payload = {
+    name: document.getElementById('provName').value.trim(),
+    username: document.getElementById('provUser').value.trim(),
+    password: document.getElementById('provPass').value,
+    role: document.getElementById('provRole').value,
+    badge_id: document.getElementById('provBadge').value.trim(),
+    department: document.getElementById('provDept').value.trim()
+  };
+  const errBox = document.getElementById('provError'), okBox = document.getElementById('provSuccess');
+  errBox.innerHTML = ''; okBox.innerHTML = '';
+  try {
+    const data = await api('/admin/users', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    okBox.innerHTML = `<div class="success" style="background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46;border-radius:6px;padding:10px;font-size:13px;margin-bottom:10px">Account <b>${esc(data.username)}</b> provisioned and active — share the initial password officially.</div>`;
+    document.getElementById('provPass').value = '';
+    loadUserDirectory(); loadAdminStats();
+  } catch (e) { errBox.innerHTML = `<div class="error">${esc(adminErr(e))}</div>`; }
+}
+function toggleAuditLogs(forceOpen) {
+  const body = document.getElementById('auditBody');
+  const txt = document.getElementById('auditToggleText');
+  const arrow = document.getElementById('auditToggleArrow');
+  if (!body) return;
+  const isHidden = body.style.display === 'none' || !body.style.display;
+  const shouldOpen = (forceOpen !== undefined) ? forceOpen : isHidden;
+  if (shouldOpen) {
+    body.style.display = 'block';
+    if (txt) txt.textContent = 'Hide Logs';
+    if (arrow) arrow.style.transform = 'rotate(180deg)';
+    loadAuditTrail();
+  } else {
+    body.style.display = 'none';
+    if (txt) txt.textContent = 'View Logs';
+    if (arrow) arrow.style.transform = 'rotate(0deg)';
+  }
+}
+async function loadAuditTrail() {
+  const box = document.getElementById('auditList');
+  if (!box) return;
+  const q = (document.getElementById('auditSearch') || {}).value || '';
+  try {
+    const data = await api(`/admin/audit-trail?limit=100${q ? '&q=' + encodeURIComponent(q) : ''}`);
+    const evts = data.events || [];
+    const countTag = document.getElementById('auditLogCount');
+    if (countTag) countTag.textContent = `${evts.length} Logged`;
+    box.innerHTML = evts.length ? `<table style="margin-top:0"><thead><tr><th>Time</th><th>User</th><th>Event</th></tr></thead><tbody>` +
+      evts.slice(0, 50).map(e => `<tr><td class="mono" style="font-size:11px;white-space:nowrap">${esc(e.ts || '')}</td><td style="font-size:12px">${esc(e.user || '')}</td><td style="font-size:12px;word-break:break-all">${esc(e.query || e.raw || JSON.stringify(e).slice(0, 160))}</td></tr>`).join('') + `</tbody></table>`
+      : '<p class="muted" style="padding:12px">No audit events match.</p>';
+  } catch (e) { box.innerHTML = `<div class="error" style="margin:10px">${esc(adminErr(e))}</div>`; }
+}
+async function loadTelemetry() {
+  const box = document.getElementById('telemetry');
+  if (!box) return;
+  try {
+    const [health, stats, invs] = await Promise.all([api('/health'), api('/stats'), api('/investigations')]);
+    box.innerHTML = `<table><tbody>` +
+      `<tr><td><b>Active cases</b></td><td>${(invs.investigations || []).length}</td></tr>` +
+      `<tr><td><b>Neo4j connectivity</b></td><td>${health.neo4j ? 'Connected' : 'Unavailable (file-graph mode)'}</td></tr>` +
+      `<tr><td><b>Graph nodes / edges</b></td><td>${health.graph_nodes} / ${health.graph_edges}</td></tr>` +
+      `</tbody></table>`;
+  } catch (e) { box.innerHTML = `<div class="error">${esc(adminErr(e))}</div>`; }
 }
 function showError(boxId, msg) {
   document.getElementById(boxId).innerHTML = `<div class="error">${msg}</div>`;
@@ -1502,28 +1806,19 @@ async function deleteInvestigation(iid, name) {
   }
 }
 async function loadInvestigations() {
+  if (_currentInv) {
+    openOverview(_currentInv);
+    return;
+  }
   try {
     const data = await api('/investigations');
-    const invs = (data.investigations || []).slice(0, 8);
-    const del = canDelete() ? (id, name) => ` <button class="btn btn-logout" style="padding:4px 10px;font-size:11px" onclick="deleteInvestigation('${id}','${(name || '').replace(/'/g, "\\'")}')">Delete</button>` : () => '';
-    document.getElementById('prevInvs').innerHTML = invs.length ? invs.map(v => {
-      const createdStr = v.created ? new Date(v.created).toLocaleDateString() : '';
-      return `
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
-          <div>
-            <div style="font-weight:700;font-size:13px;color:var(--text)">${v.name}</div>
-            <div class="muted" style="font-size:11px">${v.description || 'Active case files'} · <span class="tag" style="font-size:9px;padding:1px 5px">${v.status || 'created'}</span> ${createdStr ? `· <span class="mono">${createdStr}</span>` : ''}</div>
-          </div>
-          <div style="display:flex;gap:6px;align-items:center">
-            <button class="btn btn-primary" style="padding:4px 12px;font-size:11px" onclick="openOverview('${v.id}')">Open Case</button>
-            ${del(v.id, v.name)}
-          </div>
-        </div>
-      `;
-    }).join('') : `<p class="muted">No recent investigations. Create one above to begin.</p>`;
-  } catch (e) {
-    document.getElementById('prevInvs').innerHTML = `<div class="error">${e.message}</div>`;
-  }
+    const invs = (data.investigations || []);
+    if (invs.length > 0) {
+      openOverview(invs[0].id);
+      return;
+    }
+  } catch (e) {}
+  navigate('dashboard');
 }
 async function createInvestigation() {
   const name = document.getElementById('newName').value.trim() || 'Untitled investigation';
@@ -1610,7 +1905,7 @@ async function submitUnifiedInvestigation(prefix) {
     if (errBox) errBox.innerHTML = `<div class="error">${msg}</div>`;
     else alert('Failed to create case: ' + msg);
   } finally {
-    btn.disabled = false; btn.innerHTML = icon('bolt') + ' Create Case & Upload Data';
+    btn.disabled = false; btn.innerHTML = 'Create Case & Upload Data';
   }
 }
 let _pendingMaps = null; // filename -> {suggested, required, columns, detected_type}
@@ -2160,8 +2455,8 @@ function toggle3DFullscreen() {
   if (isFs) {
     if (btn) btn.innerHTML = `${icon('minimize')} <span>Exit Fullscreen</span>`;
     try {
-      if (wrap.requestFullscreen && !document.fullscreenElement) {
-        wrap.requestFullscreen().catch(() => {});
+      if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
       }
     } catch (e) {}
   } else {
@@ -2198,6 +2493,11 @@ document.addEventListener('fullscreenchange', () => {
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
+    const activeModal = document.querySelector('.modal-backdrop.active');
+    if (activeModal) {
+      activeModal.classList.remove('active');
+      return;
+    }
     const wrap = document.getElementById('ovGraphWrap');
     if (wrap && wrap.classList.contains('graph3d-fullscreen-active')) {
       toggle3DFullscreen();
@@ -2229,7 +2529,7 @@ async function doPeopleSearch() {
       d.results.map(p => `<tr>
         <td>
           <div style="display:flex;gap:10px;align-items:center">
-            <img src="${p.photo || API + '/mugshots/' + p.id + '.jpg'}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=1E40AF&color=fff'" style="width:40px;height:40px;border-radius:6px;object-fit:cover;border:1px solid var(--border)">
+            <img src="${getSuspectPhotoUrl(p.photo, p.id)}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=1E40AF&color=fff'" style="width:40px;height:40px;border-radius:6px;object-fit:cover;border:1px solid var(--border)">
             <div><b>${p.name}</b><br><span class="muted mono">${p.id} · Cell ${p.cell || '—'}</span></div>
           </div>
         </td>
@@ -2473,7 +2773,73 @@ function downloadAllTemplates() {
 // ---------------------------------------------------------------------------
 let _searchImageBase64 = null;
 let _searchImageFile = null;
+let _searchImageFeatures = null;
 let _webcamStream = null;
+
+function extractCanvasFeatures(sourceCanvas) {
+  try {
+    const thumb = document.createElement('canvas');
+    thumb.width = 32;
+    thumb.height = 32;
+    const tctx = thumb.getContext('2d');
+    tctx.drawImage(sourceCanvas, 0, 0, 32, 32);
+    const imgData = tctx.getImageData(0, 0, 32, 32).data;
+    
+    const gray = new Float32Array(1024);
+    let sum = 0;
+    for (let i = 0; i < 1024; i++) {
+      const r = imgData[i * 4];
+      const g = imgData[i * 4 + 1];
+      const b = imgData[i * 4 + 2];
+      const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255.0;
+      gray[i] = lum;
+      sum += lum;
+    }
+    const mean = sum / 1024.0;
+    
+    const blocks = new Float32Array(64);
+    for (let by = 0; by < 8; by++) {
+      for (let bx = 0; bx < 8; bx++) {
+        let bsum = 0;
+        for (let y = 0; y < 4; y++) {
+          for (let x = 0; x < 4; x++) {
+            bsum += gray[(by * 4 + y) * 32 + (bx * 4 + x)];
+          }
+        }
+        blocks[by * 8 + bx] = (bsum / 16.0) - mean;
+      }
+    }
+    
+    const rowProj = new Float32Array(32);
+    for (let y = 0; y < 32; y++) {
+      let rsum = 0;
+      for (let x = 0; x < 32; x++) rsum += gray[y * 32 + x];
+      rowProj[y] = (rsum / 32.0) - mean;
+    }
+    
+    const colProj = new Float32Array(32);
+    for (let x = 0; x < 32; x++) {
+      let csum = 0;
+      for (let y = 0; y < 32; y++) csum += gray[y * 32 + x];
+      colProj[x] = (csum / 32.0) - mean;
+    }
+    
+    const vec = new Float32Array(128);
+    vec.set(blocks, 0);
+    vec.set(rowProj, 64);
+    vec.set(colProj, 96);
+    
+    let norm = 0;
+    for (let i = 0; i < 128; i++) norm += vec[i] * vec[i];
+    norm = Math.sqrt(norm) || 1e-6;
+    const result = [];
+    for (let i = 0; i < 128; i++) result.push(vec[i] / norm);
+    return result;
+  } catch (e) {
+    console.warn('Canvas feature extraction error:', e);
+    return null;
+  }
+}
 
 function openImageSearchModal() {
   const modal = document.getElementById('imageSearchModal');
@@ -2492,6 +2858,7 @@ function closeImageSearchModal() {
 function resetImageSearch() {
   _searchImageBase64 = null;
   _searchImageFile = null;
+  _searchImageFeatures = null;
   const prevWrap = document.getElementById('imgQueryPreviewWrap');
   if (prevWrap) prevWrap.style.display = 'none';
   const resBox = document.getElementById('imgSearchResults');
@@ -2516,7 +2883,7 @@ function switchImgInputTab(tab) {
     webcamBtn.className = 'btn btn-primary';
     uploadPanel.style.display = 'none';
     webcamPanel.style.display = 'block';
-    startWebcam();
+    restartWebcam();
   } else {
     uploadBtn.className = 'btn btn-primary';
     webcamBtn.className = 'btn';
@@ -2530,11 +2897,24 @@ async function startWebcam() {
   const video = document.getElementById('webcamVideo');
   if (!video) return;
   try {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      throw new Error('Webcam API is not supported or accessible on this browser/protocol.');
+    }
     if (_webcamStream) stopWebcam();
-    _webcamStream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' } });
+    _webcamStream = await navigator.mediaDevices.getUserMedia({ 
+      video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' } 
+    });
     video.srcObject = _webcamStream;
+    video.muted = true;
+    video.playsInline = true;
+    video.setAttribute('playsinline', '');
+    video.setAttribute('muted', '');
+    video.onloadedmetadata = () => {
+      video.play().catch(e => console.warn('Webcam play notice:', e));
+    };
+    await video.play().catch(() => {});
   } catch (err) {
-    alert('Could not access webcam: ' + err.message + '\nPlease check browser permissions or use photo upload.');
+    alert('Could not access webcam: ' + err.message + '\nPlease check browser camera permissions or use photo upload.');
     switchImgInputTab('upload');
   }
 }
@@ -2548,23 +2928,70 @@ function stopWebcam() {
   if (video) video.srcObject = null;
 }
 
+function restartWebcam() {
+  const snapBox = document.getElementById('webcamSnapshotPreview');
+  if (snapBox) snapBox.style.display = 'none';
+  const videoBox = document.getElementById('webcamVideo');
+  if (videoBox) videoBox.style.display = 'block';
+  const reticle = document.getElementById('webcamReticle');
+  if (reticle) reticle.style.display = 'flex';
+  
+  const actDiv = document.getElementById('webcamControls');
+  if (actDiv) {
+    actDiv.innerHTML = `
+      <button class="btn btn-primary" onclick="captureWebcamFrame()"><svg class="ic" aria-hidden="true"><use href="#i-camera"/></svg> Capture Photo</button>
+      <button class="btn" onclick="stopWebcam()">Stop Camera</button>
+    `;
+  }
+  startWebcam();
+}
+
 function captureWebcamFrame() {
   const video = document.getElementById('webcamVideo');
   const canvas = document.getElementById('webcamCanvas');
   if (!video || !canvas) return;
-  canvas.width = video.videoWidth || 640;
-  canvas.height = video.videoHeight || 480;
+  const vw = video.videoWidth || 640;
+  const vh = video.videoHeight || 480;
+  canvas.width = vw;
+  canvas.height = vh;
   const ctx = canvas.getContext('2d');
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-  _searchImageBase64 = dataUrl;
-  _searchImageFile = null;
+  ctx.drawImage(video, 0, 0, vw, vh);
   
-  document.getElementById('imgQueryPreview').src = dataUrl;
-  document.getElementById('imgQueryFilename').textContent = 'Live Webcam Capture (' + new Date().toLocaleTimeString() + ')';
-  document.getElementById('imgQueryFilesize').textContent = 'Camera frame snapshot · Ready to analyze';
-  document.getElementById('imgQueryPreviewWrap').style.display = 'block';
-  document.getElementById('imgSearchResults').innerHTML = '';
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+  _searchImageBase64 = dataUrl;
+  _searchImageFeatures = extractCanvasFeatures(canvas);
+  
+  // Freeze / snapshot view
+  stopWebcam();
+  video.style.display = 'none';
+  const snapBox = document.getElementById('webcamSnapshotPreview');
+  if (snapBox) {
+    snapBox.src = dataUrl;
+    snapBox.style.display = 'block';
+  }
+  const reticle = document.getElementById('webcamReticle');
+  if (reticle) reticle.style.display = 'none';
+  
+  const actDiv = document.getElementById('webcamControls');
+  if (actDiv) {
+    actDiv.innerHTML = `
+      <button class="btn btn-primary" onclick="restartWebcam()"><svg class="ic" aria-hidden="true"><use href="#i-camera"/></svg> Retake Photo</button>
+      <button class="btn" onclick="executeFaceSearch()"><svg class="ic" aria-hidden="true"><use href="#i-bolt"/></svg> Re-run Search</button>
+    `;
+  }
+  
+  canvas.toBlob((blob) => {
+    if (blob) {
+      _searchImageFile = new File([blob], 'webcam_snapshot.jpg', { type: 'image/jpeg' });
+    }
+    document.getElementById('imgQueryPreview').src = dataUrl;
+    document.getElementById('imgQueryFilename').textContent = 'Live Webcam Capture (' + new Date().toLocaleTimeString() + ')';
+    document.getElementById('imgQueryFilesize').textContent = (blob ? (blob.size / 1024).toFixed(1) : '35.0') + ' KB · Camera Snapshot';
+    document.getElementById('imgQueryPreviewWrap').style.display = 'block';
+    
+    // Automatically trigger facial recognition search
+    executeFaceSearch();
+  }, 'image/jpeg', 0.92);
 }
 
 function handleImageFileSelect(files) {
@@ -2572,6 +2999,7 @@ function handleImageFileSelect(files) {
   const file = files[0];
   _searchImageFile = file;
   _searchImageBase64 = null;
+  _searchImageFeatures = null;
   
   const reader = new FileReader();
   reader.onload = (e) => {
@@ -2581,6 +3009,18 @@ function handleImageFileSelect(files) {
     document.getElementById('imgQueryFilesize').textContent = (file.size / 1024).toFixed(1) + ' KB · ' + file.type;
     document.getElementById('imgQueryPreviewWrap').style.display = 'block';
     document.getElementById('imgSearchResults').innerHTML = '';
+    
+    const img = new Image();
+    img.onload = () => {
+      const cvs = document.createElement('canvas');
+      cvs.width = img.naturalWidth || 640;
+      cvs.height = img.naturalHeight || 480;
+      const ctx = cvs.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      _searchImageFeatures = extractCanvasFeatures(cvs);
+      executeFaceSearch();
+    };
+    img.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }
@@ -2594,13 +3034,15 @@ function handleImageDrop(e) {
 async function executeFaceSearch() {
   const btn = document.getElementById('btnExecuteFaceSearch');
   const resBox = document.getElementById('imgSearchResults');
-  if (!_searchImageBase64 && !_searchImageFile) {
+  if (!_searchImageBase64 && !_searchImageFile && !_searchImageFeatures) {
     alert('Please select or capture a photo first.');
     return;
   }
   
-  btn.disabled = true;
-  btn.textContent = 'Extracting embeddings & matching mugshots…';
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Extracting embeddings & matching mugshots…';
+  }
   resBox.innerHTML = `
     <div style="text-align:center;padding:24px;border:1px dashed var(--border);border-radius:8px">
       <div>${icon('search', 'ic-lg')}</div>
@@ -2615,6 +3057,9 @@ async function executeFaceSearch() {
       fd.append('file', _searchImageFile);
     } else if (_searchImageBase64) {
       fd.append('image_base64', _searchImageBase64);
+    }
+    if (_searchImageFeatures && _searchImageFeatures.length) {
+      fd.append('features_json', JSON.stringify(_searchImageFeatures));
     }
     fd.append('top_k', 6);
 
@@ -2633,10 +3078,12 @@ async function executeFaceSearch() {
     const data = await resp.json();
     renderFaceSearchResults(data);
   } catch (err) {
-    resBox.innerHTML = `<div class="error">Facial recognition search error: ${err.message}</div>`;
+    resBox.innerHTML = `<div class="error" style="padding:14px;border-radius:6px;margin-top:12px">Facial recognition search error: ${escapeHtml(err.message)}</div>`;
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = icon('bolt') + ' Run Facial Match Search';
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = icon('bolt') + ' Run Facial Match Search';
+    }
   }
 }
 
@@ -2665,6 +3112,7 @@ function renderFaceSearchResults(data) {
       : 'background:#FFFBEB;color:#92400E;border:1px solid #FDE68A';
 
     const barColor = score >= 85 ? '#10B981' : score >= 70 ? '#3B82F6' : '#F59E0B';
+    const mugshotUrl = getSuspectPhotoUrl(m.photo, m.id);
 
     html += `
       <div class="suspect-match-card">
@@ -2677,7 +3125,7 @@ function renderFaceSearchResults(data) {
             </div>
             <div style="font-weight:700;color:var(--muted)">→</div>
             <div style="text-align:center">
-              <img src="${m.photo || API + '/mugshots/' + m.id + '.jpg'}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(m.name)}&background=1E40AF&color=fff'" style="width:68px;height:68px;border-radius:6px;object-fit:cover;border:2px solid ${barColor};box-shadow:0 2px 6px rgba(0,0,0,0.15)">
+              <img src="${mugshotUrl}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(m.name)}&background=1E40AF&color=fff'" style="width:68px;height:68px;border-radius:6px;object-fit:cover;border:2px solid ${barColor};box-shadow:0 2px 6px rgba(0,0,0,0.15)">
               <div class="muted" style="font-size:10px;margin-top:2px">Mugshot</div>
             </div>
           </div>
@@ -2801,7 +3249,7 @@ function renderExplainConnection(data) {
     <div style="display:flex;gap:12px;align-items:stretch;flex-wrap:wrap;margin-bottom:14px">
       <!-- Source Suspect -->
       <div style="flex:1;min-width:240px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;gap:12px;align-items:center">
-        <img src="${src.photo || API + '/mugshots/' + src.id + '.jpg'}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(src.name)}&background=1E40AF&color=fff'" style="width:54px;height:54px;border-radius:8px;object-fit:cover;border:1px solid var(--border)">
+        <img src="${getSuspectPhotoUrl(src.photo, src.id)}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(src.name)}&background=1E40AF&color=fff'" style="width:54px;height:54px;border-radius:8px;object-fit:cover;border:1px solid var(--border)">
         <div>
           <b style="font-size:14px">${src.name}</b>
           <div class="muted mono" style="font-size:11px">${src.id} · ${src.role} (Cell ${src.cell})</div>
@@ -2818,7 +3266,7 @@ function renderExplainConnection(data) {
 
       <!-- Target Suspect -->
       <div style="flex:1;min-width:240px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;gap:12px;align-items:center">
-        <img src="${dst.photo || API + '/mugshots/' + dst.id + '.jpg'}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(dst.name)}&background=1E40AF&color=fff'" style="width:54px;height:54px;border-radius:8px;object-fit:cover;border:1px solid var(--border)">
+        <img src="${getSuspectPhotoUrl(dst.photo, dst.id)}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(dst.name)}&background=1E40AF&color=fff'" style="width:54px;height:54px;border-radius:8px;object-fit:cover;border:1px solid var(--border)">
         <div>
           <b style="font-size:14px">${dst.name}</b>
           <div class="muted mono" style="font-size:11px">${dst.id} · ${dst.role} (Cell ${dst.cell})</div>
@@ -2887,7 +3335,7 @@ function renderExplainConnection(data) {
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           ${mutuals.map(m => `
             <div style="display:flex;align-items:center;gap:6px;padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg)">
-              <img src="${m.photo || API + '/mugshots/' + m.id + '.jpg'}" onerror="this.style.display='none'" style="width:24px;height:24px;border-radius:4px;object-fit:cover">
+              <img src="${getSuspectPhotoUrl(m.photo, m.id)}" onerror="this.style.display='none'" style="width:24px;height:24px;border-radius:4px;object-fit:cover">
               <span style="font-size:12px"><b>${m.name}</b> (${m.id})</span>
               <button class="btn" style="padding:2px 6px;font-size:10px" onclick="closeExplainConnectionModal();openPerson('${m.id}')">Inspect</button>
             </div>
