@@ -1251,6 +1251,7 @@ def verify_hash_endpoint(payload: VerifyHashRequest, user: dict = Depends(get_cu
     officer = user.get("name") or user.get("username", "Authorized Law Enforcement Officer")
     ledger = build_blockchain_ledger(datasets=datasets, graph=serial, case_name=case_name, officer=officer)
     res = verify_evidence_hash_in_ledger(q, ledger)
+    res["target_hash"] = res.get("computed_hash", q)
     audit_log(f"/verify-evidence-hash query='{q[:30]}'", [res.get("computed_hash", "")])
     return res
 
@@ -1263,6 +1264,7 @@ def verify_inv_hash_endpoint(iid: str, payload: VerifyHashRequest, user: dict = 
     officer = user.get("name") or user.get("username", "Authorized Law Enforcement Officer")
     ledger = build_blockchain_ledger(datasets=datasets, graph=serial, case_name=case_name, officer=officer)
     res = verify_evidence_hash_in_ledger(q, ledger)
+    res["target_hash"] = res.get("computed_hash", q)
     audit_log(f"/investigations/{iid}/verify-evidence-hash query='{q[:30]}'", [res.get("computed_hash", "")])
     return res
 

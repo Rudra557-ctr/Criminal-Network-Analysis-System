@@ -438,6 +438,10 @@ html[data-theme="dark"] .badge-success{background:rgba(16,185,129,.14);border-co
     <input type="text" id="loginUser" placeholder="e.g. investigator" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
     <label for="loginPass">Password</label>
     <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    <div style="display:flex;align-items:center;gap:8px;margin:10px 0 14px">
+      <input type="checkbox" id="loginRemember" style="margin:0;width:auto;cursor:pointer">
+      <label for="loginRemember" style="margin:0;font-weight:normal;font-size:12px;cursor:pointer;user-select:none">Remember me on this device</label>
+    </div>
     <button class="btn btn-primary" id="loginBtn" onclick="doLogin()" style="width:100%">Sign in</button>
     <p style="margin-top:8px;font-size:13px">Need an official account? <a href="#" onclick="showSignup(event)" style="color:var(--accent);font-weight:600">Submit Departmental Access Request</a></p>
   </div>
@@ -1406,8 +1410,31 @@ function getSuspectPhotoUrl(photo, id) {
 function icon(n, cls) { return '<svg class="ic' + (cls ? ' ' + cls : '') + '" aria-hidden="true"><use href="#i-' + n + '"></use></svg>'; }
 let _currentInv = null, _selectedFiles = [], _useDemo = null;
 
-function getToken() { try { return localStorage.getItem('cn_token'); } catch (e) { return null; } }
-function getSession() { try { return JSON.parse(localStorage.getItem('cn_user') || 'null'); } catch (e) { return null; } }
+function getToken() {
+  try {
+    const sess = sessionStorage.getItem('cn_token');
+    if (sess) return sess;
+    if (localStorage.getItem('cn_remember') === 'true') {
+      return localStorage.getItem('cn_token');
+    }
+    // Clean up any unremembered legacy localStorage tokens
+    if (localStorage.getItem('cn_token')) {
+      localStorage.removeItem('cn_token');
+      localStorage.removeItem('cn_user');
+    }
+    return null;
+  } catch (e) { return null; }
+}
+function getSession() {
+  try {
+    const sess = sessionStorage.getItem('cn_user');
+    if (sess) return JSON.parse(sess);
+    if (localStorage.getItem('cn_remember') === 'true') {
+      return JSON.parse(localStorage.getItem('cn_user') || 'null');
+    }
+    return null;
+  } catch (e) { return null; }
+}
 function getUser() { return getSession(); }
 // Last-wins fetch guard (P1 slider AbortController): a new GET on an already
 // in-flight path aborts the previous one, so rapid interactions (search,
@@ -1445,14 +1472,25 @@ function roleHome(role) {
   if (role === 'supervisor') return 'admin-dashboard';
   return 'dashboard';
 }
-function saveSession(data) {
+function saveSession(data, remember) {
   try {
-    localStorage.setItem('cn_token', data.access_token);
-    localStorage.setItem('cn_user', JSON.stringify({
+    const userPayload = JSON.stringify({
       username: data.username, role: data.role, name: data.name,
       department: data.department || '', badge_id: data.badge_id || '',
       status: data.status || 'active'
-    }));
+    });
+    // Always store in sessionStorage for current tab session
+    sessionStorage.setItem('cn_token', data.access_token);
+    sessionStorage.setItem('cn_user', userPayload);
+    if (remember) {
+      localStorage.setItem('cn_remember', 'true');
+      localStorage.setItem('cn_token', data.access_token);
+      localStorage.setItem('cn_user', userPayload);
+    } else {
+      localStorage.removeItem('cn_remember');
+      localStorage.removeItem('cn_token');
+      localStorage.removeItem('cn_user');
+    }
   } catch (e) {}
 }
 function extractDetail(text, fallback) {
@@ -1461,6 +1499,7 @@ function extractDetail(text, fallback) {
 async function doLogin() {
   const username = document.getElementById('loginUser').value.trim();
   const password = document.getElementById('loginPass').value;
+  const remember = document.getElementById('loginRemember') ? document.getElementById('loginRemember').checked : false;
   const box = document.getElementById('loginError');
   box.innerHTML = '';
   const btn = document.getElementById('loginBtn');
@@ -1472,7 +1511,7 @@ async function doLogin() {
       throw new Error(r.status === 401 ? 'Invalid username or password.' : extractDetail(txt, 'Sign-in failed.'));
     }
     const data = await r.json();
-    saveSession(data);
+    saveSession(data, remember);
     document.getElementById('loginPass').value = '';
     updateNav();
     navigate(roleHome(data.role)); // Route to the tailored role dashboard
@@ -1529,7 +1568,13 @@ async function doRequestAccess() {
   }
 }
 function logout(silent) {
-  try { localStorage.removeItem('cn_token'); localStorage.removeItem('cn_user'); } catch (e) {}
+  try {
+    sessionStorage.removeItem('cn_token');
+    sessionStorage.removeItem('cn_user');
+    localStorage.removeItem('cn_remember');
+    localStorage.removeItem('cn_token');
+    localStorage.removeItem('cn_user');
+  } catch (e) {}
   document.getElementById('sidebar').style.display = 'none';
   document.body.classList.add('logged-out');
   document.getElementById('mainNav').style.display = 'none';
@@ -1595,6 +1640,7 @@ function navigate(view) {
   const session = getSession();
   const role = session ? session.role : null;
   if (view !== 'login' && !session) { logout(true); return; }
+  if (view === 'login' && session) { view = roleHome(role); }
   if (!canAccess(view, role)) {
     // Unauthorized manual navigation → back to the role dashboard
     view = roleHome(role);
@@ -1880,7 +1926,9 @@ async function submitUnifiedInvestigation(prefix) {
   if (errBox) errBox.innerHTML = '';
 
   if (!_selectedFiles.length) {
-    alert('Please select at least one evidence file (.zip, .csv, .xlsx, .json, .txt) to upload.');
+    const msg = 'Please select at least one evidence file (.zip, .csv, .xlsx, .json, .txt) to upload — or use "Run on Demo Data" below.';
+    if (errBox) errBox.innerHTML = `<div class="error">${msg}</div>`;
+    else alert(msg);
     return;
   }
 
@@ -2189,7 +2237,7 @@ async function openOverview(iid) {
     document.getElementById('ovTable').innerHTML =
       `<tr><th>Entities identified</th><td>${g.node_count}</td></tr>` +
       `<tr><th>Relationships</th><td>${g.edge_count}</td></tr>` +
-      `<tr><th>Important leads</th><td>${leads.leads.filter(l => l.priority !== 'LOW').length} of ${leads.leads.length} shown</td></tr>` +
+      `<tr><th>Important leads</th><td>Top ${Math.min(3, leads.leads.length)} of ${leads.leads.length} shown below</td></tr>` +
       `<tr><th>Evidence sources</th><td>${(meta.files || []).length} file(s)</td></tr>`;
     const cells = [...new Set(leads.leads.map(l => l.cell).filter(Boolean))];
     const findings = [];
@@ -2560,7 +2608,7 @@ async function openPerson(id) {
     document.getElementById('personTitle').textContent = `${w.id} — ${w.label}`;
     document.getElementById('personSub').textContent = `${w.role || ''} · Group ${w.cell || '—'} · Priority ${lead.priority || '—'} ${lead.lead_score != null ? lead.lead_score + '/100' : ''}`;
     document.getElementById('personWhy').innerHTML =
-      `<ul class="findings">` + w.top_signals.map(s => `<li>${plainSignal(s)}</li>`).join('') + `</ul>` +
+      `<ul class="findings">` + [...new Set(w.top_signals.map(s => plainSignal(s)))].map(s => `<li>${s}</li>`).join('') + `</ul>` +
       `<details><summary>Analysis Summary</summary><div class="muted" style="font-size:13px;margin-top:4px">` +
       `• <b>Network Reach:</b> Directly connected to ${w.degree} entities in this case.<br>` +
       `• <b>Role:</b> ${((lead.signals || {}).bridge_score || 0) >= 0.4 ? 'Acts as a critical bridge connecting separate criminal groups.' : 'Operates primarily within their designated group.'}<br>` +
@@ -3362,8 +3410,8 @@ async function loadCaseRecommendations(iid) {
 
   container.innerHTML = '<p class="muted">Analyzing network and fetching proactive recommendations…</p>';
   try {
-    const iidQuery = iid ? `?iid=${encodeURIComponent(iid)}` : '';
-    const res = await api(`/recommendations${iidQuery}&limit=8`);
+    const recUrl = iid ? `/recommendations?iid=${encodeURIComponent(iid)}&limit=8` : '/recommendations?limit=8';
+    const res = await api(recUrl);
     const recs = res.recommendations || [];
 
     if (summaryEl && res.proactive_summary) {
@@ -3379,7 +3427,7 @@ async function loadCaseRecommendations(iid) {
       const threatClass = r.badge_color === 'red' ? 'threat-HIGH' : r.badge_color === 'orange' ? 'threat-MEDIUM' : 'threat-LOW';
 
       const photoHtml = r.photo
-        ? `<img src="${r.photo}" onerror="this.style.display='none'" style="width:36px;height:36px;border-radius:6px;object-fit:cover;border:1px solid var(--border);flex-shrink:0">`
+        ? `<img src="${getSuspectPhotoUrl(r.photo, r.target_id)}" onerror="this.style.display='none'" style="width:36px;height:36px;border-radius:6px;object-fit:cover;border:1px solid var(--border);flex-shrink:0">`
         : `<div style="width:36px;height:36px;border-radius:6px;background:rgba(59,130,246,0.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${r.type === 'CASE' ? icon('doc') : r.type === 'LOCATION' ? icon('pin') : r.type === 'FINANCIAL_ASSET' ? icon('wallet') : icon('user')}</div>`;
 
       let actionButton = '';
@@ -3495,9 +3543,11 @@ function drawPerson() {
   };
 
   container.innerHTML = ''; // Clear previous
-  
-  // Instantiate 3D Graph
-  const Graph = ForceGraph3D()(container)
+
+  // Instantiate 3D Graph (isolated: WebGL failure must not kill the dossier table below)
+  let Graph = null;
+  try {
+  const GraphInst = ForceGraph3D()(container)
     .graphData(gData)
     .nodeColor('color')
     .nodeLabel('name')
@@ -3518,24 +3568,38 @@ function drawPerson() {
       return `${icon('link')} ${s} ↔ ${d} · Click to explain connection`;
     })
     .backgroundColor('#0A0E14'); // Dark mode background for graph area
+  Graph = GraphInst;
+  } catch (graphErr) {
+    container.innerHTML = '<p class="muted" style="padding:12px">3D graph unavailable on this device (' +
+      (graphErr && graphErr.message ? graphErr.message : 'WebGL error') + '). Connection list below is unaffected.</p>';
+  }
 
   // Fix container dimensions
-  setTimeout(() => {
+  if (Graph) setTimeout(() => {
     Graph.width(container.clientWidth).height(container.clientHeight);
   }, 100);
-  const rel = edges.filter(e => e.src === _personId || e.dst === _personId).slice(0, 20);
+  const relEdges = edges.filter(e => e.src === _personId || e.dst === _personId);
+  const grouped = new Map();
+  relEdges.forEach(e => {
+    const other = e.src === _personId ? e.dst : e.src;
+    const key = other + '|' + (e.kind || '');
+    if (!grouped.has(key)) grouped.set(key, { other, kind: e.kind, sources: [] });
+    if (e.source) grouped.get(key).sources.push(e.source);
+  });
+  const rel = [...grouped.values()].slice(0, 20);
   document.getElementById('personConns').innerHTML = rel.length
     ? `<table><thead><tr><th>Connected Person</th><th>Relationship</th><th>Source Record</th><th>Action</th></tr></thead><tbody>` +
       rel.map(e => {
-        const other = e.src === _personId ? e.dst : e.src;
+        const other = e.other;
         const nodeObj = _personGraph && _personGraph.nodes ? _personGraph.nodes.find(n => n.id === other) : null;
         const displayName = (nodeObj && (nodeObj.label || nodeObj.name) && (nodeObj.label || nodeObj.name) !== other)
           ? `${nodeObj.label || nodeObj.name} (${other})`
           : (nodeObj?.label || other);
+        const srcLabel = (e.sources[0] || '—') + (e.sources.length > 1 ? ` <span class="muted">×${e.sources.length} records</span>` : '');
         return `<tr>` +
           `<td><button class="btn" onclick="openPerson('${other}')">${icon('user')} ${displayName}</button></td>` +
           `<td><span class="chip">${e.kind}</span></td>` +
-          `<td class="mono">${e.source || '—'}</td>` +
+          `<td class="mono">${srcLabel}</td>` +
           `<td><button class="btn btn-primary" style="padding:3px 8px;font-size:11px" onclick="openExplainConnectionModal('${_personId}','${other}')">${icon('spark')} Explain Connection</button></td>` +
           `</tr>`;
       }).join('') + `</tbody></table>`
@@ -3683,7 +3747,7 @@ async function loadFinancial() {
         return `<tr><td class="mono">${e.source || '—'}</td><td><button class="btn" onclick="openPerson('${e.src}')">${icon('user')} ${srcName}</button> → ` +
           `<button class="btn" onclick="openPerson('${e.dst}')">${icon('user')} ${dstName}</button></td>` +
           `<td>₹${Number(e.meta.amount).toLocaleString('en-IN')}</td><td>Day ${e.day == null ? '—' : e.day}</td>` +
-          `<td><button class="btn" onclick="document.getElementById('finEv${i}').style.display=document.getElementById('finEv${i}').style.display==='none'?'block':'none'">Evidence</button></td></tr>` +
+          `<td><button class="btn" onclick="var r=document.getElementById('finEv${i}');r.style.display=r.style.display==='none'?'table-row':'none'">Evidence</button></td></tr>` +
           `<tr id="finEv${i}" style="display:none"><td colspan="5"><span class="muted">${(e.supporting_text || '').slice(0, 160)}</span><br>` +
           `<span class="muted">Confidence: <b>${formatConfidence(e.confidence)}</b> · ${e.meta.txn_type || ''}</span></td></tr>`;
       }).join('') + `</tbody></table>`;
@@ -3744,7 +3808,7 @@ async function loadCommunications() {
           `<button class="btn" onclick="openPerson('${p.b}')">${icon('user')} ${bName}</button>` +
           (cross ? ` <span class="pill pill-Bridge">cross-group</span>` : '') + `</td>` +
           `<td>${p.count}</td><td>${Math.round(p.dur / 60)} min</td>` +
-          `<td><button class="btn" onclick="document.getElementById('commEv${i}').style.display=document.getElementById('commEv${i}').style.display==='none'?'block':'none'">Evidence</button></td></tr>` +
+          `<td><button class="btn" onclick="var r=document.getElementById('commEv${i}');r.style.display=r.style.display==='none'?'table-row':'none'">Evidence</button></td></tr>` +
           `<tr id="commEv${i}" style="display:none"><td colspan="4"><span class="muted">Sample records: </span>` +
           `<span class="mono muted">${p.srcs.join(', ') || '—'}</span></td></tr>`;
       }).join('') + `</tbody></table>`;
@@ -3786,7 +3850,7 @@ function renderTowers(towers) {
       const cells = Object.entries(t.cells).map(([c, n]) => `${c}: ${n}`).join(' · ');
       return `<button class="demo-card" style="border-top:4px solid ${color}" onclick="showTowerDetail('${t.tower_id}')" title="${t.label} — ${t.call_count} calls">` +
         `<b class="mono">${t.tower_id}</b><span class="muted">${t.label}</span>` +
-        `<span style="font-size:12px">${t.call_count} calls</span>` +
+        `<span style="font-size:12px;display:block;margin-top:2px">${t.call_count} calls</span>` +
         (t.co_location_count >= 2 ? `<span class="tag">CO-LOCATED · ${t.co_location_count} GROUPS</span>` : `<span class="tag">group ${t.dominant_cell}</span>`) +
         `</button>`;
     }).join('') + `</div><div id="towerDetail" class="muted" style="margin-top:10px"></div>` +
